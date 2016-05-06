@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_preofertas"
+            android:icon="@drawable/ic_oferta"
+            android:title="Oportunidades" />
+        <item
+            android:id="@+id/nav_clientes"
+            android:icon="@drawable/ic_person_black_24dp"
+            android:title="Clientes" />
+        <item
+            android:id="@+id/nav_telefonos"
+            android:icon="@drawable/ic_phone_android_black_24dp"
+            android:title="Telefonos" />
+        <item
+            android:id="@+id/nav_tarifas"
+            android:icon="@drawable/ic_tarifa"
+            android:title="Tarifas" />
+
+    </group>
+
+    <item android:title="Contacto">
+        <menu>
+            <item
+                android:id="@+id/nav_mail"
+                android:icon="@drawable/ic_email"
+                android:title="Contactar" />
+            <item
+                android:id="@+id/nav_web"
+                android:icon="@drawable/ic_public_black_24dp"
+                android:title="Visitar pagina web" />
+        </menu>
+    </item>
+
+</menu>
