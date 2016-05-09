@@ -4,9 +4,17 @@ package com.appcloud.frankiapp.POJO;
  * Created by cristian on 29/04/2016.
  */
 public class Tarifa {
+
+    public static final String ADSL= "ADSL";
+    public static final String FIBRA= "FIBRA";
+    public static final String MOVIL= "MOVIL";
+    public static final String ONE= "FIBRA-MOVIL";
+    public static final String[] TIPOSCONVERGENCIA = {"MINI", "S", "M"," L", "XL", "XXL"};
+
     int codTarifa;
     String planPrecios;
     String tipoPlan;
+    String planPrecioTerminal;
     String desCorta;
     String desLarga;
     float precioConTerminal;
@@ -53,6 +61,14 @@ public class Tarifa {
 
     public String getDesLarga() {
         return desLarga;
+    }
+
+    public String getPlanPrecioTerminal() {
+        return planPrecioTerminal;
+    }
+
+    public void setPlanPrecioTerminal(String planPrecioTerminal) {
+        this.planPrecioTerminal = planPrecioTerminal;
     }
 
     public void setDesLarga(String desLarga) {

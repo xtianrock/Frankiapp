@@ -17,13 +17,14 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
+        android:layout_marginRight="8dp"
         android:drawableLeft="@drawable/ic_search_black_24dp"
         android:drawableStart="@drawable/ic_search_black_24dp"
         android:hint="Buscar tarifa"
         android:selectAllOnFocus="true"
         android:textColor="@android:color/white" />
 
-    <ImageButton
+    ImageButton
         android:id="@+id/ib_search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

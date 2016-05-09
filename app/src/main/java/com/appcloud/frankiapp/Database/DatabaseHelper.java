@@ -179,11 +179,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COMISIONBASE = "COMISIONBASE";
     public static final String COMISIONEXTRA = "COMISIONEXTRA";
     public static final String COMISIONPORTA = "COMISIONPORTA";
+    public static final String PLANPRECIOTERMINAL = "PLANPRECIOTERMINAL";
     private static final String CREATE_TABLE_TARIFAS = "CREATE TABLE IF NOT EXISTS "
             + TABLE_TARIFAS + "("
             + CODTARIFA + " INTEGER PRIMARY KEY,"
             + PLANPRECIOS + " TEXT,"
             + TIPOPLAN + " TEXT,"
+            + PLANPRECIOTERMINAL + " TEXT,"
             + DESCORTA + " TEXT,"
             + DESLARGA + " TEXT,"
             + PRECIOCONTERMINAL + " NUMERIC,"
@@ -308,36 +310,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             reader = new BufferedReader(
                     new InputStreamReader(context.getAssets().open(filename)));
             db.beginTransaction();
-            int counter=0;
             String mLine;
             while ((mLine = reader.readLine()) != null) {
-                if(counter>0)
-                {  Log.i("terminales"," - "+counter);
+                String[] str = mLine.split(",",-1);
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(PLANPRECIOS, str[0]);
+                contentValues.put(TIPOPLAN, str[1]);
+                contentValues.put(DESCORTA, str[2]);
+                contentValues.put(DESLARGA, str[3]);
+                contentValues.put(PRECIOCONTERMINAL, str[4]);
+                contentValues.put(PRECIOSINTERMINAL, str[5]);
+                contentValues.put(PRECIOSINCONV, str[6]);
+                contentValues.put(PRECIOCONVXXL, str[7]);
+                contentValues.put(PRECIOCONVXL, str[8]);
+                contentValues.put(PRECIOCONVL, str[9]);
+                contentValues.put(PRECIOCONVM, str[10]);
+                contentValues.put(PRECIOCONVS, str[11]);
+                contentValues.put(PRECIOCONVMINIS, str[12]);
+                contentValues.put(COSTEALTA, str[13]);
+                contentValues.put(COMISIONBASE, str[14]);
+                contentValues.put(COMISIONEXTRA, str[15]);
+                contentValues.put(PLANPRECIOTERMINAL, str[16]);
 
-                    String[] str = mLine.split(",",-1);
-
-                    ContentValues contentValues = new ContentValues();
-                    contentValues.put(PLANPRECIOS, str[0]);
-                    contentValues.put(TIPOPLAN, str[1]);
-                    contentValues.put(DESCORTA, str[2]);
-                    contentValues.put(DESLARGA, str[3]);
-                    contentValues.put(PRECIOCONTERMINAL, str[4]);
-                    contentValues.put(PRECIOSINTERMINAL, str[5]);
-                    contentValues.put(PRECIOSINCONV, str[6]);
-                    contentValues.put(PRECIOCONVXXL, str[7]);
-                    contentValues.put(PRECIOCONVXL, str[8]);
-                    contentValues.put(PRECIOCONVL, str[9]);
-                    contentValues.put(PRECIOCONVM, str[10]);
-                    contentValues.put(PRECIOCONVS, str[11]);
-                    contentValues.put(PRECIOCONVMINIS, str[12]);
-                    contentValues.put(COSTEALTA, str[13]);
-                    contentValues.put(COMISIONBASE, str[14]);
-                    contentValues.put(COMISIONEXTRA, str[15]);
-                    //contentValues.put(COMISION_EMPRESA, str[16]);
-
-                    db.insert(tableName, null, contentValues);
-                }
-               counter++;
+                db.insert(tableName, null, contentValues);
             }
             db.setTransactionSuccessful();
             db.endTransaction();
@@ -397,12 +392,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.beginTransaction();
 
             String mLine;
-            int contador=0;
             while ((mLine = reader.readLine()) != null) {
 
-                Log.i("terminales"," - "+contador);
-                if(contador==76)
-                    Log.i("terminales"," - "+contador);
+
                 String[] str = mLine.split(",",-1);
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(NOMBRETERMINAL, str[0]);
@@ -433,7 +425,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 contentValues.put(XLPVP, str[26]);
 
                 db.insert(tableName, null, contentValues);
-                contador++;
             }
             db.setTransactionSuccessful();
             db.endTransaction();
@@ -465,6 +456,91 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 terminal.setColor((c.getString(c.getColumnIndex(COLOR))));
                 terminal.setSim((c.getString(c.getColumnIndex(SIM))));
                 terminal.setLte((c.getString(c.getColumnIndex(LTE))));
+                terminal.setVodCasaInicial(c.getFloat(c.getColumnIndex(VODCASAINICIAL)));
+                terminal.setVodCasaCuota(c.getFloat(c.getColumnIndex(VODCASACUOTA)));
+                terminal.setVodCasaPvp(c.getFloat(c.getColumnIndex(VODCASAPVP)));
+                terminal.setXsInicial(c.getFloat(c.getColumnIndex(XSINICIAL)));
+                terminal.setXsCouta(c.getFloat(c.getColumnIndex(XSCUOTA)));
+                terminal.setXsPvp(c.getFloat(c.getColumnIndex(XSPVP)));
+                terminal.setMiniInicial(c.getFloat(c.getColumnIndex(MINIINICIAL)));
+                terminal.setMiniCouta(c.getFloat(c.getColumnIndex(MINICUOTA)));
+                terminal.setMiniPvp(c.getFloat(c.getColumnIndex(MINIPVP)));
+                terminal.setsInicial(c.getFloat(c.getColumnIndex(SINICIAL)));
+                terminal.setsCouta(c.getFloat(c.getColumnIndex(SCUOTA)));
+                terminal.setSpvp(c.getFloat(c.getColumnIndex(SPVP)));
+                terminal.setmInicial(c.getFloat(c.getColumnIndex(MINICIAL)));
+                terminal.setmCuota(c.getFloat(c.getColumnIndex(MCUOTA)));
+                terminal.setmPvp(c.getFloat(c.getColumnIndex(MPVP)));
+                terminal.setlInicial(c.getFloat(c.getColumnIndex(LINICIAL)));
+                terminal.setlCuota(c.getFloat(c.getColumnIndex(LCUOTA)));
+                terminal.setlPvp(c.getFloat(c.getColumnIndex(LPVP)));
+                terminal.setXlInicial(c.getFloat(c.getColumnIndex(XLINICIAL)));
+                terminal.setXlCuota(c.getFloat(c.getColumnIndex(XLCUOTA)));
+                terminal.setXlPvp(c.getFloat(c.getColumnIndex(XLPVP)));
+                terminales.add(terminal);
+            } while (c.moveToNext());
+        }
+        c.close();
+        return terminales;
+    }
+
+
+    public ArrayList<Terminal> getAllTerminalesByPlan(String planPrecios) {
+        ArrayList<Terminal> terminales = new ArrayList<>();
+        String whereField= "";
+        switch (planPrecios)
+        {
+            case Terminal.XS: whereField = XSINICIAL;
+                break;
+            case Terminal.MINI: whereField = MINICIAL;
+                break;
+            case Terminal.S: whereField = SINICIAL;
+                break;
+            case Terminal.M: whereField = MINICIAL;
+                break;
+            case Terminal.L: whereField = LINICIAL;
+                break;
+            case Terminal.XL: whereField = XLINICIAL;
+                break;
+        }
+        String selectQuery = "SELECT  * FROM " + TABLE_TERMINALES_SMART
+                + " WHERE "+ whereField + " IS NOT NULL"
+                + " AND "+ whereField + "!= ''";
+        Log.e(LOG, selectQuery);
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+
+
+        if (c.moveToFirst()) {
+            do {
+                Terminal terminal = new Terminal();
+                terminal.setCodTerminal(c.getInt(c.getColumnIndex(CODTERMINAL)));
+                terminal.setDescripcion((c.getString(c.getColumnIndex(NOMBRETERMINAL))));
+                terminal.setColor((c.getString(c.getColumnIndex(COLOR))));
+                terminal.setSim((c.getString(c.getColumnIndex(SIM))));
+                terminal.setLte((c.getString(c.getColumnIndex(LTE))));
+                terminal.setVodCasaInicial(c.getFloat(c.getColumnIndex(VODCASAINICIAL)));
+                terminal.setVodCasaCuota(c.getFloat(c.getColumnIndex(VODCASACUOTA)));
+                terminal.setVodCasaPvp(c.getFloat(c.getColumnIndex(VODCASAPVP)));
+                terminal.setXsInicial(c.getFloat(c.getColumnIndex(XSINICIAL)));
+                terminal.setXsCouta(c.getFloat(c.getColumnIndex(XSCUOTA)));
+                terminal.setXsPvp(c.getFloat(c.getColumnIndex(XSPVP)));
+                terminal.setMiniInicial(c.getFloat(c.getColumnIndex(MINIINICIAL)));
+                terminal.setMiniCouta(c.getFloat(c.getColumnIndex(MINICUOTA)));
+                terminal.setMiniPvp(c.getFloat(c.getColumnIndex(MINIPVP)));
+                terminal.setsInicial(c.getFloat(c.getColumnIndex(SINICIAL)));
+                terminal.setsCouta(c.getFloat(c.getColumnIndex(SCUOTA)));
+                terminal.setSpvp(c.getFloat(c.getColumnIndex(SPVP)));
+                terminal.setmInicial(c.getFloat(c.getColumnIndex(MINICIAL)));
+                terminal.setmCuota(c.getFloat(c.getColumnIndex(MCUOTA)));
+                terminal.setmPvp(c.getFloat(c.getColumnIndex(MPVP)));
+                terminal.setlInicial(c.getFloat(c.getColumnIndex(LINICIAL)));
+                terminal.setlCuota(c.getFloat(c.getColumnIndex(LCUOTA)));
+                terminal.setlPvp(c.getFloat(c.getColumnIndex(LPVP)));
+                terminal.setXlInicial(c.getFloat(c.getColumnIndex(XLINICIAL)));
+                terminal.setXlCuota(c.getFloat(c.getColumnIndex(XLCUOTA)));
+                terminal.setXlPvp(c.getFloat(c.getColumnIndex(XLPVP)));
                 terminales.add(terminal);
             } while (c.moveToNext());
         }
@@ -487,6 +563,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 tarifa.setCodTarifa(c.getInt(c.getColumnIndex(CODTARIFA)));
                 tarifa.setPlanPrecios((c.getString(c.getColumnIndex(PLANPRECIOS))));
                 tarifa.setTipoPlan((c.getString(c.getColumnIndex(TIPOPLAN))));
+                tarifa.setPlanPrecioTerminal(c.getString(c.getColumnIndex(PLANPRECIOTERMINAL)));
                 tarifa.setDesCorta((c.getString(c.getColumnIndex(DESCORTA))));
                 tarifa.setDesLarga((c.getString(c.getColumnIndex(DESLARGA))));
                 tarifa.setPrecioConTerminal((c.getFloat(c.getColumnIndex(PRECIOCONTERMINAL))));
@@ -502,7 +579,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 tarifa.setComisionBase((c.getFloat(c.getColumnIndex(COMISIONBASE))));
                 tarifa.setComisionExtra((c.getFloat(c.getColumnIndex(COMISIONEXTRA))));
                 tarifa.setComisionPorta((c.getFloat(c.getColumnIndex(COMISIONPORTA))));
-
 
                 tarifas.add(tarifa);
             } while (c.moveToNext());

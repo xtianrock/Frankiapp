@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/background">
 
     <android.support.v7.widget.CardView
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
@@ -19,16 +20,16 @@
 
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/margin_login"
-            android:layout_marginRight="@dimen/margin_login">
+           >
 
             <TextView
                 android:id="@+id/tv_tarifa_nombre"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="22dp"
-                android:textColor="@android:color/black"
-                android:text="Iphone 6 hennoso 43Gb"/>
+                android:layout_marginLeft="@dimen/margin_login"
+                android:layout_marginRight="@dimen/margin_login"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="ADSL indirecto hasta 20MB"/>
 
         </LinearLayout>
 

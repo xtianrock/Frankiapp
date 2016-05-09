@@ -21,7 +21,7 @@
         app:popupTheme="@style/AppTheme.PopupOverlay"
         app:layout_scrollFlags="scroll|enterAlways"/>
 
-    <include layout="@layout/barra_busqueda" />
+        <include layout="@layout/resumen_oferta" />
 
     </android.support.design.widget.AppBarLayout>
 

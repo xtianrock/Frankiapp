@@ -23,8 +23,8 @@
         <item>JAZZTEL</item>
         <item>MOVIESTAR</item>
         <item>ORANGE</item>
-        <item>OTROS</item>
         <item>YOIGO</item>
+        <item>OTROS</item>
     </array>
 
     <array name="array_provincia_a_localidades">

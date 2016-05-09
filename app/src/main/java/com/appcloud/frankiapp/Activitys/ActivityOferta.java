@@ -9,11 +9,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import com.appcloud.frankiapp.POJO.Oferta;
 import com.appcloud.frankiapp.R;
 
 public class ActivityOferta extends AppCompatActivity {
 
     Context context = this;
+    Oferta oferta;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,6 +23,16 @@ public class ActivityOferta extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setTitle("Nueva Oferta");
+
+        int codigoOferta = getIntent().getIntExtra("oferta",-1);
+        if(codigoOferta!=-1)
+        {
+            //todo bussca en la bd ese codigo
+        }
+        else
+        {
+            oferta = new Oferta();
+        }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
