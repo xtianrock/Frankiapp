@@ -5,12 +5,6 @@ package com.appcloud.frankiapp.POJO;
  */
 public class Tarifa {
 
-    public static final String ADSL= "ADSL";
-    public static final String FIBRA= "FIBRA";
-    public static final String MOVIL= "MOVIL";
-    public static final String ONE= "FIBRA-MOVIL";
-    public static final String[] TIPOSCONVERGENCIA = {"MINI", "S", "M"," L", "XL", "XXL"};
-
     int codTarifa;
     String planPrecios;
     String tipoPlan;
@@ -18,7 +12,7 @@ public class Tarifa {
     String desCorta;
     String desLarga;
     float precioConTerminal;
-    float precioSinTerminal;
+    float precioConMovil;
     float precioSinConv;
     float precioConvXXL;
     float precioConvXL;
@@ -91,12 +85,12 @@ public class Tarifa {
         this.precioConTerminal = precioConTerminal;
     }
 
-    public float getPrecioSinTerminal() {
-        return precioSinTerminal;
+    public float getPrecioConMovil() {
+        return precioConMovil;
     }
 
-    public void setPrecioSinTerminal(float precioSinTerminal) {
-        this.precioSinTerminal = precioSinTerminal;
+    public void setPrecioConMovil(float precioConMovil) {
+        this.precioConMovil = precioConMovil;
     }
 
     public float getPrecioSinConv() {

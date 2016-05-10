@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -28,15 +30,18 @@ import com.appcloud.frankiapp.Adapters.SpinnerConvergenciaAdapter;
 import com.appcloud.frankiapp.Adapters.SpinnerTarifaAdapter;
 import com.appcloud.frankiapp.Adapters.TerminalesBottomSheetAdapter;
 import com.appcloud.frankiapp.Database.DatabaseHelper;
+import com.appcloud.frankiapp.POJO.Lineaoferta;
 import com.appcloud.frankiapp.POJO.Tarifa;
 import com.appcloud.frankiapp.POJO.Terminal;
 import com.appcloud.frankiapp.R;
+import com.appcloud.frankiapp.Utils.Configuration;
 
 import java.util.ArrayList;
 
 public class ActivityLinea extends AppCompatActivity {
 
     Context context = this;
+    int codigoOferta;
     TextView tvInicialTarifa, tvCuotaTarifa, tvInicialTerminal, tvCuotaterminal, tvDescripcion, tvTerminal;
     LinearLayout lnPrincipal, lnDescripcion, lnAlta, lnPorta, lnSimonly, lnConvergencia;
     RadioButton rbAlta, rbPorta;
@@ -52,12 +57,14 @@ public class ActivityLinea extends AppCompatActivity {
     BottomSheetBehavior behavior;
     private BottomSheetDialog mBottomSheetDialog;
     TerminalesBottomSheetAdapter terminalesAdapter;
+    FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_linea);
 
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         bottomSheet = findViewById(R.id.bottom_sheet);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         tvInicialTarifa = (TextView)findViewById(R.id.tv_inicial_tarifa);
@@ -82,6 +89,7 @@ public class ActivityLinea extends AppCompatActivity {
         spOperador = (Spinner) findViewById(R.id.sp_linea_operador);
         spConvergencia = (Spinner) findViewById(R.id.sp_linea_converngencia);
 
+        codigoOferta = getIntent().getIntExtra("oferta",-1);
 
         // adapter con el listado de operadoras donantes
         ArrayAdapter<String> adapterOperadoras = new ArrayAdapter<>(
@@ -117,21 +125,23 @@ public class ActivityLinea extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 tarifaSeleccionada = tarifas.get(position);
+                terminalSeleccionado = null;
                 tvDescripcion.setText(tarifaSeleccionada.getDesCorta());
                 lnPorta.setVisibility(View.GONE);
                 resetResumenTarifa(); //pone a 0 el resumen de precios
                 resetResumenTerminal();
                 TerminalesAsynctask terminalesAsynctask = new TerminalesAsynctask();
-                if(tarifaSeleccionada.getTipoPlan().equals(Tarifa.MOVIL))
+                if(tarifaSeleccionada.getTipoPlan().equals(Configuration.MOVIL))
                 {
                     lnAlta.setVisibility(View.VISIBLE);
                     lnSimonly.setVisibility(View.VISIBLE);
                     lnConvergencia.setVisibility(View.GONE);
                     lnDescripcion.setVisibility(View.VISIBLE);
-                    tvCuotaTarifa.setText(String.valueOf(tarifaSeleccionada.getPrecioSinTerminal()));
+                    double precio = Math.round(tarifaSeleccionada.getPrecioConTerminal()*0.85 * 100.0) / 100.0;
+                    tvCuotaTarifa.setText(String.valueOf(precio));
                     terminalesAsynctask.execute();
                 }
-                else if (tarifaSeleccionada.getTipoPlan().equals(Tarifa.ADSL) || tarifaSeleccionada.getTipoPlan().equals(Tarifa.FIBRA))
+                else if (tarifaSeleccionada.getTipoPlan().equals(Configuration.ADSL) || tarifaSeleccionada.getTipoPlan().equals(Configuration.FIBRA))
                 {
                     lnAlta.setVisibility(View.VISIBLE);
                     lnConvergencia.setVisibility(View.VISIBLE);
@@ -193,22 +203,59 @@ public class ActivityLinea extends AppCompatActivity {
                 if(isChecked)
                 {
                     // adapter con el listado de tipos de convergencia
-                    SpinnerConvergenciaAdapter adapterConvergencia = new SpinnerConvergenciaAdapter(
+                    final SpinnerConvergenciaAdapter adapterConvergencia = new SpinnerConvergenciaAdapter(
                             context,
                             R.layout.linea_spinner_convergencia,
-                            Tarifa.TIPOSCONVERGENCIA, tarifaSeleccionada, new SpinnerConvergenciaAdapter.ConvergenciaClickListener() {
+                            Configuration.TIPOSCONVERGENCIA, tarifaSeleccionada);
+                    spConvergencia.setAdapter(adapterConvergencia);
+                    spConvergencia.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
-                        public void onItemClick(String convergencia) {
-                            tvCuotaTarifa.setText(convergencia);
+                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                            tvCuotaTarifa.setText(String.valueOf(adapterConvergencia.getPrecio(position)));
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {
+
                         }
                     });
-                    spConvergencia.setAdapter(adapterConvergencia);
                     spConvergencia.setVisibility(View.VISIBLE);
                 }
                 else
                 {
                     spConvergencia.setVisibility(View.GONE);
                 }
+            }
+        });
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Lineaoferta linea = new Lineaoferta(codigoOferta);
+                linea.setCodTarifa(tarifaSeleccionada.getCodTarifa());
+                linea.setPlanPrecios(tarifaSeleccionada.getPlanPrecios());
+                linea.setPrecioTarifaInicial(Float.parseFloat(tvInicialTarifa.getText().toString()));
+                linea.setPrecioTarifaCuota(Float.parseFloat(tvCuotaTarifa.getText().toString()));
+                if(terminalSeleccionado!=null)
+                {
+                    linea.setCodTerminal(terminalSeleccionado.getCodTerminal());
+                    linea.setPrecioTerminalInicial(Float.parseFloat(tvInicialTerminal.getText().toString()));
+                    linea.setPrecioTErminalCuota(Float.parseFloat(tvCuotaterminal.getText().toString()));
+                }
+                //linea.setTipoConvergencia();
+                //linea.setConvergenciaMovil();
+                if(rbPorta.isChecked())
+                {
+                    linea.setNumeroTelefono(etTelefono.getText().toString());
+                    linea.setOperadorDonante(spOperador.getSelectedItem().toString());
+                }
+                //linea.setComisionBase();
+                //linea.setComisionExtra();
+                DatabaseHelper.getInstance(context).createLineaOferta(linea);
+                finish();
+                Snackbar.make(view, "Linea añadida con exito", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+
             }
         });
 
@@ -236,32 +283,32 @@ public class ActivityLinea extends AppCompatActivity {
 
                     switch (tarifaSeleccionada.getPlanPrecioTerminal())
                     {
-                        case Terminal.XS:
+                        case Configuration.XS:
                             tvInicialTerminal.setText(String.valueOf(terminal.getXsInicial()));
                             tvCuotaterminal.setText(String.valueOf(terminal.getXsCouta()));
                             break;
 
-                        case Terminal.MINI:
+                        case Configuration.MINI:
                             tvInicialTerminal.setText(String.valueOf(terminal.getMiniInicial()));
                             tvCuotaterminal.setText(String.valueOf(terminal.getMiniCouta()));
                             break;
 
-                        case Terminal.S:
+                        case Configuration.S:
                             tvInicialTerminal.setText(String.valueOf(terminal.getsInicial()));
                             tvCuotaterminal.setText(String.valueOf(terminal.getsCouta()));
                             break;
 
-                        case Terminal.M:
+                        case Configuration.M:
                             tvInicialTerminal.setText(String.valueOf(terminal.getmInicial()));
                             tvCuotaterminal.setText(String.valueOf(terminal.getmCuota()));
                             break;
 
-                        case Terminal.L:
+                        case Configuration.L:
                             tvInicialTerminal.setText(String.valueOf(terminal.getlInicial()));
                             tvCuotaterminal.setText(String.valueOf(terminal.getlCuota()));
                             break;
 
-                        case Terminal.XL:
+                        case Configuration.XL:
                            tvInicialTerminal.setText(String.valueOf(terminal.getXlInicial()));
                             tvCuotaterminal.setText(String.valueOf(terminal.getXlCuota()));
                             break;

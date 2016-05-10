@@ -20,7 +20,7 @@ public class TabFragment extends Fragment {
 
     public static TabLayout tabLayout;
     public static ViewPager viewPager;
-    public static int int_items = 4 ;
+    public static int int_items = 3 ;
 
     @Nullable
     @Override
@@ -69,9 +69,9 @@ public class TabFragment extends Fragment {
         {
             switch (position){
                 case 0 : return new ListaOfertasFragment();
-                case 1 : return new ListaTerminalesFragment();
-                case 2 : return new ListaTerminalesFragment();
-                case 3 : return new ListaTerminalesFragment();
+                case 1 : return new ListaOfertasFragment();
+                case 2 : return new ListaOfertasFragment();
+                case 3 : return new ListaOfertasFragment();
             }
             return null;
         }

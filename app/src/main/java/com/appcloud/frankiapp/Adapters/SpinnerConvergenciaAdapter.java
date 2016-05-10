@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.appcloud.frankiapp.POJO.Tarifa;
 import com.appcloud.frankiapp.POJO.Terminal;
 import com.appcloud.frankiapp.R;
+import com.appcloud.frankiapp.Utils.Configuration;
 
 /**
  * Created by cristian on 09/05/2016.
@@ -19,14 +20,15 @@ public class SpinnerConvergenciaAdapter extends ArrayAdapter<String> {
     Context context;
     Tarifa tarifa;
     String[] tiposConvergencia;
-    ConvergenciaClickListener convergenciaClickListener;
+    float precioConv[];
 
-    public SpinnerConvergenciaAdapter(Context context, int resource, String[] tiposCovergencia, Tarifa tarifa, ConvergenciaClickListener listener) {
+
+    public SpinnerConvergenciaAdapter(Context context, int resource, String[] tiposCovergencia, Tarifa tarifa) {
         super(context, resource);
         this.context = context;
         this.tiposConvergencia = tiposCovergencia;
         this.tarifa = tarifa;
-        this.convergenciaClickListener = listener;
+        precioConv = new float[tiposCovergencia.length];
     }
 
     public int getCount(){
@@ -41,6 +43,11 @@ public class SpinnerConvergenciaAdapter extends ArrayAdapter<String> {
         return position;
     }
 
+    public float getPrecio(int position)
+    {
+        return precioConv[position];
+    }
+
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -53,20 +60,20 @@ public class SpinnerConvergenciaAdapter extends ArrayAdapter<String> {
 
         switch (tiposConvergencia[position])
         {
-            case Terminal.MINI: precio.setText(String.valueOf(tarifa.getPrecioConvMINIS()));
+            case Configuration.MINI: precioConv[position] = tarifa.getPrecioConvMINIS();
                 break;
-            case Terminal.S: precio.setText(String.valueOf(tarifa.getPrecioConvS()));
+            case Configuration.S: precioConv[position] = tarifa.getPrecioConvS();
                 break;
-            case Terminal.M: precio.setText(String.valueOf(tarifa.getPrecioConvM()));
+            case Configuration.M: precioConv[position] = tarifa.getPrecioConvM();
                 break;
-            case Terminal.L: precio.setText(String.valueOf(tarifa.getPrecioConvL()));
+            case Configuration.L: precioConv[position] = tarifa.getPrecioConvL();
                 break;
-            case Terminal.XL: precio.setText(String.valueOf(tarifa.getPrecioConvXL()));
+            case Configuration.XL: precioConv[position] = tarifa.getPrecioConvXL();
                 break;
-            case Terminal.XXL: precio.setText(String.valueOf(tarifa.getPrecioConvXXL()));
+            case Configuration.XXL: precioConv[position] = tarifa.getPrecioConvXXL();
                 break;
         }
-
+        precio.setText(String.valueOf(precioConv[position]));
 
         return view;
     }
@@ -82,30 +89,22 @@ public class SpinnerConvergenciaAdapter extends ArrayAdapter<String> {
 
         switch (tiposConvergencia[position])
         {
-            case Terminal.MINI: precio.setText(String.valueOf(tarifa.getPrecioConvMINIS()));
+            case Configuration.MINI: precio.setText(String.valueOf(tarifa.getPrecioConvMINIS()));
                 break;
-            case Terminal.S: precio.setText(String.valueOf(tarifa.getPrecioConvS()));
+            case Configuration.S: precio.setText(String.valueOf(tarifa.getPrecioConvS()));
                 break;
-            case Terminal.M: precio.setText(String.valueOf(tarifa.getPrecioConvM()));
+            case Configuration.M: precio.setText(String.valueOf(tarifa.getPrecioConvM()));
                 break;
-            case Terminal.L: precio.setText(String.valueOf(tarifa.getPrecioConvL()));
+            case Configuration.L: precio.setText(String.valueOf(tarifa.getPrecioConvL()));
                 break;
-            case Terminal.XL: precio.setText(String.valueOf(tarifa.getPrecioConvXL()));
+            case Configuration.XL: precio.setText(String.valueOf(tarifa.getPrecioConvXL()));
                 break;
-            case Terminal.XXL: precio.setText(String.valueOf(tarifa.getPrecioConvXXL()));
+            case Configuration.XXL: precio.setText(String.valueOf(tarifa.getPrecioConvXXL()));
                 break;
         }
 
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                convergenciaClickListener.onItemClick(precio.getText().toString());
-            }
-        });
+
         return view;
     }
 
-    public interface ConvergenciaClickListener {
-        void onItemClick(String convergencia);
-    }
 }

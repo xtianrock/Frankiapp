@@ -15,7 +15,7 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         app:layoutManager="LinearLayoutManager"
         tools:context=".Fragments.ListaTerminalesFragment"
-        tools:listitem="@layout/carview_terminales"        />
+        tools:listitem="@layout/cardview_terminales"        />
 
 
 </android.support.design.widget.CoordinatorLayout>

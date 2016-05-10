@@ -6,37 +6,36 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.appcloud.frankiapp.Interfaces.OnClienteInteractionListener;
-import com.appcloud.frankiapp.POJO.Cliente;
+import com.appcloud.frankiapp.POJO.Oferta;
 import com.appcloud.frankiapp.R;
 
 import java.util.List;
 
 
-public class ClienteRecyclerViewAdapter extends RecyclerView.Adapter<ClienteRecyclerViewAdapter.ViewHolder> {
+public class OfertasRecyclerViewAdapter extends RecyclerView.Adapter<OfertasRecyclerViewAdapter.ViewHolder> {
 
-    private final List<Cliente> mValues;
-    private final OnClienteInteractionListener mListener;
+    private final List<Oferta> ofertas;
+    private final OfertaClickListener mListener;
 
-    public ClienteRecyclerViewAdapter(List<Cliente> items, OnClienteInteractionListener listener) {
-        mValues = items;
+    public OfertasRecyclerViewAdapter(List<Oferta> ofertas, OfertaClickListener listener) {
+        this.ofertas = ofertas;
         mListener = listener;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.cardview_clientes, parent, false);
+                .inflate(R.layout.cardview_oferta, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
-        holder.tvNombre.setText(mValues.get(position).getNombre());
-        holder.tvApellidos.setText(mValues.get(position).getApellidos());
-        holder.tvPoblacion.setText(mValues.get(position).getPoblacion());
-        holder.tvTelefono.setText(mValues.get(position).getTelefono());
+        holder.oferta = ofertas.get(position);
+      /*  holder.tvNombre.setText(holder.oferta.get());
+        holder.tvApellidos.setText(ofertas.get(position).getApellidos());
+        holder.tvPoblacion.setText(ofertas.get(position).getPoblacion());
+        holder.tvTelefono.setText(ofertas.get(position).getTelefono());*/
 
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
@@ -45,7 +44,7 @@ public class ClienteRecyclerViewAdapter extends RecyclerView.Adapter<ClienteRecy
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mItem);
+                    mListener.onItemClick(holder.oferta);
                 }
             }
         });
@@ -53,27 +52,32 @@ public class ClienteRecyclerViewAdapter extends RecyclerView.Adapter<ClienteRecy
 
     @Override
     public int getItemCount() {
-        return mValues.size();
+        return ofertas.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView tvNombre;
         public final TextView tvApellidos;
+        public final TextView tvFecha;
         public final TextView tvPoblacion;
-        public final TextView tvTelefono;
-        public Cliente mItem;
+
+        public Oferta oferta;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            tvNombre = (TextView) view.findViewById(R.id.tv_cliente_nombre);
-            tvApellidos = (TextView) view.findViewById(R.id.tv_cliente_apellidos);
-            tvPoblacion = (TextView) view.findViewById(R.id.tv_cliente_poblacion);
-            tvTelefono = (TextView) view.findViewById(R.id.tv_cliente_telefono);
+            tvNombre = (TextView) view.findViewById(R.id.tv_oferta_nombre);
+            tvApellidos = (TextView) view.findViewById(R.id.tv_oferta_apellidos);
+            tvFecha = (TextView) view.findViewById(R.id.tv_oferta_fecha);
+            tvPoblacion = (TextView) view.findViewById(R.id.tv_oferta_poblacion);
 
 
         }
 
+    }
+
+    public interface OfertaClickListener {
+        void onItemClick(Oferta oferta);
     }
 }

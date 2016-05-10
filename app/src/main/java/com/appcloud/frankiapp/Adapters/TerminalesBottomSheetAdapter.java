@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.appcloud.frankiapp.POJO.Terminal;
 import com.appcloud.frankiapp.R;
+import com.appcloud.frankiapp.Utils.Configuration;
 
 import java.util.List;
 
@@ -40,37 +41,37 @@ public class TerminalesBottomSheetAdapter extends RecyclerView.Adapter<Terminale
 
         switch (planprecios)
         {
-            case Terminal.XS:
+            case Configuration.XS:
                 holder.tvInicial.setText(String.valueOf(holder.terminal.getXsInicial()));
                 holder.tvCuota.setText(String.valueOf(holder.terminal.getXsCouta()));
                 holder.tvPvp.setText(String.valueOf(holder.terminal.getXsPvp()));
                 break;
 
-            case Terminal.MINI:
+            case Configuration.MINI:
                 holder.tvInicial.setText(String.valueOf(holder.terminal.getMiniInicial()));
                 holder.tvCuota.setText(String.valueOf(holder.terminal.getMiniCouta()));
                 holder.tvPvp.setText(String.valueOf(holder.terminal.getMiniPvp()));
                 break;
 
-            case Terminal.S:
+            case Configuration.S:
                 holder.tvInicial.setText(String.valueOf(holder.terminal.getsInicial()));
                 holder.tvCuota.setText(String.valueOf(holder.terminal.getsCouta()));
                 holder.tvPvp.setText(String.valueOf(holder.terminal.getSpvp()));
                 break;
 
-            case Terminal.M:
+            case Configuration.M:
                 holder.tvInicial.setText(String.valueOf(holder.terminal.getmInicial()));
                 holder.tvCuota.setText(String.valueOf(holder.terminal.getmCuota()));
                 holder.tvPvp.setText(String.valueOf(holder.terminal.getmPvp()));
                 break;
 
-            case Terminal.L:
+            case Configuration.L:
                 holder.tvInicial.setText(String.valueOf(holder.terminal.getlInicial()));
                 holder.tvCuota.setText(String.valueOf(holder.terminal.getlCuota()));
                 holder.tvPvp.setText(String.valueOf(holder.terminal.getlPvp()));
                 break;
 
-            case Terminal.XL:
+            case Configuration.XL:
                 holder.tvInicial.setText(String.valueOf(holder.terminal.getXlInicial()));
                 holder.tvCuota.setText(String.valueOf(holder.terminal.getXlCuota()));
                 holder.tvPvp.setText(String.valueOf(holder.terminal.getXlPvp()));

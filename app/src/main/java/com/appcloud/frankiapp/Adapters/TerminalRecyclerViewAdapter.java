@@ -27,7 +27,7 @@ public class TerminalRecyclerViewAdapter extends RecyclerView.Adapter<TerminalRe
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.carview_terminales, parent, false);
+                .inflate(R.layout.cardview_terminales, parent, false);
         return new ViewHolder(view);
     }
 

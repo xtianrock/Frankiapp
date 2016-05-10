@@ -1,5 +1,7 @@
 package com.appcloud.frankiapp.POJO;
 
+import com.appcloud.frankiapp.Utils.Configuration;
+
 /**
  * Created by cristian on 27/04/2016.
  */
@@ -12,7 +14,7 @@ public class Oferta {
     public final static String FINALIZADA = "FINALIZADA";
 
 
-    int codPreoferta;
+    int codOferta;
     int codCliente;
     String estado;
     long fechaOferta;
@@ -26,14 +28,15 @@ public class Oferta {
     float commisionEmpresa;
 
     public Oferta() {
+        this.estado = Configuration.BORRADOR;
     }
 
-    public int getCodPreoferta() {
-        return codPreoferta;
+    public int getCodOferta() {
+        return codOferta;
     }
 
-    public void setCodPreoferta(int codPreoferta) {
-        this.codPreoferta = codPreoferta;
+    public void setCodOferta(int codOferta) {
+        this.codOferta = codOferta;
     }
 
     public int getCodCliente() {
