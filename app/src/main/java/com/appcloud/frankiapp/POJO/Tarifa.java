@@ -12,7 +12,7 @@ public class Tarifa {
     String desCorta;
     String desLarga;
     float precioConTerminal;
-    float precioConMovil;
+    float precioConvergenciaMovil;
     float precioSinConv;
     float precioConvXXL;
     float precioConvXL;
@@ -85,12 +85,12 @@ public class Tarifa {
         this.precioConTerminal = precioConTerminal;
     }
 
-    public float getPrecioConMovil() {
-        return precioConMovil;
+    public float getPrecioConvergenciaMovil() {
+        return precioConvergenciaMovil;
     }
 
-    public void setPrecioConMovil(float precioConMovil) {
-        this.precioConMovil = precioConMovil;
+    public void setPrecioConvergenciaMovil(float precioConvergenciaMovil) {
+        this.precioConvergenciaMovil = precioConvergenciaMovil;
     }
 
     public float getPrecioSinConv() {

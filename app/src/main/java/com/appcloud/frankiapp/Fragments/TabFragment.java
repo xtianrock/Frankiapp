@@ -6,12 +6,14 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.appcloud.frankiapp.R;
+import com.appcloud.frankiapp.Utils.Configuration;
 
 /**
  * Created by cristian on 03/05/2016.
@@ -67,11 +69,27 @@ public class TabFragment extends Fragment {
         @Override
         public Fragment getItem(int position)
         {
+            ListaOfertasFragment listaOferta;
+            Bundle bundle;
             switch (position){
-                case 0 : return new ListaOfertasFragment();
-                case 1 : return new ListaOfertasFragment();
-                case 2 : return new ListaOfertasFragment();
-                case 3 : return new ListaOfertasFragment();
+                case 0 :
+                    bundle =new Bundle();
+                    bundle.putString(Configuration.TAB,Configuration.BORRADOR);
+                    listaOferta = new ListaOfertasFragment();
+                    listaOferta.setArguments(bundle);
+                    return listaOferta;
+                case 1 :
+                    bundle =new Bundle();
+                    bundle.putString(Configuration.TAB,Configuration.PRESENTADA);
+                    listaOferta = new ListaOfertasFragment();
+                    listaOferta.setArguments(bundle);
+                    return listaOferta;
+                case 2 :
+                    bundle =new Bundle();
+                    bundle.putString(Configuration.TAB,Configuration.FIRMADA);
+                    listaOferta = new ListaOfertasFragment();
+                    listaOferta.setArguments(bundle);
+                    return listaOferta;
             }
             return null;
         }

@@ -5,6 +5,9 @@ package com.appcloud.frankiapp.Utils;
  */
 public class Configuration {
 
+
+    public static final String TAB= "TAB";
+
     // Estados de oferta
     public static final String BORRADOR= "BORRADOR";
     public static final String PRESENTADA= "PRESENTADA";

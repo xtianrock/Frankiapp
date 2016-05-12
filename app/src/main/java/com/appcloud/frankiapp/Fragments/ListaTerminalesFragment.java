@@ -90,7 +90,7 @@ public class ListaTerminalesFragment extends Fragment {
         @Override
         protected ArrayList<Terminal> doInBackground(String... params) {
             try {
-                return DatabaseHelper.getInstance(getActivity()).getAllTErminales();
+                return DatabaseHelper.getInstance(getActivity()).getAllTerminales();
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;

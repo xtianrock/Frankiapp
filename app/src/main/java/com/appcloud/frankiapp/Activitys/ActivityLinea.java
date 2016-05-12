@@ -9,12 +9,13 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -41,11 +42,12 @@ import java.util.ArrayList;
 public class ActivityLinea extends AppCompatActivity {
 
     Context context = this;
-    int codigoOferta;
+    Lineaoferta lineaActual;
+    int codigoOferta, codigoLinea;
     TextView tvInicialTarifa, tvCuotaTarifa, tvInicialTerminal, tvCuotaterminal, tvDescripcion, tvTerminal;
-    LinearLayout lnPrincipal, lnDescripcion, lnAlta, lnPorta, lnSimonly, lnConvergencia;
+    LinearLayout lnPrincipal, lnDescripcion, lnAlta, lnPorta, lnSimonly, lnTerminal, lnConvergencia, lnConvergenciaMovil;
     RadioButton rbAlta, rbPorta;
-    CheckBox cbSimonly, cbTerminal,cbConvergencia;
+    CheckBox cbSimonly, cbTerminal,cbConvergencia, cbConvergenciaMovil;
     EditText etTelefono;
     Spinner spTarifa, spOperador, spConvergencia;
     Toolbar toolbar;
@@ -58,6 +60,7 @@ public class ActivityLinea extends AppCompatActivity {
     private BottomSheetDialog mBottomSheetDialog;
     TerminalesBottomSheetAdapter terminalesAdapter;
     FloatingActionButton fab;
+    boolean touchByUser = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,18 +81,29 @@ public class ActivityLinea extends AppCompatActivity {
         lnAlta = (LinearLayout) findViewById(R.id.ln_linea_alta);
         lnPorta = (LinearLayout) findViewById(R.id.ln_linea_porta);
         lnSimonly = (LinearLayout) findViewById(R.id.ln_linea_simonly);
+        lnTerminal = (LinearLayout) findViewById(R.id.ln_linea_terminal);
         lnConvergencia = (LinearLayout) findViewById(R.id.ln_linea_convergencia);
+        lnConvergenciaMovil = (LinearLayout) findViewById(R.id.ln_linea_convergencia_movil);
         etTelefono = (EditText) findViewById(R.id.et_linea_telefono);
         rbAlta = (RadioButton) findViewById(R.id.rb_linea_alta);
         rbPorta = (RadioButton) findViewById(R.id.rb_linea_porta);
         cbSimonly = (CheckBox)findViewById(R.id.cb_linea_simonly);
         cbTerminal = (CheckBox)findViewById(R.id.cb_linea_terminal);
         cbConvergencia = (CheckBox)findViewById(R.id.cb_linea_convergencia);
+        cbConvergenciaMovil = (CheckBox)findViewById(R.id.cb_linea_convergencia_movil);
         spTarifa = (Spinner)findViewById(R.id.sp_linea_tarifa);
         spOperador = (Spinner) findViewById(R.id.sp_linea_operador);
         spConvergencia = (Spinner) findViewById(R.id.sp_linea_converngencia);
 
         codigoOferta = getIntent().getIntExtra("oferta",-1);
+        codigoLinea = getIntent().getIntExtra("lineaActual",-1);
+        if(codigoLinea!=-1)
+        {
+            lineaActual = DatabaseHelper.getInstance(context).getLineaOferta(codigoLinea);
+        }
+        else
+            lineaActual = new Lineaoferta(codigoOferta);
+
 
         // adapter con el listado de operadoras donantes
         ArrayAdapter<String> adapterOperadoras = new ArrayAdapter<>(
@@ -97,7 +111,6 @@ public class ActivityLinea extends AppCompatActivity {
                 android.R.layout.simple_dropdown_item_1line,
                 getResources().getStringArray(R.array.array_operadores));
         spOperador.setAdapter(adapterOperadoras);
-
 
         behavior = BottomSheetBehavior.from(bottomSheet);
         behavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
@@ -111,47 +124,113 @@ public class ActivityLinea extends AppCompatActivity {
                 // React to dragging events
             }
         });
+
+        if(codigoLinea!=-1)
+            prepararControles();
         prepararOnClicks();
-        prepararActionbar("Añadir linea");
+        prepararActionbar("Añadir lineaActual");
 
         TarifasAsyncTask tarifasAsyncTask = new TarifasAsyncTask(this);
         tarifasAsyncTask.execute();
 
     }
 
-    public void prepararOnClicks()
-    {
+    public void prepararControles()    {
+        Tarifa tarifa = DatabaseHelper.getInstance(context).getTarifaByCod(lineaActual.getCodTarifa());
+        tarifaSeleccionada = tarifa;
+        ArrayList<Tarifa> tarifas = new ArrayList<>();
+        tarifas.add(tarifa);
+        spTarifa.setAdapter(new SpinnerTarifaAdapter(context,android.R.layout.simple_spinner_item,tarifas));
+        spTarifa.setSelection(tarifas.indexOf(tarifaSeleccionada));
+        tvInicialTarifa.setText(String.valueOf(lineaActual.getPrecioTarifaInicial()));
+        tvCuotaTarifa.setText(String.valueOf(lineaActual.getPrecioTarifaCuota()));
+        tvInicialTerminal.setText(String.valueOf(lineaActual.getPrecioTerminalInicial()));
+        tvCuotaterminal.setText(String.valueOf(lineaActual.getPrecioTErminalCuota()));
+        if(tarifaSeleccionada.getTipoPlan().equals(Configuration.MOVIL))
+        {
+            lnDescripcion.setVisibility(View.VISIBLE);
+            lnAlta.setVisibility(View.VISIBLE);
+            lnSimonly.setVisibility(View.VISIBLE);
+            lnConvergenciaMovil.setVisibility(View.VISIBLE);
+            lnConvergencia.setVisibility(View.GONE);
+            TerminalesAsynctask terminalesAsynctask = new TerminalesAsynctask();
+            terminalesAsynctask.execute();
+        }
+        else if (tarifaSeleccionada.getTipoPlan().equals(Configuration.ADSL) || tarifaSeleccionada.getTipoPlan().equals(Configuration.FIBRA))
+        {
+            lnAlta.setVisibility(View.VISIBLE);
+            lnConvergencia.setVisibility(View.VISIBLE);
+            lnDescripcion.setVisibility(View.GONE);
+            lnSimonly.setVisibility(View.GONE);
+            lnConvergenciaMovil.setVisibility(View.GONE);
+            lnTerminal.setVisibility(View.GONE);
+            tvInicialTarifa.setText(String.valueOf(tarifaSeleccionada.getCosteAlta()));
+            tvCuotaTarifa.setText(String.valueOf(tarifaSeleccionada.getPrecioSinConv()));
+        }
+        if(lineaActual.getOperadorDonante()!=null) // si no es nulo, se trata de una portabilidad
+        {
+            rbPorta.setChecked(true);
+            etTelefono.setText(lineaActual.getNumeroTelefono());
+            spOperador.setSelection(getOperador(lineaActual.getOperadorDonante()));
+            lnPorta.setVisibility(View.VISIBLE);
+        }
+        if(lineaActual.getCodTerminal()!=0)
+        {
+            Terminal terminal = DatabaseHelper.getInstance(context).getTerminalByCod(lineaActual.getCodTerminal());
+            tvTerminal.setText(terminal.getDescripcion());
+            cbTerminal.setChecked(true);
+            cbSimonly.setChecked(false);
+            lnTerminal.setVisibility(View.VISIBLE);
+        }
+        if(lineaActual.getConvergenciaMovil()!=null && lineaActual.getConvergenciaMovil().equals("si"))
+        {
+            cbConvergenciaMovil.setChecked(true);
+        }
+
+
+    }
+
+    public void prepararOnClicks()    {
         spTarifa.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                tarifaSeleccionada = tarifas.get(position);
-                terminalSeleccionado = null;
-                tvDescripcion.setText(tarifaSeleccionada.getDesCorta());
-                lnPorta.setVisibility(View.GONE);
-                resetResumenTarifa(); //pone a 0 el resumen de precios
-                resetResumenTerminal();
-                TerminalesAsynctask terminalesAsynctask = new TerminalesAsynctask();
-                if(tarifaSeleccionada.getTipoPlan().equals(Configuration.MOVIL))
-                {
-                    lnAlta.setVisibility(View.VISIBLE);
-                    lnSimonly.setVisibility(View.VISIBLE);
-                    lnConvergencia.setVisibility(View.GONE);
-                    lnDescripcion.setVisibility(View.VISIBLE);
-                    double precio = Math.round(tarifaSeleccionada.getPrecioConTerminal()*0.85 * 100.0) / 100.0;
-                    tvCuotaTarifa.setText(String.valueOf(precio));
-                    terminalesAsynctask.execute();
-                }
-                else if (tarifaSeleccionada.getTipoPlan().equals(Configuration.ADSL) || tarifaSeleccionada.getTipoPlan().equals(Configuration.FIBRA))
-                {
-                    lnAlta.setVisibility(View.VISIBLE);
-                    lnConvergencia.setVisibility(View.VISIBLE);
-                    lnSimonly.setVisibility(View.GONE);
-                    lnDescripcion.setVisibility(View.GONE);
-                    tvInicialTarifa.setText(String.valueOf(tarifaSeleccionada.getCosteAlta()));
-                    tvCuotaTarifa.setText(String.valueOf(tarifaSeleccionada.getPrecioSinConv()));
-                    terminalesAsynctask.execute();
-                }
 
+                if(touchByUser)
+                {tarifaSeleccionada = tarifas.get(position);
+                    terminalSeleccionado = null;
+                    tvDescripcion.setText(tarifaSeleccionada.getDesCorta());
+
+                    lnPorta.setVisibility(View.GONE);
+                    resetResumenTarifa(); //pone a 0 el resumen de precios
+                    resetResumenTerminal();
+                    rbAlta.setChecked(true);
+                    cbSimonly.setChecked(true);
+                    if(tarifaSeleccionada.getTipoPlan().equals(Configuration.MOVIL))
+                    {
+                        lnDescripcion.setVisibility(View.VISIBLE);
+                        lnAlta.setVisibility(View.VISIBLE);
+                        lnSimonly.setVisibility(View.VISIBLE);
+                        if(tarifaSeleccionada.getPrecioConvergenciaMovil()!=0)
+                            lnConvergenciaMovil.setVisibility(View.VISIBLE);
+                        lnConvergencia.setVisibility(View.GONE);
+                        double precio = Math.round(tarifaSeleccionada.getPrecioConTerminal()*0.85 * 100.0) / 100.0;
+                        tvCuotaTarifa.setText(String.valueOf(precio));
+                        TerminalesAsynctask terminalesAsynctask = new TerminalesAsynctask();
+                        terminalesAsynctask.execute();
+                    }
+                    else if (tarifaSeleccionada.getTipoPlan().equals(Configuration.ADSL) || tarifaSeleccionada.getTipoPlan().equals(Configuration.FIBRA))
+                    {
+                        lnAlta.setVisibility(View.VISIBLE);
+                        lnConvergencia.setVisibility(View.VISIBLE);
+                        lnDescripcion.setVisibility(View.GONE);
+                        lnSimonly.setVisibility(View.GONE);
+                        lnConvergenciaMovil.setVisibility(View.GONE);
+                        lnTerminal.setVisibility(View.GONE);
+                        tvInicialTarifa.setText(String.valueOf(tarifaSeleccionada.getCosteAlta()));
+                        tvCuotaTarifa.setText(String.valueOf(tarifaSeleccionada.getPrecioSinConv()));
+                    }
+
+                }
             }
 
             @Override
@@ -179,13 +258,26 @@ public class ActivityLinea extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked)
                 {
+                    if(cbConvergenciaMovil.isChecked())
+                        tvCuotaTarifa.setText(String.valueOf(tarifaSeleccionada.getPrecioConvergenciaMovil()));
+                    else
+                        tvCuotaTarifa.setText(String.valueOf(tarifaSeleccionada.getPrecioConTerminal()));
+
                     cbSimonly.setChecked(false);
-                    mostrarBottomSeet();
                 }
                 else
                 {
-                    tvTerminal.setVisibility(View.GONE);
+                    lnTerminal.setVisibility(View.GONE);
+                    resetResumenTerminal();
+                    lineaActual.setCodTerminal(0);
                 }
+            }
+        });
+        cbTerminal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(cbTerminal.isChecked())
+                    mostrarBottomSeet();
             }
         });
 
@@ -193,7 +285,22 @@ public class ActivityLinea extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked)
+                {
                     cbTerminal.setChecked(false);
+                    double precio;
+                    if(cbConvergenciaMovil.isChecked())
+                        precio = Math.round(tarifaSeleccionada.getPrecioConvergenciaMovil()*0.85 * 100.0) / 100.0;
+                    else
+                        precio = Math.round(tarifaSeleccionada.getPrecioConTerminal()*0.85 * 100.0) / 100.0;
+
+                    tvCuotaTarifa.setText(String.valueOf(precio));
+                }
+                else {
+                    if(cbConvergenciaMovil.isChecked())
+                        tvCuotaTarifa.setText(String.valueOf(tarifaSeleccionada.getPrecioConvergenciaMovil()));
+                    else
+                        tvCuotaTarifa.setText(String.valueOf(tarifaSeleccionada.getPrecioConTerminal()));
+                }
             }
         });
 
@@ -228,41 +335,81 @@ public class ActivityLinea extends AppCompatActivity {
             }
         });
 
+        cbConvergenciaMovil.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked)
+                {
+                    lineaActual.setConvergenciaMovil("si");
+                    if (cbSimonly.isChecked())
+                    {
+                        double precio = Math.round(tarifaSeleccionada.getPrecioConvergenciaMovil()*0.85 * 100.0) / 100.0;
+                        tvCuotaTarifa.setText(String.valueOf(precio));
+                    }
+                    else
+                        tvCuotaTarifa.setText(String.valueOf(tarifaSeleccionada.getPrecioConvergenciaMovil()));
+                }
+                else
+                {
+                    if (cbSimonly.isChecked())
+                    {
+                        double precio = Math.round(tarifaSeleccionada.getPrecioConTerminal()*0.85 * 100.0) / 100.0;
+                        tvCuotaTarifa.setText(String.valueOf(precio));
+                    }
+                    else
+                        tvCuotaTarifa.setText(String.valueOf(tarifaSeleccionada.getPrecioConTerminal()));
+                }
+
+            }
+        });
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Lineaoferta linea = new Lineaoferta(codigoOferta);
-                linea.setCodTarifa(tarifaSeleccionada.getCodTarifa());
-                linea.setPlanPrecios(tarifaSeleccionada.getPlanPrecios());
-                linea.setPrecioTarifaInicial(Float.parseFloat(tvInicialTarifa.getText().toString()));
-                linea.setPrecioTarifaCuota(Float.parseFloat(tvCuotaTarifa.getText().toString()));
+
+                lineaActual.setCodTarifa(tarifaSeleccionada.getCodTarifa());
+                lineaActual.setPlanPrecios(tarifaSeleccionada.getPlanPrecios());
+
                 if(terminalSeleccionado!=null)
-                {
-                    linea.setCodTerminal(terminalSeleccionado.getCodTerminal());
-                    linea.setPrecioTerminalInicial(Float.parseFloat(tvInicialTerminal.getText().toString()));
-                    linea.setPrecioTErminalCuota(Float.parseFloat(tvCuotaterminal.getText().toString()));
-                }
-                //linea.setTipoConvergencia();
-                //linea.setConvergenciaMovil();
+                    lineaActual.setCodTerminal(terminalSeleccionado.getCodTerminal());
+
+                //lineaActual.setTipoConvergencia();
                 if(rbPorta.isChecked())
                 {
-                    linea.setNumeroTelefono(etTelefono.getText().toString());
-                    linea.setOperadorDonante(spOperador.getSelectedItem().toString());
+                    lineaActual.setNumeroTelefono(etTelefono.getText().toString());
+                    lineaActual.setOperadorDonante(spOperador.getSelectedItem().toString());
                 }
-                //linea.setComisionBase();
-                //linea.setComisionExtra();
-                DatabaseHelper.getInstance(context).createLineaOferta(linea);
+                //lineaActual.setComisionBase();
+                //lineaActual.setComisionExtra();
+
+                if(codigoLinea!=-1) // si esta editando una linea
+                {
+                    Lineaoferta lineaPreciosNuevos = new Lineaoferta(-1);// En esta nueva linea almacena los precios nuevos que se hayan podido generar
+                    lineaPreciosNuevos.setPrecioTarifaInicial(Float.parseFloat(tvInicialTarifa.getText().toString()));
+                    lineaPreciosNuevos.setPrecioTarifaCuota(Float.parseFloat(tvCuotaTarifa.getText().toString()));
+                    lineaPreciosNuevos.setPrecioTerminalInicial(Float.parseFloat(tvInicialTerminal.getText().toString()));
+                    lineaPreciosNuevos.setPrecioTErminalCuota(Float.parseFloat(tvCuotaterminal.getText().toString()));
+                    DatabaseHelper.getInstance(context).updateLineaOferta(lineaActual,lineaPreciosNuevos);
+
+                }
+                else // linea nueva
+                {
+                    lineaActual.setPrecioTarifaInicial(Float.parseFloat(tvInicialTarifa.getText().toString()));
+                    lineaActual.setPrecioTarifaCuota(Float.parseFloat(tvCuotaTarifa.getText().toString()));
+                    lineaActual.setPrecioTerminalInicial(Float.parseFloat(tvInicialTerminal.getText().toString()));
+                    lineaActual.setPrecioTErminalCuota(Float.parseFloat(tvCuotaterminal.getText().toString()));
+                    DatabaseHelper.getInstance(context).createLineaOferta(lineaActual);
+                }
+
                 finish();
-                Snackbar.make(view, "Linea añadida con exito", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
 
             }
         });
 
     }
 
-    public void mostrarBottomSeet()
-    {
+    public void mostrarBottomSeet()    {
         if (behavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
@@ -279,7 +426,7 @@ public class ActivityLinea extends AppCompatActivity {
                     mBottomSheetDialog.dismiss();
                     terminalSeleccionado = terminal;
                     tvTerminal.setText(terminal.getDescripcion());
-                    tvTerminal.setVisibility(View.VISIBLE);
+                    lnTerminal.setVisibility(View.VISIBLE);
 
                     switch (tarifaSeleccionada.getPlanPrecioTerminal())
                     {
@@ -325,9 +472,9 @@ public class ActivityLinea extends AppCompatActivity {
             @Override
             public void onDismiss(DialogInterface dialog) {
                 mBottomSheetDialog = null;
-                if (tvTerminal.getVisibility()!=View.VISIBLE)
+                if (lnTerminal.getVisibility()!=View.VISIBLE)
                 {
-                    tvTerminal.setVisibility(View.GONE);
+                    lnTerminal.setVisibility(View.GONE);
                     cbSimonly.setChecked(true);
                 }
             }
@@ -343,17 +490,48 @@ public class ActivityLinea extends AppCompatActivity {
         actionBar.setTitle(title);
     }
 
-    public void resetResumenTarifa()
-    {
+    public void resetResumenTarifa()    {
         tvInicialTarifa.setText("0.0");
         tvCuotaTarifa.setText("0.0");
     }
-    public void resetResumenTerminal()
-    {
+
+    public void resetResumenTerminal()    {
         tvInicialTerminal.setText("0.0");
         tvCuotaterminal.setText("0.0");
     }
 
+    public int getOperador(String nombreOperador)    {
+        String[] operadores = getResources().getStringArray(R.array.array_operadores);
+        for (int i=0;i<operadores.length;i++)
+            if(operadores[i].equals(nombreOperador))
+                return i;
+        return -1;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_linea, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.home) {
+            finish();
+            return true;
+        }
+
+        if (id == R.id.action_delete) {
+            DatabaseHelper.getInstance(context).deleteLineaOferta(lineaActual);
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     private class TarifasAsyncTask extends AsyncTask<String, Void, ArrayList<Tarifa>> {
         public Activity activity;
@@ -383,9 +561,19 @@ public class ActivityLinea extends AppCompatActivity {
                         android.R.layout.simple_spinner_item,
                         tarifas);
 
+                touchByUser = false;
                 spTarifa.setAdapter(adapter);
+                if(codigoLinea!=-1)
+                    spTarifa.setSelection(tarifaSeleccionada.getCodTarifa());
+                spTarifa.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        touchByUser = true;
+                    }
+                },200);
 
             }
+
         }
     }
     private class TerminalesAsynctask extends AsyncTask<String, Void, ArrayList<Terminal>>{

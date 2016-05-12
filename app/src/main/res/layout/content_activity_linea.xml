@@ -10,7 +10,6 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".Activitys.ActivityLinea"
     tools:showIn="@layout/activity_linea"
-    android:animateLayoutChanges="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -54,7 +53,6 @@
                 android:layout_margin="5dp"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
         </LinearLayout>
-
         <LinearLayout
             android:id="@+id/ln_linea_alta"
             android:visibility="gone"
@@ -115,7 +113,6 @@
                 android:layout_weight="1"/>
 
         </LinearLayout>
-
         <LinearLayout
             android:id="@+id/ln_linea_simonly"
             android:animateLayoutChanges="true"
@@ -125,44 +122,43 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:background="@color/background_dark"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:visibility="gone">
-
-            <LinearLayout
+            <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <CheckBox
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="SIM only"
-                    android:checked="true"
-                    android:layout_gravity="center"
-                    android:id="@+id/cb_linea_simonly"
-                    />
-                <CheckBox
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Con terminal"
-                    android:layout_marginLeft="8dp"
-                    android:layout_gravity="center"
-                    android:id="@+id/cb_linea_terminal"
+                android:text="SIM only"
+                android:checked="true"
+                android:layout_gravity="center"
+                android:id="@+id/cb_linea_simonly"
+                />
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Con terminal"
+                android:layout_marginLeft="8dp"
+                android:layout_gravity="center"
+                android:id="@+id/cb_linea_terminal"
 
-                    />
-            </LinearLayout>
-
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ln_linea_terminal"
+            android:animateLayoutChanges="true"
+            android:gravity="center"
+            android:padding="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/background_dark"
+            android:orientation="horizontal"
+            android:visibility="gone">
             <TextView
                 android:id="@+id/tv_linea_terminal"
-                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:animateLayoutChanges="true"
                 android:text=""
                 android:textSize="18dp"/>
-
-
-
         </LinearLayout>
         <LinearLayout
             android:id="@+id/ln_linea_convergencia"
@@ -191,6 +187,28 @@
                 android:layout_weight="1"
                 android:visibility="gone"
                 android:spinnerMode="dropdown"
+                />
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ln_linea_convergencia_movil"
+            android:animateLayoutChanges="true"
+            android:gravity="center"
+            android:padding="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/background_dark"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Convergencia movil ¿?"
+                android:checked="false"
+                android:layout_gravity="center"
+                android:id="@+id/cb_linea_convergencia_movil"
                 />
 
         </LinearLayout>

@@ -17,4 +17,9 @@
         <item name="windowNoTitle">true</item>
         <item name="android:windowContentTransitions">true</item>
     </style>
+    <style name="AppTheme.NoActionBar.ok">
+        <item name="colorPrimary">@color/colorOK</item>
+        <item name="colorPrimaryDark">@color/colorOK_dark</item>
+        <item name="colorAccent">@color/colorOK_dark</item>
+    </style>
 </resources>

@@ -35,12 +35,20 @@
             android:name=".Activitys.ActivityLinea"
             android:label="@string/title_activity_activity_linea"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="com.appcloud.frankiapp.Activitys.ActivityOferta" />
+        </activity>
         <activity
             android:name=".Activitys.ActivityOferta"
             android:screenOrientation="portrait"
             android:label="@string/title_activity_activity_oferta2"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.appcloud.frankiapp.Activitys.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

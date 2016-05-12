@@ -8,11 +8,6 @@ import com.appcloud.frankiapp.Utils.Configuration;
 public class Oferta {
 
 
-    public final static String PRESENTADA = "PRESENTADA";
-    public final static String EN_PROCESO = "EN_PROCESO";
-    public final static String KO = "KO";
-    public final static String FINALIZADA = "FINALIZADA";
-
 
     int codOferta;
     int codCliente;
@@ -21,8 +16,10 @@ public class Oferta {
     long fechaFirma;
     long fechaKO;
     long fechaOK;
-    float pagoInicial;
-    float cuotaMenseual;
+    float pagoInicialTarifa;
+    float cuotaTarifa;
+    float pagoInicialTerminal;
+    float cuotaTerminal;
     float comisionBaseTotal;
     float puntosTotal;
     float commisionEmpresa;
@@ -87,20 +84,36 @@ public class Oferta {
         this.fechaOK = fechaOK;
     }
 
-    public float getPagoInicial() {
-        return pagoInicial;
+    public float getPagoInicialTarifa() {
+        return pagoInicialTarifa;
     }
 
-    public void setPagoInicial(float pagoInicial) {
-        this.pagoInicial = pagoInicial;
+    public void setPagoInicialTarifa(float pagoInicialTarifa) {
+        this.pagoInicialTarifa = pagoInicialTarifa;
     }
 
-    public float getCuotaMenseual() {
-        return cuotaMenseual;
+    public float getCuotaTarifa() {
+        return cuotaTarifa;
     }
 
-    public void setCuotaMenseual(float cuotaMenseual) {
-        this.cuotaMenseual = cuotaMenseual;
+    public void setCuotaTarifa(float cuotaTarifa) {
+        this.cuotaTarifa = cuotaTarifa;
+    }
+
+    public float getPagoInicialTerminal() {
+        return pagoInicialTerminal;
+    }
+
+    public void setPagoInicialTerminal(float pagoInicialTerminal) {
+        this.pagoInicialTerminal = pagoInicialTerminal;
+    }
+
+    public float getCuotaTerminal() {
+        return cuotaTerminal;
+    }
+
+    public void setCuotaTerminal(float cuotaTerminal) {
+        this.cuotaTerminal = cuotaTerminal;
     }
 
     public float getComisionBaseTotal() {

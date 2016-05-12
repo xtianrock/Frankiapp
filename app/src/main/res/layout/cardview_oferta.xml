@@ -14,9 +14,12 @@
         android:layout_marginTop="10dp"
         android:elevation="5dp">
         <LinearLayout
+            android:id="@+id/ln_color"
             android:layout_width="8dp"
             android:layout_height="match_parent"
-            android:background="@color/colorBorrador">
+            android:transitionName="color"
+            android:orientation="vertical"
+            android:background="@color/colorOK">
 
         </LinearLayout>
 
@@ -39,7 +42,7 @@
 
                 <TextView
                     android:id="@+id/tv_oferta_nombre"
-                    android:transitionName="transition_nombre"
+                    android:transitionName="nombre"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="22dp"

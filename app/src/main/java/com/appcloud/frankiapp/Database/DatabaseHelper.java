@@ -214,8 +214,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String FECHA_FIRMA = "FECHA_FIRMA";
     public static final String FECHA_KO = "FECHA_KO";
     public static final String FECHA_OK = "FECHA_OK";
-    public static final String PAGO_INICIAL = "PAGO_INICIAL";
-    public static final String CUOTA_MENSUAL = "CUOTA_MENSUAL";
+    public static final String PAGO_INICIAL_TARIFA = "PAGO_INICIAL_TARIFA";
+    public static final String CUOTA_TARIFA = "CUOTA_TARIFA";
+    public static final String PAGO_INICIAL_TERMINAL = "PAGO_INICIAL_TERMINAL";
+    public static final String CUOTA_TERMINAL = "CUOTA_TERMINAL";
     public static final String COMISION_BASE_TOTAL = "COMISION_BASE_TOTAL";
     public static final String PUNTOS_TOTAL = "PUNTOS_TOTAL";
     public static final String COMISION_EMPRESA = "COMISION_EMPRESA";
@@ -231,8 +233,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + FECHA_FIRMA + " INTEGER,"
             + FECHA_KO + " INTEGER,"
             + FECHA_OK + " INTEGER,"
-            + PAGO_INICIAL + " NUMERIC,"
-            + CUOTA_MENSUAL + " NUMERIC,"
+            + PAGO_INICIAL_TARIFA + " NUMERIC,"
+            + PAGO_INICIAL_TERMINAL + " NUMERIC,"
+            + CUOTA_TARIFA + " NUMERIC,"
+            + CUOTA_TERMINAL + " NUMERIC,"
             + COMISION_BASE_TOTAL + " NUMERIC,"
             + PUNTOS_TOTAL + " NUMERIC,"
             + COMISION_EMPRESA + " NUMERIC,"
@@ -456,8 +460,49 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
+    public Terminal getTerminalByCod(int codTerminal) {
+        String selectQuery = "SELECT  * FROM " + TABLE_TERMINALES_SMART +
+                " WHERE " + CODTERMINAL + " = "+ codTerminal;
+        Log.e(LOG, selectQuery);
 
-    public ArrayList<Terminal> getAllTErminales() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+        Terminal terminal = null;
+        if (c!=null && c.moveToFirst()) {
+            terminal = new Terminal();
+            terminal.setCodTerminal(c.getInt(c.getColumnIndex(CODTERMINAL)));
+            terminal.setDescripcion((c.getString(c.getColumnIndex(NOMBRETERMINAL))));
+            terminal.setColor((c.getString(c.getColumnIndex(COLOR))));
+            terminal.setSim((c.getString(c.getColumnIndex(SIM))));
+            terminal.setLte((c.getString(c.getColumnIndex(LTE))));
+            terminal.setVodCasaInicial(c.getFloat(c.getColumnIndex(VODCASAINICIAL)));
+            terminal.setVodCasaCuota(c.getFloat(c.getColumnIndex(VODCASACUOTA)));
+            terminal.setVodCasaPvp(c.getFloat(c.getColumnIndex(VODCASAPVP)));
+            terminal.setXsInicial(c.getFloat(c.getColumnIndex(XSINICIAL)));
+            terminal.setXsCouta(c.getFloat(c.getColumnIndex(XSCUOTA)));
+            terminal.setXsPvp(c.getFloat(c.getColumnIndex(XSPVP)));
+            terminal.setMiniInicial(c.getFloat(c.getColumnIndex(MINIINICIAL)));
+            terminal.setMiniCouta(c.getFloat(c.getColumnIndex(MINICUOTA)));
+            terminal.setMiniPvp(c.getFloat(c.getColumnIndex(MINIPVP)));
+            terminal.setsInicial(c.getFloat(c.getColumnIndex(SINICIAL)));
+            terminal.setsCouta(c.getFloat(c.getColumnIndex(SCUOTA)));
+            terminal.setSpvp(c.getFloat(c.getColumnIndex(SPVP)));
+            terminal.setmInicial(c.getFloat(c.getColumnIndex(MINICIAL)));
+            terminal.setmCuota(c.getFloat(c.getColumnIndex(MCUOTA)));
+            terminal.setmPvp(c.getFloat(c.getColumnIndex(MPVP)));
+            terminal.setlInicial(c.getFloat(c.getColumnIndex(LINICIAL)));
+            terminal.setlCuota(c.getFloat(c.getColumnIndex(LCUOTA)));
+            terminal.setlPvp(c.getFloat(c.getColumnIndex(LPVP)));
+            terminal.setXlInicial(c.getFloat(c.getColumnIndex(XLINICIAL)));
+            terminal.setXlCuota(c.getFloat(c.getColumnIndex(XLCUOTA)));
+            terminal.setXlPvp(c.getFloat(c.getColumnIndex(XLPVP)));
+        }
+        c.close();
+        return terminal;
+    }
+
+
+    public ArrayList<Terminal> getAllTerminales() {
         ArrayList<Terminal> terminales = new ArrayList<>();
         String selectQuery = "SELECT  * FROM " + TABLE_TERMINALES_SMART;
         Log.e(LOG, selectQuery);
@@ -585,7 +630,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 tarifa.setDesCorta((c.getString(c.getColumnIndex(DESCORTA))));
                 tarifa.setDesLarga((c.getString(c.getColumnIndex(DESLARGA))));
                 tarifa.setPrecioConTerminal((c.getFloat(c.getColumnIndex(PRECIOCONTERMINAL))));
-                tarifa.setPrecioConMovil((c.getFloat(c.getColumnIndex(PRECIOCONVMOVIL))));
+                tarifa.setPrecioConvergenciaMovil((c.getFloat(c.getColumnIndex(PRECIOCONVMOVIL))));
                 tarifa.setPrecioSinConv((c.getFloat(c.getColumnIndex(PRECIOSINCONV))));
                 tarifa.setPrecioConvXXL((c.getFloat(c.getColumnIndex(PRECIOCONVXXL))));
                 tarifa.setPrecioConvXL((c.getFloat(c.getColumnIndex(PRECIOCONVXL))));
@@ -603,6 +648,40 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         c.close();
         return tarifas;
+    }
+
+    public Tarifa getTarifaByCod(int codTarifa) {
+        String selectQuery = "SELECT  * FROM " + TABLE_TARIFAS +
+                " WHERE " + CODTARIFA + " = " + codTarifa;
+        Log.e(LOG, selectQuery);
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+        Tarifa tarifa = null;
+        if (c!=null && c.moveToFirst()) {
+            tarifa = new Tarifa();
+            tarifa.setCodTarifa(c.getInt(c.getColumnIndex(CODTARIFA)));
+            tarifa.setPlanPrecios((c.getString(c.getColumnIndex(PLANPRECIOS))));
+            tarifa.setTipoPlan((c.getString(c.getColumnIndex(TIPOPLAN))));
+            tarifa.setPlanPrecioTerminal(c.getString(c.getColumnIndex(PLANPRECIOTERMINAL)));
+            tarifa.setDesCorta((c.getString(c.getColumnIndex(DESCORTA))));
+            tarifa.setDesLarga((c.getString(c.getColumnIndex(DESLARGA))));
+            tarifa.setPrecioConTerminal((c.getFloat(c.getColumnIndex(PRECIOCONTERMINAL))));
+            tarifa.setPrecioConvergenciaMovil((c.getFloat(c.getColumnIndex(PRECIOCONVMOVIL))));
+            tarifa.setPrecioSinConv((c.getFloat(c.getColumnIndex(PRECIOSINCONV))));
+            tarifa.setPrecioConvXXL((c.getFloat(c.getColumnIndex(PRECIOCONVXXL))));
+            tarifa.setPrecioConvXL((c.getFloat(c.getColumnIndex(PRECIOCONVXL))));
+            tarifa.setPrecioConvL((c.getFloat(c.getColumnIndex(PRECIOCONVL))));
+            tarifa.setPrecioConvM((c.getFloat(c.getColumnIndex(PRECIOCONVM))));
+            tarifa.setPrecioConvS((c.getFloat(c.getColumnIndex(PRECIOCONVS))));
+            tarifa.setPrecioConvMINIS(c.getFloat(c.getColumnIndex(PRECIOCONVMINIS)));
+            tarifa.setCosteAlta((c.getFloat(c.getColumnIndex(COSTEALTA))));
+            tarifa.setComisionBase((c.getFloat(c.getColumnIndex(COMISIONBASE))));
+            tarifa.setComisionExtra((c.getFloat(c.getColumnIndex(COMISIONEXTRA))));
+            tarifa.setComisionPorta((c.getFloat(c.getColumnIndex(COMISIONPORTA))));
+        }
+        c.close();
+        return tarifa;
     }
 
     public ArrayList<Cliente> getAllClientes() {
@@ -660,7 +739,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return cliente;
     }
 
-
     public long createCliente(Cliente cliente) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -698,9 +776,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public ArrayList<Oferta> getAllOfertas() {
+    public ArrayList<Oferta> getAllOfertas(String estado) {
         ArrayList<Oferta> ofertas = new ArrayList<>();
-        String selectQuery = "SELECT  * FROM " + TABLE_CABECERAS_OFERTA;
+        String selectQuery = "SELECT  * FROM " + TABLE_CABECERAS_OFERTA +
+                " WHERE " + ESTADO + " = '" + estado +"'";
         Log.e(LOG, selectQuery);
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -717,8 +796,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 oferta.setFechaFirma((c.getLong(c.getColumnIndex(FECHA_FIRMA))));
                 oferta.setFechaKO((c.getLong(c.getColumnIndex(FECHA_KO))));
                 oferta.setFechaOK((c.getLong(c.getColumnIndex(FECHA_OK))));
-                oferta.setPagoInicial((c.getFloat(c.getColumnIndex(PAGO_INICIAL))));
-                oferta.setCuotaMenseual((c.getFloat(c.getColumnIndex(CUOTA_MENSUAL))));
+                oferta.setPagoInicialTarifa((c.getFloat(c.getColumnIndex(PAGO_INICIAL_TARIFA))));
+                oferta.setCuotaTarifa((c.getFloat(c.getColumnIndex(CUOTA_TARIFA))));
+                oferta.setPagoInicialTerminal((c.getFloat(c.getColumnIndex(PAGO_INICIAL_TERMINAL))));
+                oferta.setCuotaTerminal((c.getFloat(c.getColumnIndex(CUOTA_TERMINAL))));
                 oferta.setComisionBaseTotal((c.getFloat(c.getColumnIndex(COMISION_BASE_TOTAL))));
                 oferta.setPuntosTotal((c.getFloat(c.getColumnIndex(PUNTOS_TOTAL))));
                 oferta.setCommisionEmpresa((c.getFloat(c.getColumnIndex(COMISION_EMPRESA))));
@@ -747,8 +828,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             oferta.setFechaFirma((c.getLong(c.getColumnIndex(FECHA_FIRMA))));
             oferta.setFechaKO((c.getLong(c.getColumnIndex(FECHA_KO))));
             oferta.setFechaOK((c.getLong(c.getColumnIndex(FECHA_OK))));
-            oferta.setPagoInicial((c.getFloat(c.getColumnIndex(PAGO_INICIAL))));
-            oferta.setCuotaMenseual((c.getFloat(c.getColumnIndex(CUOTA_MENSUAL))));
+            oferta.setPagoInicialTarifa((c.getFloat(c.getColumnIndex(PAGO_INICIAL_TARIFA))));
+            oferta.setCuotaTarifa((c.getFloat(c.getColumnIndex(CUOTA_TARIFA))));
+            oferta.setPagoInicialTerminal((c.getFloat(c.getColumnIndex(PAGO_INICIAL_TERMINAL))));
+            oferta.setCuotaTerminal((c.getFloat(c.getColumnIndex(CUOTA_TERMINAL))));
             oferta.setComisionBaseTotal((c.getFloat(c.getColumnIndex(COMISION_BASE_TOTAL))));
             oferta.setPuntosTotal((c.getFloat(c.getColumnIndex(PUNTOS_TOTAL))));
             oferta.setCommisionEmpresa((c.getFloat(c.getColumnIndex(COMISION_EMPRESA))));
@@ -759,13 +842,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public long createCabecceraOferta(Oferta oferta) {
         SQLiteDatabase db = this.getWritableDatabase();
-
+        float cero = 0.0f;
         ContentValues values = new ContentValues();
-        values.put(ESTADO, oferta.getEstado());
 
-        return db.insert(TABLE_CABECERAS_OFERTA, null, values);
+        values.put(ESTADO, Configuration.BORRADOR);
+        values.put(PAGO_INICIAL_TARIFA,cero);
+        values.put(CUOTA_TARIFA,cero);
+        values.put(PAGO_INICIAL_TERMINAL,cero);
+        values.put(CUOTA_TERMINAL,cero);
+        values.put(COMISION_BASE_TOTAL,cero);
+        values.put(PUNTOS_TOTAL,cero);
+        values.put(COMISION_EMPRESA,cero);
+
+        long value=  db.insert(TABLE_CABECERAS_OFERTA, null, values);
+        return value;
     }
-
 
     public long updateCabeceraOferta(Oferta oferta) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -778,13 +869,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(FECHA_FIRMA,oferta.getFechaFirma());
         values.put(FECHA_KO,oferta.getFechaKO());
         values.put(FECHA_OK,oferta.getFechaOK());
-        values.put(PAGO_INICIAL,oferta.getPagoInicial());
-        values.put(CUOTA_MENSUAL,oferta.getCuotaMenseual());
+        values.put(PAGO_INICIAL_TARIFA,oferta.getPagoInicialTarifa());
+        values.put(CUOTA_TARIFA,oferta.getCuotaTarifa());
+        values.put(PAGO_INICIAL_TERMINAL,oferta.getPagoInicialTerminal());
+        values.put(CUOTA_TERMINAL,oferta.getCuotaTerminal());
         values.put(COMISION_BASE_TOTAL,oferta.getComisionBaseTotal());
         values.put(PUNTOS_TOTAL,oferta.getPuntosTotal());
         values.put(COMISION_EMPRESA,oferta.getCommisionEmpresa());
 
         return db.update(TABLE_CABECERAS_OFERTA, values,whereClause,null);
+    }
+
+    public long deleteOferta(Oferta oferta) {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String whereClause= CODOFERTA +" = " + oferta.getCodOferta();
+
+
+        long lineaEliminada = db.delete(TABLE_CABECERAS_OFERTA, whereClause,null);
+
+
+
+        return lineaEliminada;
     }
 
     public ArrayList<Lineaoferta> getAllLineasOferta(int codigoOferta) {
@@ -799,6 +905,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (c.moveToFirst()) {
             do {
                 Lineaoferta linea = new Lineaoferta(codigoOferta);
+                linea.setCodLinea(c.getInt(c.getColumnIndex(CODLINEA)));
                 linea.setCodOferta(c.getInt(c.getColumnIndex(CODOFERTA)));
                 linea.setCodTarifa(c.getInt(c.getColumnIndex(CODTARIFA)));
                 linea.setCodTerminal((c.getInt(c.getColumnIndex(CODTERMINAL))));
@@ -820,37 +927,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return lineas;
     }
 
-    public ArrayList<Lineaoferta> getLineaOferta(int codLinea) {
-        ArrayList<Lineaoferta> lineas = new ArrayList<>();
-        String selectQuery = "SELECT  * FROM " + TABLE_LINEAS_OFERTA +" WHERE "+CODLINEA+ "="+codLinea;
+    public Lineaoferta getLineaOferta(int codLinea) {
+        String selectQuery = "SELECT * FROM " + TABLE_LINEAS_OFERTA +" WHERE "+CODLINEA+ " = "+codLinea;
         Log.e(LOG, selectQuery);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
-
-
-        if (c.moveToFirst()) {
-            do {
-                Lineaoferta linea = new Lineaoferta(c.getInt(c.getColumnIndex(CODOFERTA)));
-                linea.setCodLinea(c.getInt(c.getColumnIndex(CODLINEA)));
-                linea.setCodTarifa(c.getInt(c.getColumnIndex(CODTARIFA)));
-                linea.setCodTerminal((c.getInt(c.getColumnIndex(CODTERMINAL))));
-                linea.setNumeroTelefono((c.getString(c.getColumnIndex(NUMEROTELEFONO))));
-                linea.setPlanPrecios((c.getString(c.getColumnIndex(PLANPRECIOS))));
-                linea.setOperadorDonante((c.getString(c.getColumnIndex(OPERADORDONANTE))));
-                linea.setTipoConvergencia((c.getString(c.getColumnIndex(TIPOCONVERGENCIA))));
-                linea.setConvergenciaMovil((c.getString(c.getColumnIndex(CONVERGENCIAMOVIL))));
-                linea.setPrecioTarifaInicial((c.getFloat(c.getColumnIndex(PRECIOTARIFAINICIAL))));
-                linea.setPrecioTarifaCuota((c.getFloat(c.getColumnIndex(PRECIOTARIFACUOTA))));
-                linea.setPrecioTerminalInicial((c.getFloat(c.getColumnIndex(PRECIOTERMINALINICIAL))));
-                linea.setPrecioTErminalCuota((c.getFloat(c.getColumnIndex(PRECIOTERMINALCUOTA))));
-                linea.setComisionBase((c.getFloat(c.getColumnIndex(COMISIONBASE))));
-                linea.setComisionExtra((c.getFloat(c.getColumnIndex(COMISIONEXTRA))));
-                lineas.add(linea);
-            } while (c.moveToNext());
+        Lineaoferta linea = null;
+        if (c!=null && c.moveToFirst()) {
+            linea = new Lineaoferta(c.getInt(c.getColumnIndex(CODOFERTA)));
+            linea.setCodLinea(c.getInt(c.getColumnIndex(CODLINEA)));
+            linea.setCodTarifa(c.getInt(c.getColumnIndex(CODTARIFA)));
+            linea.setCodTerminal((c.getInt(c.getColumnIndex(CODTERMINAL))));
+            linea.setNumeroTelefono((c.getString(c.getColumnIndex(NUMEROTELEFONO))));
+            linea.setPlanPrecios((c.getString(c.getColumnIndex(PLANPRECIOS))));
+            linea.setOperadorDonante((c.getString(c.getColumnIndex(OPERADORDONANTE))));
+            linea.setTipoConvergencia((c.getString(c.getColumnIndex(TIPOCONVERGENCIA))));
+            linea.setConvergenciaMovil((c.getString(c.getColumnIndex(CONVERGENCIAMOVIL))));
+            linea.setPrecioTarifaInicial((c.getFloat(c.getColumnIndex(PRECIOTARIFAINICIAL))));
+            linea.setPrecioTarifaCuota((c.getFloat(c.getColumnIndex(PRECIOTARIFACUOTA))));
+            linea.setPrecioTerminalInicial((c.getFloat(c.getColumnIndex(PRECIOTERMINALINICIAL))));
+            linea.setPrecioTErminalCuota((c.getFloat(c.getColumnIndex(PRECIOTERMINALCUOTA))));
+            linea.setComisionBase((c.getFloat(c.getColumnIndex(COMISIONBASE))));
+            linea.setComisionExtra((c.getFloat(c.getColumnIndex(COMISIONEXTRA))));
         }
         c.close();
-        return lineas;
+        return linea;
     }
 
     public long createLineaOferta(Lineaoferta linea) {
@@ -872,31 +974,96 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COMISIONBASE, linea.getComisionBase());
         values.put(COMISIONEXTRA, linea.getComisionExtra());
 
-        return db.insert(TABLE_LINEAS_OFERTA, null, values);
+        db.beginTransaction();
+
+        long result = db.insert(TABLE_LINEAS_OFERTA, null, values);
+
+        String whereClause= " WHERE " + CODOFERTA +" = " + linea.getCodOferta();
+        String sql = "UPDATE " + TABLE_CABECERAS_OFERTA + " SET "+
+                PAGO_INICIAL_TARIFA + "=" + PAGO_INICIAL_TARIFA + "+" + linea.getPrecioTarifaInicial() + ","+
+                CUOTA_TARIFA + "=" + CUOTA_TARIFA + "+" + linea.getPrecioTarifaCuota() + ","+
+                PAGO_INICIAL_TERMINAL + "=" + PAGO_INICIAL_TERMINAL + "+" + linea.getPrecioTerminalInicial() + ","+
+                CUOTA_TERMINAL + "=" + CUOTA_TERMINAL + "+" + linea.getPrecioTErminalCuota() +
+                whereClause;
+        Log.i("update   ----->",sql);
+        db.execSQL(sql);
+
+
+        db.setTransactionSuccessful();
+        db.endTransaction();
+
+        return result;
     }
 
-
-    public long updateLineaOferta(Lineaoferta linea) {
+    public long updateLineaOferta(Lineaoferta lineaActual, Lineaoferta lineaPreciosNuevos) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String whereClause= CODOFERTA +" = " + linea.getCodOferta();
+        String whereClause= CODLINEA +" = " + lineaActual.getCodLinea();
 
         ContentValues values = new ContentValues();
-        values.put(CODOFERTA, linea.getCodOferta());
-        values.put(CODTARIFA, linea.getCodTarifa());
-        values.put(CODTERMINAL, linea.getCodTerminal());
-        values.put(NUMEROTELEFONO, linea.getNumeroTelefono());
-        values.put(PLANPRECIOS, linea.getPlanPrecios());
-        values.put(OPERADORDONANTE, linea.getOperadorDonante());
-        values.put(TIPOCONVERGENCIA, linea.getTipoConvergencia());
-        values.put(CONVERGENCIAMOVIL, linea.getConvergenciaMovil());
-        values.put(PRECIOTARIFAINICIAL, linea.getPrecioTarifaInicial());
-        values.put(PRECIOTARIFACUOTA, linea.getPrecioTarifaCuota());
-        values.put(PRECIOTERMINALINICIAL, linea.getPrecioTerminalInicial());
-        values.put(PRECIOTERMINALCUOTA, linea.getPrecioTErminalCuota());
-        values.put(COMISIONBASE, linea.getComisionBase());
-        values.put(COMISIONEXTRA, linea.getComisionExtra());
+        values.put(CODOFERTA, lineaActual.getCodOferta());
+        values.put(CODTARIFA, lineaActual.getCodTarifa());
+        values.put(CODTERMINAL, lineaActual.getCodTerminal());
+        values.put(NUMEROTELEFONO, lineaActual.getNumeroTelefono());
+        values.put(PLANPRECIOS, lineaActual.getPlanPrecios());
+        values.put(OPERADORDONANTE, lineaActual.getOperadorDonante());
+        values.put(TIPOCONVERGENCIA, lineaActual.getTipoConvergencia());
+        values.put(CONVERGENCIAMOVIL, lineaActual.getConvergenciaMovil());
+        values.put(PRECIOTARIFAINICIAL, lineaPreciosNuevos.getPrecioTarifaInicial());
+        values.put(PRECIOTARIFACUOTA, lineaPreciosNuevos.getPrecioTarifaCuota());
+        values.put(PRECIOTERMINALINICIAL, lineaPreciosNuevos.getPrecioTerminalInicial());
+        values.put(PRECIOTERMINALCUOTA, lineaPreciosNuevos.getPrecioTErminalCuota());
+        values.put(COMISIONBASE, lineaActual.getComisionBase());
+        values.put(COMISIONEXTRA, lineaActual.getComisionExtra());
 
-        return db.update(TABLE_CABECERAS_OFERTA, values,whereClause,null);
+        db.beginTransaction();
+
+        long lineaActualizada = db.update(TABLE_LINEAS_OFERTA, values,whereClause,null);
+
+        float diferenciaTarifaInicial= lineaPreciosNuevos.getPrecioTarifaInicial()-lineaActual.getPrecioTarifaInicial();
+        float diferenciaTarifaCuota= lineaPreciosNuevos.getPrecioTarifaCuota()-lineaActual.getPrecioTarifaCuota();
+        float diferenciaTerminalInicial= lineaPreciosNuevos.getPrecioTerminalInicial()-lineaActual.getPrecioTerminalInicial();
+        float diferenciaterminalCuota= lineaPreciosNuevos.getPrecioTErminalCuota()-lineaActual.getPrecioTErminalCuota();
+
+        String ofertaWhereClause = " WHERE " + CODOFERTA +" = " + lineaActual.getCodOferta();
+        String sql = "UPDATE " + TABLE_CABECERAS_OFERTA + " SET "+
+                PAGO_INICIAL_TARIFA + "=" + PAGO_INICIAL_TARIFA + "+" + diferenciaTarifaInicial + ","+
+                CUOTA_TARIFA + "=" + CUOTA_TARIFA + "+" + diferenciaTarifaCuota + ","+
+                PAGO_INICIAL_TERMINAL + "=" + PAGO_INICIAL_TERMINAL + "+" + diferenciaTerminalInicial + ","+
+                CUOTA_TERMINAL + "=" + CUOTA_TERMINAL + "+" + diferenciaterminalCuota +
+                ofertaWhereClause;
+        Log.i("update   ----->",sql);
+        db.execSQL(sql);
+
+        db.setTransactionSuccessful();
+        db.endTransaction();
+
+        return lineaActualizada;
+    }
+
+    public long deleteLineaOferta(Lineaoferta linea) {
+
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String whereClause= CODLINEA +" = " + linea.getCodLinea();
+
+        db.beginTransaction();
+
+        long lineaEliminada = db.delete(TABLE_LINEAS_OFERTA, whereClause,null);
+
+        String ofertaWhereClause = " WHERE " + CODOFERTA +" = " + linea.getCodOferta();
+        String sql = "UPDATE " + TABLE_CABECERAS_OFERTA + " SET "+
+                PAGO_INICIAL_TARIFA + "=" + PAGO_INICIAL_TARIFA + "-" + linea.getPrecioTarifaInicial() + ","+
+                CUOTA_TARIFA + "=" + CUOTA_TARIFA + "-" + linea.getPrecioTarifaCuota() + ","+
+                PAGO_INICIAL_TERMINAL + "=" + PAGO_INICIAL_TERMINAL + "-" + linea.getPrecioTerminalInicial() + ","+
+                CUOTA_TERMINAL + "=" + CUOTA_TERMINAL + "-" + linea.getPrecioTErminalCuota() +
+                ofertaWhereClause;
+        Log.i("delete   ----->",sql);
+        db.execSQL(sql);
+
+        db.setTransactionSuccessful();
+        db.endTransaction();
+
+        return lineaEliminada;
     }
 
     }

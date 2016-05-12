@@ -22,6 +22,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -64,6 +65,7 @@ public class LoginActivity extends AppCompatActivity  {
     private SharedPreferences.Editor editor;
 
     // UI references.
+    private LinearLayout lnlogin;
     private AutoCompleteTextView mUserView;
     private EditText mPasswordView;
     private CheckBox cbRecordar;
@@ -77,9 +79,11 @@ public class LoginActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_login);
         // Set up the login form.
 
+        lnlogin = (LinearLayout)findViewById(R.id.ln_login_form);
         mUserView = (AutoCompleteTextView) findViewById(R.id.username);
         tvRestablecer = (TextView)findViewById(R.id.tv_restablecer);
         cbRecordar = (CheckBox)findViewById(R.id.cb_recordar);
+        mProgressView = findViewById(R.id.login_progress);
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -105,8 +109,8 @@ public class LoginActivity extends AppCompatActivity  {
             }
         });
 
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+
+
 
         volleyInstance = VolleySingleton.getInstance(getApplicationContext());
         volleyQueue = volleyInstance.getRequestQueue();
@@ -119,6 +123,12 @@ public class LoginActivity extends AppCompatActivity  {
             cbRecordar.setChecked(true);
         }
 
+        lnlogin.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                lnlogin.setVisibility(View.VISIBLE);
+            }
+        },600);
 
     }
 

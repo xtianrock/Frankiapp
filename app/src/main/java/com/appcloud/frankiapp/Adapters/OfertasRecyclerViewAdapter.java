@@ -44,7 +44,7 @@ public class OfertasRecyclerViewAdapter extends RecyclerView.Adapter<OfertasRecy
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onItemClick(holder.oferta);
+                    mListener.onItemClick(holder.mView,holder.oferta);
                 }
             }
         });
@@ -78,6 +78,6 @@ public class OfertasRecyclerViewAdapter extends RecyclerView.Adapter<OfertasRecy
     }
 
     public interface OfertaClickListener {
-        void onItemClick(Oferta oferta);
+        void onItemClick(View vista,Oferta oferta);
     }
 }

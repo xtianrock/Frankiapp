@@ -6,6 +6,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 
 
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -20,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.appcloud.frankiapp.Database.DatabaseHelper;
 import com.appcloud.frankiapp.Fragments.ListaClientesFragment;
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity
     TabLayout tabLayout;
     FloatingActionButton fab;
     String currentFragmentTag;
+    Snackbar snackbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,13 +84,23 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            //super.onBackPressed();
+            if(snackbar!=null && snackbar.isShown())
+                finish();
+            else
+            {
+                snackbar = Snackbar.make(fab,"Pulse de nuevo para salir", Snackbar.LENGTH_SHORT);
+                snackbar.show();
+            }
+
+
         }
     }
 
