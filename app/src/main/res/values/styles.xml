@@ -8,6 +8,32 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="AppTheme.NoActionBar.borrador">
+        <item name="colorPrimary">@color/colorBorrador</item>
+        <item name="colorPrimaryDark">@color/colorBorrador_dark</item>
+        <item name="colorAccent">@color/colorBorrador_accent</item>
+    </style>
+    <style name="AppTheme.NoActionBar.presentada">
+        <item name="colorPrimary">@color/colorPresentada</item>
+        <item name="colorPrimaryDark">@color/colorPresentada_dark</item>
+        <item name="colorAccent">@color/colorPresentada_accent</item>
+    </style>
+    <style name="AppTheme.NoActionBar.firmada">
+        <item name="colorPrimary">@color/colorFirmada</item>
+        <item name="colorPrimaryDark">@color/colorfirmada_dark</item>
+        <item name="colorAccent">@color/colorfirmada_accent</item>
+    </style>
+    <style name="AppTheme.NoActionBar.ok">
+        <item name="colorPrimary">@color/colorOK</item>
+        <item name="colorPrimaryDark">@color/colorOK_dark</item>
+        <item name="colorAccent">@color/colorOK_accent</item>
+    </style>
+    <style name="AppTheme.NoActionBar.ko">
+        <item name="colorPrimary">@color/colorKO</item>
+        <item name="colorPrimaryDark">@color/colorKO_dark</item>
+        <item name="colorAccent">@color/colorKO_accent</item>
+    </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

@@ -149,7 +149,7 @@ public class ListaOfertasFragment extends Fragment {
             if(result!=null)
             {
               ofertas=result;
-                recyclerView.setAdapter(new OfertasRecyclerViewAdapter(ofertas,listener));
+                recyclerView.setAdapter(new OfertasRecyclerViewAdapter(context,ofertas,listener));
             }
         }
     }

@@ -78,10 +78,9 @@ public class MainActivity extends AppCompatActivity
         switchToFragment(new TabFragment(),"Ofertas",true);
 
         database.getWritableDatabase();
-        DatabaseHelper.importTarifas(this);
-        DatabaseHelper.importPuntos(this);
+       // DatabaseHelper.importTarifas(this);
+       // DatabaseHelper.importPuntos(this);
         DatabaseHelper.importTerminalesSmart(this);
-
     }
 
 

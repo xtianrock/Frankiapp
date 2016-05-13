@@ -5,6 +5,8 @@ import android.os.Handler;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import com.appcloud.frankiapp.R;
+
 /**
  * Created by cristian on 28/04/2016.
  */
@@ -33,6 +35,25 @@ public class Commons {
             if (imm != null) {
                 imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
             }
+        }
+    }
+
+    public static int getTema(String estado)
+    {
+        switch (estado)
+        {
+            case Configuration.BORRADOR:
+                 return R.style.AppTheme_NoActionBar_borrador;
+            case Configuration.PRESENTADA:
+                return R.style.AppTheme_NoActionBar_presentada;
+            case Configuration.FIRMADA:
+                return R.style.AppTheme_NoActionBar_firmada;
+            case Configuration.KO:
+                return R.style.AppTheme_NoActionBar_ko;
+            case Configuration.OK:
+                return R.style.AppTheme_NoActionBar_ok;
+            default:
+                return R.style.AppTheme_NoActionBar_presentada;
         }
     }
 }

@@ -176,10 +176,12 @@ public class ClienteFragment extends Fragment {
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
+    public void onStop() {
+        super.onStop();
         fab.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_add));
     }
+
+
 
 
     private int getPositionByString(String[] array,String nombre)

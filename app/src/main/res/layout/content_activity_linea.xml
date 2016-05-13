@@ -161,36 +161,6 @@
                 android:textSize="18dp"/>
         </LinearLayout>
         <LinearLayout
-            android:id="@+id/ln_linea_convergencia"
-            android:animateLayoutChanges="true"
-            android:gravity="center"
-            android:padding="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="@color/background_dark"
-            android:orientation="horizontal"
-            android:visibility="gone">
-
-            <CheckBox
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Convergencia"
-                android:checked="false"
-                android:layout_gravity="center"
-                android:id="@+id/cb_linea_convergencia"
-                />
-            <Spinner
-                android:id="@+id/sp_linea_converngencia"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:visibility="gone"
-                android:spinnerMode="dropdown"
-                />
-
-        </LinearLayout>
-        <LinearLayout
             android:id="@+id/ln_linea_convergencia_movil"
             android:animateLayoutChanges="true"
             android:gravity="center"
@@ -205,10 +175,40 @@
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Convergencia movil ¿?"
+                android:text="Convergencia movil"
                 android:checked="false"
                 android:layout_gravity="center"
                 android:id="@+id/cb_linea_convergencia_movil"
+                />
+            <Spinner
+                android:id="@+id/sp_linea_converngencia"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:visibility="gone"
+                android:spinnerMode="dropdown"
+                />
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ln_linea_convergencia_fibra"
+            android:animateLayoutChanges="true"
+            android:gravity="center"
+            android:padding="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/background_dark"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Convergencia fibra"
+                android:checked="false"
+                android:layout_gravity="center"
+                android:id="@+id/cb_linea_convergencia_fibra"
                 />
 
         </LinearLayout>

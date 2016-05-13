@@ -275,7 +275,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + PRECIOTERMINALCUOTA + " NUMERIC,"
             + COMISIONBASE + " NUMERIC,"
             + COMISIONEXTRA + " NUMERIC,"
-            + " FOREIGN KEY ("+ CODOFERTA +") REFERENCES "+ TABLE_CABECERAS_OFERTA +"("+ CODOFERTA +"),"
+            + " FOREIGN KEY ("+ CODOFERTA +") REFERENCES "+ TABLE_CABECERAS_OFERTA +"("+ CODOFERTA +") ON DELETE CASCADE,"
             + " FOREIGN KEY ("+ CODTERMINAL +") REFERENCES "+ TABLE_TERMINALES_SMART +"("+ CODTERMINAL +"),"
             + " FOREIGN KEY ("+ CODTARIFA +") REFERENCES "+ TABLE_TARIFAS +"("+ CODTARIFA +"))";
 
@@ -320,6 +320,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+
+    @Override
+    public void onConfigure(SQLiteDatabase db){
+        db.setForeignKeyConstraintsEnabled(true);
+    }
 
 
     public static void importTarifas(Context context) {
@@ -406,7 +411,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String filename = "terminales_smart.csv";
         String tableName = TABLE_TERMINALES_SMART;
         SQLiteDatabase db = DatabaseHelper.getInstance(context).getReadableDatabase();
-        db.execSQL("delete from " + tableName);
+     //   db.execSQL("delete from " + tableName);
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(
@@ -446,7 +451,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 contentValues.put(XLCUOTA, str[25]);
                 contentValues.put(XLPVP, str[26]);
 
-                db.insert(tableName, null, contentValues);
+                db.insertWithOnConflict(tableName, null, contentValues,SQLiteDatabase.CONFLICT_REPLACE);
             }
             db.setTransactionSuccessful();
             db.endTransaction();
@@ -780,6 +785,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ArrayList<Oferta> ofertas = new ArrayList<>();
         String selectQuery = "SELECT  * FROM " + TABLE_CABECERAS_OFERTA +
                 " WHERE " + ESTADO + " = '" + estado +"'";
+        if(estado.equals(Configuration.FIRMADA))
+            selectQuery+=" OR " + ESTADO + " = 'OK' OR " + ESTADO + " = 'KO'";
         Log.e(LOG, selectQuery);
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -961,7 +968,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(CODOFERTA, linea.getCodOferta());
         values.put(CODTARIFA, linea.getCodTarifa());
-        values.put(CODTERMINAL, linea.getCodTerminal());
+        if(linea.getCodTerminal()!=0)
+            values.put(CODTERMINAL, linea.getCodTerminal());
         values.put(NUMEROTELEFONO, linea.getNumeroTelefono());
         values.put(PLANPRECIOS, linea.getPlanPrecios());
         values.put(OPERADORDONANTE, linea.getOperadorDonante());
@@ -1041,7 +1049,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public long deleteLineaOferta(Lineaoferta linea) {
-
 
         SQLiteDatabase db = this.getReadableDatabase();
         String whereClause= CODLINEA +" = " + linea.getCodLinea();

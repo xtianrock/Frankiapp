@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -35,6 +36,7 @@ import com.appcloud.frankiapp.POJO.Lineaoferta;
 import com.appcloud.frankiapp.POJO.Tarifa;
 import com.appcloud.frankiapp.POJO.Terminal;
 import com.appcloud.frankiapp.R;
+import com.appcloud.frankiapp.Utils.Commons;
 import com.appcloud.frankiapp.Utils.Configuration;
 
 import java.util.ArrayList;
@@ -45,18 +47,20 @@ public class ActivityLinea extends AppCompatActivity {
     Lineaoferta lineaActual;
     int codigoOferta, codigoLinea;
     TextView tvInicialTarifa, tvCuotaTarifa, tvInicialTerminal, tvCuotaterminal, tvDescripcion, tvTerminal;
-    LinearLayout lnPrincipal, lnDescripcion, lnAlta, lnPorta, lnSimonly, lnTerminal, lnConvergencia, lnConvergenciaMovil;
+    LinearLayout lnResumen, lnPrincipal, lnDescripcion, lnAlta, lnPorta, lnSimonly, lnTerminal, lnConvergenciaMovil, lnConvergenciaFibra;
     RadioButton rbAlta, rbPorta;
-    CheckBox cbSimonly, cbTerminal,cbConvergencia, cbConvergenciaMovil;
+    CheckBox cbSimonly, cbTerminal, cbConvergenciaMovil, cbConvergenciaFibra;
     EditText etTelefono;
     Spinner spTarifa, spOperador, spConvergencia;
     Toolbar toolbar;
     View bottomSheet;
+    String estado = Configuration.BORRADOR;
     ArrayList<Tarifa> tarifas;
     ArrayList<Terminal> terminales;
     Tarifa tarifaSeleccionada;
     Terminal terminalSeleccionado;
     BottomSheetBehavior behavior;
+    SpinnerConvergenciaAdapter adapterConvergencia;
     private BottomSheetDialog mBottomSheetDialog;
     TerminalesBottomSheetAdapter terminalesAdapter;
     FloatingActionButton fab;
@@ -65,8 +69,12 @@ public class ActivityLinea extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //añadimos el tema
+        if(getIntent().getStringExtra("estado")!=null)
+            estado=getIntent().getStringExtra("estado");
+        setTheme(Commons.getTema(estado));
         setContentView(R.layout.activity_linea);
-
+        lnResumen = (LinearLayout) findViewById(R.id.ln_resumen);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         bottomSheet = findViewById(R.id.bottom_sheet);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -82,15 +90,15 @@ public class ActivityLinea extends AppCompatActivity {
         lnPorta = (LinearLayout) findViewById(R.id.ln_linea_porta);
         lnSimonly = (LinearLayout) findViewById(R.id.ln_linea_simonly);
         lnTerminal = (LinearLayout) findViewById(R.id.ln_linea_terminal);
-        lnConvergencia = (LinearLayout) findViewById(R.id.ln_linea_convergencia);
         lnConvergenciaMovil = (LinearLayout) findViewById(R.id.ln_linea_convergencia_movil);
+        lnConvergenciaFibra = (LinearLayout) findViewById(R.id.ln_linea_convergencia_fibra);
         etTelefono = (EditText) findViewById(R.id.et_linea_telefono);
         rbAlta = (RadioButton) findViewById(R.id.rb_linea_alta);
         rbPorta = (RadioButton) findViewById(R.id.rb_linea_porta);
         cbSimonly = (CheckBox)findViewById(R.id.cb_linea_simonly);
         cbTerminal = (CheckBox)findViewById(R.id.cb_linea_terminal);
-        cbConvergencia = (CheckBox)findViewById(R.id.cb_linea_convergencia);
         cbConvergenciaMovil = (CheckBox)findViewById(R.id.cb_linea_convergencia_movil);
+        cbConvergenciaFibra = (CheckBox)findViewById(R.id.cb_linea_convergencia_fibra);
         spTarifa = (Spinner)findViewById(R.id.sp_linea_tarifa);
         spOperador = (Spinner) findViewById(R.id.sp_linea_operador);
         spConvergencia = (Spinner) findViewById(R.id.sp_linea_converngencia);
@@ -112,8 +120,15 @@ public class ActivityLinea extends AppCompatActivity {
                 getResources().getStringArray(R.array.array_operadores));
         spOperador.setAdapter(adapterOperadoras);
 
+        // adapter con el listado de tipos de convergencia
+        adapterConvergencia = new SpinnerConvergenciaAdapter(
+                context,
+                R.layout.linea_spinner_convergencia,
+                Configuration.TIPOSCONVERGENCIA, tarifaSeleccionada);
+        spConvergencia.setAdapter(adapterConvergencia);
+
         behavior = BottomSheetBehavior.from(bottomSheet);
-        behavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+        /*behavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 // React to state change
@@ -123,17 +138,17 @@ public class ActivityLinea extends AppCompatActivity {
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
                 // React to dragging events
             }
-        });
+        });*/
 
         if(codigoLinea!=-1)
             prepararControles();
         prepararOnClicks();
-        prepararActionbar("Añadir lineaActual");
-
+        prepararActionbar();
         TarifasAsyncTask tarifasAsyncTask = new TarifasAsyncTask(this);
         tarifasAsyncTask.execute();
 
     }
+
 
     public void prepararControles()    {
         Tarifa tarifa = DatabaseHelper.getInstance(context).getTarifaByCod(lineaActual.getCodTarifa());
@@ -151,21 +166,21 @@ public class ActivityLinea extends AppCompatActivity {
             lnDescripcion.setVisibility(View.VISIBLE);
             lnAlta.setVisibility(View.VISIBLE);
             lnSimonly.setVisibility(View.VISIBLE);
-            lnConvergenciaMovil.setVisibility(View.VISIBLE);
-            lnConvergencia.setVisibility(View.GONE);
+            lnConvergenciaFibra.setVisibility(View.VISIBLE);
+            lnConvergenciaMovil.setVisibility(View.GONE);
             TerminalesAsynctask terminalesAsynctask = new TerminalesAsynctask();
             terminalesAsynctask.execute();
         }
         else if (tarifaSeleccionada.getTipoPlan().equals(Configuration.ADSL) || tarifaSeleccionada.getTipoPlan().equals(Configuration.FIBRA))
         {
             lnAlta.setVisibility(View.VISIBLE);
-            lnConvergencia.setVisibility(View.VISIBLE);
+            lnConvergenciaMovil.setVisibility(View.VISIBLE);
             lnDescripcion.setVisibility(View.GONE);
             lnSimonly.setVisibility(View.GONE);
-            lnConvergenciaMovil.setVisibility(View.GONE);
+            lnConvergenciaFibra.setVisibility(View.GONE);
             lnTerminal.setVisibility(View.GONE);
-            tvInicialTarifa.setText(String.valueOf(tarifaSeleccionada.getCosteAlta()));
-            tvCuotaTarifa.setText(String.valueOf(tarifaSeleccionada.getPrecioSinConv()));
+            tvInicialTarifa.setText(String.valueOf(lineaActual.getPrecioTarifaInicial()));
+            tvCuotaTarifa.setText(String.valueOf(lineaActual.getPrecioTarifaCuota()));
         }
         if(lineaActual.getOperadorDonante()!=null) // si no es nulo, se trata de una portabilidad
         {
@@ -182,9 +197,21 @@ public class ActivityLinea extends AppCompatActivity {
             cbSimonly.setChecked(false);
             lnTerminal.setVisibility(View.VISIBLE);
         }
-        if(lineaActual.getConvergenciaMovil()!=null && lineaActual.getConvergenciaMovil().equals("si"))
+        if(lineaActual.getTipoConvergencia()!=null)
         {
             cbConvergenciaMovil.setChecked(true);
+            // adapter con el listado de tipos de convergencia
+            final SpinnerConvergenciaAdapter adapterConvergencia = new SpinnerConvergenciaAdapter(
+                    context,
+                    R.layout.linea_spinner_convergencia,
+                    Configuration.TIPOSCONVERGENCIA, tarifaSeleccionada);
+            spConvergencia.setAdapter(adapterConvergencia);
+            spConvergencia.setSelection(getTipoConvergencia(lineaActual.getTipoConvergencia()));
+            spConvergencia.setVisibility(View.VISIBLE);
+        }
+        if(lineaActual.getConvergenciaMovil()!=null && lineaActual.getConvergenciaMovil().equals("si"))
+        {
+            cbConvergenciaFibra.setChecked(true);
         }
 
 
@@ -199,7 +226,6 @@ public class ActivityLinea extends AppCompatActivity {
                 {tarifaSeleccionada = tarifas.get(position);
                     terminalSeleccionado = null;
                     tvDescripcion.setText(tarifaSeleccionada.getDesCorta());
-
                     lnPorta.setVisibility(View.GONE);
                     resetResumenTarifa(); //pone a 0 el resumen de precios
                     resetResumenTerminal();
@@ -211,8 +237,8 @@ public class ActivityLinea extends AppCompatActivity {
                         lnAlta.setVisibility(View.VISIBLE);
                         lnSimonly.setVisibility(View.VISIBLE);
                         if(tarifaSeleccionada.getPrecioConvergenciaMovil()!=0)
-                            lnConvergenciaMovil.setVisibility(View.VISIBLE);
-                        lnConvergencia.setVisibility(View.GONE);
+                            lnConvergenciaFibra.setVisibility(View.VISIBLE);
+                        lnConvergenciaMovil.setVisibility(View.GONE);
                         double precio = Math.round(tarifaSeleccionada.getPrecioConTerminal()*0.85 * 100.0) / 100.0;
                         tvCuotaTarifa.setText(String.valueOf(precio));
                         TerminalesAsynctask terminalesAsynctask = new TerminalesAsynctask();
@@ -221,10 +247,10 @@ public class ActivityLinea extends AppCompatActivity {
                     else if (tarifaSeleccionada.getTipoPlan().equals(Configuration.ADSL) || tarifaSeleccionada.getTipoPlan().equals(Configuration.FIBRA))
                     {
                         lnAlta.setVisibility(View.VISIBLE);
-                        lnConvergencia.setVisibility(View.VISIBLE);
+                        lnConvergenciaMovil.setVisibility(View.VISIBLE);
                         lnDescripcion.setVisibility(View.GONE);
                         lnSimonly.setVisibility(View.GONE);
-                        lnConvergenciaMovil.setVisibility(View.GONE);
+                        lnConvergenciaFibra.setVisibility(View.GONE);
                         lnTerminal.setVisibility(View.GONE);
                         tvInicialTarifa.setText(String.valueOf(tarifaSeleccionada.getCosteAlta()));
                         tvCuotaTarifa.setText(String.valueOf(tarifaSeleccionada.getPrecioSinConv()));
@@ -258,7 +284,7 @@ public class ActivityLinea extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked)
                 {
-                    if(cbConvergenciaMovil.isChecked())
+                    if(cbConvergenciaFibra.isChecked())
                         tvCuotaTarifa.setText(String.valueOf(tarifaSeleccionada.getPrecioConvergenciaMovil()));
                     else
                         tvCuotaTarifa.setText(String.valueOf(tarifaSeleccionada.getPrecioConTerminal()));
@@ -281,6 +307,13 @@ public class ActivityLinea extends AppCompatActivity {
             }
         });
 
+        tvTerminal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mostrarBottomSeet();
+            }
+        });
+
         cbSimonly.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -288,7 +321,7 @@ public class ActivityLinea extends AppCompatActivity {
                 {
                     cbTerminal.setChecked(false);
                     double precio;
-                    if(cbConvergenciaMovil.isChecked())
+                    if(cbConvergenciaFibra.isChecked())
                         precio = Math.round(tarifaSeleccionada.getPrecioConvergenciaMovil()*0.85 * 100.0) / 100.0;
                     else
                         precio = Math.round(tarifaSeleccionada.getPrecioConTerminal()*0.85 * 100.0) / 100.0;
@@ -296,7 +329,7 @@ public class ActivityLinea extends AppCompatActivity {
                     tvCuotaTarifa.setText(String.valueOf(precio));
                 }
                 else {
-                    if(cbConvergenciaMovil.isChecked())
+                    if(cbConvergenciaFibra.isChecked())
                         tvCuotaTarifa.setText(String.valueOf(tarifaSeleccionada.getPrecioConvergenciaMovil()));
                     else
                         tvCuotaTarifa.setText(String.valueOf(tarifaSeleccionada.getPrecioConTerminal()));
@@ -304,7 +337,7 @@ public class ActivityLinea extends AppCompatActivity {
             }
         });
 
-        cbConvergencia.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        cbConvergenciaMovil.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked)
@@ -314,11 +347,11 @@ public class ActivityLinea extends AppCompatActivity {
                             context,
                             R.layout.linea_spinner_convergencia,
                             Configuration.TIPOSCONVERGENCIA, tarifaSeleccionada);
-                    spConvergencia.setAdapter(adapterConvergencia);
                     spConvergencia.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
                         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                             tvCuotaTarifa.setText(String.valueOf(adapterConvergencia.getPrecio(position)));
+                            lineaActual.setTipoConvergencia(Configuration.TIPOSCONVERGENCIA[position]);
                         }
 
                         @Override
@@ -335,7 +368,7 @@ public class ActivityLinea extends AppCompatActivity {
             }
         });
 
-        cbConvergenciaMovil.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        cbConvergenciaFibra.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked)
@@ -402,8 +435,6 @@ public class ActivityLinea extends AppCompatActivity {
                 }
 
                 finish();
-
-
             }
         });
 
@@ -482,12 +513,30 @@ public class ActivityLinea extends AppCompatActivity {
         mBottomSheetDialog.show();
     }
 
-    public void prepararActionbar(String title) {
+    public void prepararActionbar() {
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle(title);
+        actionBar.setTitle(lineaActual.getPlanPrecios());
+        switch (estado)
+        {
+            case Configuration.BORRADOR:
+                lnResumen.setBackgroundColor(ContextCompat.getColor(context, R.color.colorBorrador));
+                break;
+            case Configuration.PRESENTADA:
+                lnResumen.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPresentada));
+                break;
+            case Configuration.FIRMADA:
+                lnResumen.setBackgroundColor(ContextCompat.getColor(context, R.color.colorFirmada));
+                break;
+            case Configuration.KO:
+                lnResumen.setBackgroundColor(ContextCompat.getColor(context, R.color.colorKO));
+                break;
+            case Configuration.OK:
+                lnResumen.setBackgroundColor(ContextCompat.getColor(context, R.color.colorOK));
+                break;
+        }
     }
 
     public void resetResumenTarifa()    {
@@ -504,6 +553,13 @@ public class ActivityLinea extends AppCompatActivity {
         String[] operadores = getResources().getStringArray(R.array.array_operadores);
         for (int i=0;i<operadores.length;i++)
             if(operadores[i].equals(nombreOperador))
+                return i;
+        return -1;
+    }
+
+    public int getTipoConvergencia(String tipoConvergencia)    {
+        for (int i=0;i<Configuration.TIPOSCONVERGENCIA.length;i++)
+            if(Configuration.TIPOSCONVERGENCIA[i].equals(tipoConvergencia))
                 return i;
         return -1;
     }
