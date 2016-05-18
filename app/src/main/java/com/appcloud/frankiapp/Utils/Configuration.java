@@ -30,5 +30,5 @@ public class Configuration {
     public final static String MINI = "MINI";
     public final static String XS = "XS";
 
-    public static final String[] TIPOSCONVERGENCIA = {"MINI", "S", "M"," L", "XL", "XXL"};
+    public static final String[] TIPOSCONVERGENCIA = {"MINI", "S", "M","L", "XL", "XXL"};
 }
