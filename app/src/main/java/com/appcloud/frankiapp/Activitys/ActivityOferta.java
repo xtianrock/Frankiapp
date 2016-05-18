@@ -125,8 +125,12 @@ public class ActivityOferta extends AppCompatActivity {
         }
         if(codigoOferta!=-1)
         {
-            Cliente cliente = DatabaseHelper.getInstance(context).getCliente(oferta.getCodCliente());
-            tvTitulo.setText(cliente.getNombre() + " " + cliente.getApellidos());
+            if (oferta.getCodCliente() != 0) {
+                Cliente cliente = DatabaseHelper.getInstance(context).getCliente(oferta.getCodCliente());
+                tvTitulo.setText(cliente.getNombre() + " " + cliente.getApellidos());
+            }else
+
+                tvTitulo.setText("Borrador #"+codigoOferta);
         }
         else
         {

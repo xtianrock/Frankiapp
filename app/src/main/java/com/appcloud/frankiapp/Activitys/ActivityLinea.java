@@ -347,6 +347,8 @@ public class ActivityLinea extends AppCompatActivity {
                             context,
                             R.layout.linea_spinner_convergencia,
                             Configuration.TIPOSCONVERGENCIA, tarifaSeleccionada);
+
+                    spConvergencia.setAdapter(adapterConvergencia);
                     spConvergencia.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
                         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
