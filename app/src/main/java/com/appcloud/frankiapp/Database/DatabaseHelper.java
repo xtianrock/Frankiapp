@@ -331,7 +331,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String filename = "tarifas.csv";
         String tableName = TABLE_TARIFAS;
         SQLiteDatabase db = DatabaseHelper.getInstance(context).getReadableDatabase();
-        db.execSQL("delete from " + tableName);
+        // db.execSQL("delete from " + tableName);
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(
@@ -341,25 +341,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             while ((mLine = reader.readLine()) != null) {
                 String[] str = mLine.split(",",-1);
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(PLANPRECIOS, str[0]);
-                contentValues.put(TIPOPLAN, str[1]);
-                contentValues.put(DESCORTA, str[2]);
-                contentValues.put(DESLARGA, str[3]);
-                contentValues.put(PRECIOCONTERMINAL, str[4]);
-                contentValues.put(PRECIOCONVMOVIL, str[5]);
-                contentValues.put(PRECIOSINCONV, str[6]);
-                contentValues.put(PRECIOCONVXXL, str[7]);
-                contentValues.put(PRECIOCONVXL, str[8]);
-                contentValues.put(PRECIOCONVL, str[9]);
-                contentValues.put(PRECIOCONVM, str[10]);
-                contentValues.put(PRECIOCONVS, str[11]);
-                contentValues.put(PRECIOCONVMINIS, str[12]);
-                contentValues.put(COSTEALTA, str[13]);
-                contentValues.put(COMISIONBASE, str[14]);
-                contentValues.put(COMISIONEXTRA, str[15]);
-                contentValues.put(PLANPRECIOTERMINAL, str[16]);
+                contentValues.put(CODTARIFA, str[0]);
+                contentValues.put(PLANPRECIOS, str[1]);
+                contentValues.put(TIPOPLAN, str[2]);
+                contentValues.put(DESCORTA, str[3]);
+                contentValues.put(DESLARGA, str[4]);
+                contentValues.put(PRECIOCONTERMINAL, str[5]);
+                contentValues.put(PRECIOCONVMOVIL, str[6]);
+                contentValues.put(PRECIOSINCONV, str[7]);
+                contentValues.put(PRECIOCONVXXL, str[8]);
+                contentValues.put(PRECIOCONVXL, str[9]);
+                contentValues.put(PRECIOCONVL, str[10]);
+                contentValues.put(PRECIOCONVM, str[11]);
+                contentValues.put(PRECIOCONVS, str[12]);
+                contentValues.put(PRECIOCONVMINIS, str[13]);
+                contentValues.put(COSTEALTA, str[14]);
+                contentValues.put(COMISIONBASE, str[15]);
+                contentValues.put(COMISIONEXTRA, str[16]);
+                contentValues.put(PLANPRECIOTERMINAL, str[17]);
 
-                db.insert(tableName, null, contentValues);
+                //db.insert(tableName, null, contentValues);
+                // CARLOS
+                db.insertWithOnConflict(tableName, null, contentValues,SQLiteDatabase.CONFLICT_REPLACE);
             }
             db.setTransactionSuccessful();
             db.endTransaction();
@@ -468,7 +471,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Terminal getTerminalByCod(int codTerminal) {
         String selectQuery = "SELECT  * FROM " + TABLE_TERMINALES_SMART +
                 " WHERE " + CODTERMINAL + " = "+ codTerminal;
-        Log.e(LOG, selectQuery);
+        Log.d(LOG, selectQuery);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
@@ -510,7 +513,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public ArrayList<Terminal> getAllTerminales() {
         ArrayList<Terminal> terminales = new ArrayList<>();
         String selectQuery = "SELECT  * FROM " + TABLE_TERMINALES_SMART;
-        Log.e(LOG, selectQuery);
+        Log.d(LOG, selectQuery);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
@@ -574,7 +577,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String selectQuery = "SELECT  * FROM " + TABLE_TERMINALES_SMART
                 + " WHERE "+ whereField + " IS NOT NULL"
                 + " AND "+ whereField + "!= ''";
-        Log.e(LOG, selectQuery);
+        Log.d(LOG, selectQuery);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
@@ -619,7 +622,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public ArrayList<Tarifa> getAllTarifas() {
         ArrayList<Tarifa> tarifas = new ArrayList<>();
         String selectQuery = "SELECT  * FROM " + TABLE_TARIFAS;
-        Log.e(LOG, selectQuery);
+        Log.d(LOG, selectQuery);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
@@ -658,7 +661,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Tarifa getTarifaByCod(int codTarifa) {
         String selectQuery = "SELECT  * FROM " + TABLE_TARIFAS +
                 " WHERE " + CODTARIFA + " = " + codTarifa;
-        Log.e(LOG, selectQuery);
+        Log.d(LOG, selectQuery);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
@@ -692,7 +695,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public ArrayList<Cliente> getAllClientes() {
         ArrayList<Cliente> clientes = new ArrayList<>();
         String selectQuery = "SELECT  * FROM " + TABLE_CLIENTES;
-        Log.e(LOG, selectQuery);
+        Log.d(LOG, selectQuery);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
@@ -722,7 +725,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cliente cliente = new Cliente();
         String selectQuery = "SELECT  * FROM " + TABLE_CLIENTES
                 + " WHERE "+ CODCLIENTE + " = " + codCliente;
-        Log.e(LOG, selectQuery);
+        Log.d(LOG, selectQuery);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
@@ -787,7 +790,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 " WHERE " + ESTADO + " = '" + estado +"'";
         if(estado.equals(Configuration.FIRMADA))
             selectQuery+=" OR " + ESTADO + " = 'OK' OR " + ESTADO + " = 'KO'";
-        Log.e(LOG, selectQuery);
+        Log.d(LOG, selectQuery);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
@@ -821,7 +824,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Oferta oferta = new Oferta();
         String selectQuery = "SELECT  * FROM " + TABLE_CABECERAS_OFERTA
                 + " WHERE "+ CODOFERTA + " = " + codOferta;
-        Log.e(LOG, selectQuery);
+        Log.d(LOG, selectQuery);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
@@ -903,7 +906,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public ArrayList<Lineaoferta> getAllLineasOferta(int codigoOferta) {
         ArrayList<Lineaoferta> lineas = new ArrayList<>();
         String selectQuery = "SELECT  * FROM " + TABLE_LINEAS_OFERTA +" WHERE "+CODOFERTA+ " = "+codigoOferta;
-        Log.e(LOG, selectQuery);
+        Log.d(LOG, selectQuery);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
@@ -936,7 +939,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Lineaoferta getLineaOferta(int codLinea) {
         String selectQuery = "SELECT * FROM " + TABLE_LINEAS_OFERTA +" WHERE "+CODLINEA+ " = "+codLinea;
-        Log.e(LOG, selectQuery);
+        Log.d(LOG, selectQuery);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
