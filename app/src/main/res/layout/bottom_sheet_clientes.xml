@@ -1,31 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ln_bottomSheet_clientes"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@color/background">
-    <LinearLayout
+    android:background="@color/background"
+   >
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:background="@color/colorBorrador">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Seleccione un terminal"
+            android:text="Seleccione un cliente"
             android:layout_alignParentLeft="true"
             android:layout_margin="12dp"
             android:textSize="16sp"
             android:textColor="@android:color/white"/>
 
-    </LinearLayout>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnsheet_alta_cliente"
+            android:text="Añadir cliente"
+            android:textColor="@color/colorBorrador_accent"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_alignParentRight="true"
+            android:shadowColor="@color/cardview_light_background"/>
+    </RelativeLayout>
 
 
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/recyclerViewClientes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="8dp" />
 
 </LinearLayout>

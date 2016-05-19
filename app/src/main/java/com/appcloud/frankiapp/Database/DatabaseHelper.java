@@ -868,6 +868,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return value;
     }
 
+    public void updateCabeceraOfertaClienteSeleccionado(Oferta oferta){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        String whereClause= " WHERE " +CODOFERTA +" = " + oferta.getCodOferta();
+
+         String sql = "UPDATE " + TABLE_CABECERAS_OFERTA + " SET "+
+                 CODCLIENTE + "=" + "'" +oferta.getCodCliente() + "'" + ","+
+                 ESTADO + "=" + "'" +oferta.getEstado() + "'" +
+                /*ESTADO + "=" + "'" +oferta.getEstado() + "'" + ","+
+                FECHA_OFERTA + "=" +  oferta.getFechaOferta() + ","+
+                FECHA_FIRMA + "=" +  oferta.getFechaFirma() + ","+
+                FECHA_KO + "=" +  oferta.getFechaKO() +" " +*/
+                whereClause;
+        Log.i("update   ----->",sql);
+        db.execSQL(sql);
+    }
+
     public long updateCabeceraOferta(Oferta oferta) {
         SQLiteDatabase db = this.getWritableDatabase();
         String whereClause= CODOFERTA +" = " + oferta.getCodOferta();
@@ -886,6 +903,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COMISION_BASE_TOTAL,oferta.getComisionBaseTotal());
         values.put(PUNTOS_TOTAL,oferta.getPuntosTotal());
         values.put(COMISION_EMPRESA,oferta.getCommisionEmpresa());
+
 
         return db.update(TABLE_CABECERAS_OFERTA, values,whereClause,null);
     }

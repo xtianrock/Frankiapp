@@ -49,7 +49,7 @@ public class ActivityLinea extends AppCompatActivity {
     Lineaoferta lineaActual;
     int codigoOferta, codigoLinea;
     TextView tvInicialTarifa, tvCuotaTarifa, tvInicialTerminal, tvCuotaterminal, tvDescripcion, tvTerminal;
-    LinearLayout lnResumen, lnPrincipal, lnDescripcion, lnAlta, lnPorta, lnSimonly, lnTerminal, lnConvergenciaMovil, lnConvergenciaFibra;
+    LinearLayout lnbottomSheet, lnResumen, lnPrincipal, lnDescripcion, lnAlta, lnPorta, lnSimonly, lnTerminal, lnConvergenciaMovil, lnConvergenciaFibra;
     RadioButton rbAlta, rbPorta;
     CheckBox cbSimonly, cbTerminal, cbConvergenciaMovil, cbConvergenciaFibra;
     EditText etTelefono;
