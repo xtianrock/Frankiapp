@@ -14,16 +14,19 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.support.v7.widget.RecyclerView;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -47,21 +50,23 @@ import java.util.ArrayList;
 public class ActivityOferta extends AppCompatActivity {
 
     Context context = this;
-    LinearLayout lnbottomSheet,lnResumen;
+    LinearLayout lnResumen;
     FloatingActionButton fab;
     Button altaCliente;
     TextView tvTitulo, tvInicialTarifa, tvCuotaTarifa, tvInicialTerminal, tvCuotaterminal;
     RecyclerView recyclerView;
     LineasRecyclerViewAdapter.LineaClickListener lineaClickListener;
     BottomSheetBehavior behavior;
+    MenuItem itemFirmar, itemPresentar, itemThumbok, itemThumbko;
     private BottomSheetDialog mBottomSheetDialog;
     ClientesBottomSheetAdapter clientesBSheetAdapter;
     View bottomSheet;
     ArrayList<Cliente> clientes;
     Cliente clienteSeleccionado;
     Oferta oferta;
-    int codigoOferta = -1;
+    public int codigoOferta = -1;
     boolean firstTime = true;
+    boolean edicion = false;
     String currentFragmentTag;
 
     @Override
@@ -74,7 +79,6 @@ public class ActivityOferta extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         bottomSheet = findViewById(R.id.bottom_sheet_cliente);
-       //lnbottomSheet = (LinearLayout) findViewById(R.id.ln_bottomSheet_clientes);
         lnResumen = (LinearLayout) findViewById(R.id.ln_resumen);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         recyclerView = (RecyclerView)findViewById(R.id.list);
@@ -109,10 +113,8 @@ public class ActivityOferta extends AppCompatActivity {
             }
         });
 
-
-
-        ClientesAsynctask terminalesAsynctask = new ClientesAsynctask();
-        terminalesAsynctask.execute();
+        if (!oferta.getEstado().equalsIgnoreCase("borrador"))
+            fab.setVisibility(View.GONE);
 
     }
 
@@ -121,17 +123,32 @@ public class ActivityOferta extends AppCompatActivity {
         super.onResume();
         inicializarOferta();
         setActionBar();
+
         if(!firstTime)
             inicializarOferta();
         firstTime=false;
     }
 
-    public void mostrarBottomSeet()    {
+    // nuevo cliente dado de alta en el bottomsheet
+    public void informacionFragmentCliente(Cliente nuevoCliente){
+        clienteAsignadoBorrador(nuevoCliente);
+    }
+
+    private void actualizaEstadoOferta(){
+
+        Intent intent = new Intent(context, ActivityOferta.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        intent.putExtra("oferta",((ActivityOferta) context).codigoOferta);
+        startActivity(intent);
+        overridePendingTransition(0,0); //0 for no animation
+        finish();
+    }
+
+    public void mostrarBottomSeet() {
         if (behavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
         mBottomSheetDialog = new BottomSheetDialog(context);
-        mBottomSheetDialog.setTitle("Selecciones un terminal");
         mBottomSheetDialog.setCancelable(false);
         View view = getLayoutInflater().inflate(R.layout.bottom_sheet_clientes, null);
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerViewClientes);
@@ -141,11 +158,8 @@ public class ActivityOferta extends AppCompatActivity {
             public void onItemClick(Cliente cliente) {
                 if (mBottomSheetDialog != null) {
                     mBottomSheetDialog.dismiss();
-
-                    clienteSeleccionado = cliente;
-                    oferta.setEstado(Configuration.PRESENTADA);
-                    oferta.setCodCliente(cliente.getCodCliente());
-                    DatabaseHelper.getInstance(context).updateCabeceraOfertaClienteSeleccionado(oferta);
+                    clienteAsignadoBorrador(cliente);
+                    actualizaEstadoOferta();
 
                     tvTitulo.setText(clienteSeleccionado.getNombre() + " " + clienteSeleccionado.getApellidos());
 
@@ -172,19 +186,23 @@ public class ActivityOferta extends AppCompatActivity {
         altaCliente.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                Fragment fragmentCliente =  new ClienteFragment();
-                String tag = fragmentCliente.getClass().getCanonicalName();
-                fragmentManager
-                        .beginTransaction()
-                        .replace(R.id.content_main, new ClienteFragment(), tag)
-                        .addToBackStack(tag)
-                        .commit();
+                switchToFragment(new ClienteFragment(),"alta_cliente",false);
+                mBottomSheetDialog.dismiss();
+
             }
         });
         mBottomSheetDialog.show();
 
+    }
 
+    private void clienteAsignadoBorrador(Cliente cliente){
+
+        clienteSeleccionado = cliente;
+        oferta.setEstado(Configuration.PRESENTADA);
+        oferta.setCodCliente(cliente.getCodCliente());
+        DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
+
+        tvTitulo.setText(clienteSeleccionado.getNombre() + " " + clienteSeleccionado.getApellidos());
     }
 
 
@@ -251,39 +269,128 @@ public class ActivityOferta extends AppCompatActivity {
             codigoOferta = (int)DatabaseHelper.getInstance(this).createCabecceraOferta(oferta);
         }
 
-        LineasAsynctask lineasAsynctask = new LineasAsynctask(codigoOferta);
+               LineasAsynctask lineasAsynctask = new LineasAsynctask(codigoOferta);
         lineasAsynctask.execute();
+
+        ClientesAsynctask terminalesAsynctask = new ClientesAsynctask();
+        terminalesAsynctask.execute();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_oferta, menu);
+
+       // MenuInflater inflater = getMenuInflater();
+       // inflater.inflate(R.menu.your_menu, menu);
+        itemFirmar = menu.findItem(R.id.action_firmar);
+        itemPresentar = menu.findItem(R.id.action_presentar);
+        itemThumbko = menu.findItem(R.id.action_estado_ko);
+        itemThumbok = menu.findItem(R.id.action_estado_ok);
+
+        switch (oferta.getEstado()){
+            case Configuration.PRESENTADA:
+                itemFirmar.setVisible(true);
+                itemPresentar.setVisible(false);
+                itemThumbok.setVisible(false);
+                itemThumbko.setVisible(false);
+                break;
+            case Configuration.BORRADOR:
+                itemFirmar.setVisible(false);
+                itemPresentar.setVisible(true);
+                itemThumbok.setVisible(false);
+                itemThumbko.setVisible(false);
+                break;
+            case Configuration.FIRMADA:
+                itemFirmar.setVisible(false);
+                itemPresentar.setVisible(false);
+               // itemThumbok.setVisible(true);
+                //itemThumbko.setVisible(true);
+                break;
+
+            default:
+                itemPresentar.setVisible(false);
+                itemFirmar.setVisible(false);
+                itemThumbok.setVisible(false);
+                itemThumbko.setVisible(false);
+
+        }
+
         return true;
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.home) {
+        if (id == android.R.id.home) {
             finish();
             return true;
         }
         if (id == R.id.action_presentar) {
-            /*oferta.setEstado(Configuration.PRESENTADA);
-            DatabaseHelper.getInstance(context).updateCabeceraOfertaPrueba(oferta);*/
-
-            //TODO MOSTRAR BOTTOMSHEET CON LISTA DE CLIENTES
-            mostrarBottomSeet();
+            if (recyclerView.getAdapter().getItemCount() > 0)
+                mostrarBottomSeet();
+            else
+                Snackbar.make(fab, "Debe Introducir una línea de oferta antes de presentar al cliente", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             return true;
         }
+
+        if (id == R.id.action_firmar) {
+            oferta.setEstado(Configuration.FIRMADA);
+            DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
+            actualizaEstadoOferta();
+            return true;
+        }
+
+        if (id == R.id.action_estado_ok) {
+            oferta.setEstado(Configuration.OK);
+            DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
+            actualizaEstadoOferta();
+            return true;
+        }
+
+        if (id == R.id.action_estado_ko) {
+            oferta.setEstado(Configuration.KO);
+            DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
+            actualizaEstadoOferta();
+            return true;
+        }
+
 
         if (id == R.id.action_delete) {
             DatabaseHelper.getInstance(context).deleteOferta(oferta);
             finish();
             return true;
         }
+
+        if (id == R.id.action_editar) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(ActivityOferta.this);
+            builder.setCancelable(true);
+            builder.setTitle("");
+            builder.setMessage("Al editar la oferta, pasará a estado borrador");
+            builder.setPositiveButton("Confirmar",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            fab.setVisibility(View.VISIBLE);
+                        }
+                    });
+            builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+            return true;
+        }
+
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -293,13 +400,14 @@ public class ActivityOferta extends AppCompatActivity {
         String tag = fragment.getClass().getCanonicalName();
         Fragment currentFragment = fragmentManager.findFragmentByTag(currentFragmentTag);
 
+
         if (currentFragment == null || !TextUtils.equals(tag, currentFragmentTag)) {
             if(backStack)
             {
                 currentFragmentTag = tag;
                 fragmentManager
                         .beginTransaction()
-                        .replace(R.id.content_main, fragment, currentFragmentTag)
+                        .replace(R.id.content_activity_oferta, fragment, currentFragmentTag)
                         .addToBackStack(tag)
                         .commit();
             }
@@ -308,7 +416,7 @@ public class ActivityOferta extends AppCompatActivity {
                 currentFragmentTag = tag;
                 fragmentManager
                         .beginTransaction()
-                        .replace(R.id.content_main, fragment, currentFragmentTag)
+                        .replace(R.id.content_activity_oferta, fragment, currentFragmentTag)
                         .commit();
             }
 

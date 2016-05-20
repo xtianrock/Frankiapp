@@ -747,6 +747,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return cliente;
     }
 
+    public Cliente getLastIdCliente() {
+        String selectQuery = "SELECT  max (" + CODCLIENTE + ") FROM " + TABLE_CLIENTES;
+        Log.d(LOG, selectQuery);
+        int codCliente = -1;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        if (c.moveToFirst())
+        {
+            codCliente = c.getInt(0);
+
+        }
+        c.close();
+
+
+        return getCliente(codCliente);
+    }
+
     public long createCliente(Cliente cliente) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -868,7 +887,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return value;
     }
 
-    public void updateCabeceraOfertaClienteSeleccionado(Oferta oferta){
+    public void updateEstadoCabeceraOferta(Oferta oferta){
 
         SQLiteDatabase db = this.getWritableDatabase();
         String whereClause= " WHERE " +CODOFERTA +" = " + oferta.getCodOferta();

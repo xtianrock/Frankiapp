@@ -2,6 +2,7 @@ package com.appcloud.frankiapp.Fragments;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -11,12 +12,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import com.appcloud.frankiapp.Activitys.ActivityOferta;
 import com.appcloud.frankiapp.Activitys.MainActivity;
 import com.appcloud.frankiapp.Database.DatabaseHelper;
 import com.appcloud.frankiapp.Interfaces.OnTerminalInteractionListener;
@@ -156,9 +159,39 @@ public class ClienteFragment extends Fragment {
                 else
                 {
                     DatabaseHelper.getInstance(getActivity()).createCliente(cliente);
+
                 }
 
-                ((MainActivity)context).getSupportFragmentManager().popBackStack();
+                if (getActivity().getClass() == MainActivity.class)
+                    ((MainActivity)context).getSupportFragmentManager().popBackStack();
+                else if (getActivity().getClass() == ActivityOferta.class) {
+
+                    ((ActivityOferta) context).informacionFragmentCliente(DatabaseHelper.getInstance(getActivity()).getLastIdCliente());
+
+                    Intent intent = new Intent(context, ActivityOferta.class);
+                    intent.putExtra("oferta",((ActivityOferta) context).codigoOferta);
+                    startActivity(intent);
+
+                    //TODO borrar fragmento de codigo
+                    // ocultamos el teclado
+                    /*InputMethodManager inputManager = (InputMethodManager) getActivity()
+                            .getSystemService(Context.INPUT_METHOD_SERVICE);
+
+                    // check if no view has focus:
+                    View v = ((ActivityOferta) getActivity()).getCurrentFocus();
+                    if (v == null)
+                        return;
+
+                    inputManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
+
+                    ((ActivityOferta) context).informacionFragmentCliente(DatabaseHelper.getInstance(getActivity()).getLastIdCliente());
+                    ((ActivityOferta) context).getSupportFragmentManager().popBackStack();*/
+                    //TODO borrar fragmento de codigo
+
+
+
+                }
+
             }
         });
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

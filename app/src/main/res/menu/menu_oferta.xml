@@ -1,17 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.appcloud.frankiapp.Activitys.ActivityOferta">
     <item
-        android:id="@+id/action_presentar"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        android:icon="@drawable/ic_assignment_turned_in_black_24dp"
-        app:showAsAction="always" />
+    android:id="@+id/action_presentar"
+    android:orderInCategory="100"
+    android:title="@string/action_settings"
+    android:icon="@drawable/ic_assignment_turned_in_black_24dp"
+    app:showAsAction="always" />
     <item
-        android:id="@+id/action_delete"
+        android:id="@+id/action_firmar"
         android:orderInCategory="100"
         android:title="@string/action_settings"
-        android:icon="@drawable/ic_eliminar"
+        android:icon="@drawable/ic_gesture_black_24dp"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_estado_ok"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        android:icon="@drawable/ic_thumb_up_black_24dp"
+        app:showAsAction="always"
+        />
+    <item
+        android:id="@+id/action_estado_ko"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        android:icon="@drawable/ic_thumb_down_black_24dp"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="101"
+        android:icon="@drawable/abc_ic_menu_moreoverflow_mtrl_alpha"
+        android:title="@string/action_settings"
+        app:showAsAction="always"
+       >
+
+    <menu>
+        <item
+            android:id="@+id/action_editar"
+            android:orderInCategory="100"
+            android:title="Editar"
+            app:showAsAction="always" />
+        <item
+            android:id="@+id/action_delete"
+            android:orderInCategory="100"
+            android:title="Eliminar"
+            app:showAsAction="always" />
+    </menu>
+    </item>
+
 </menu>
