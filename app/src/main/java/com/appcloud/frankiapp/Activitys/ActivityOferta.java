@@ -57,7 +57,7 @@ public class ActivityOferta extends AppCompatActivity {
     RecyclerView recyclerView;
     LineasRecyclerViewAdapter.LineaClickListener lineaClickListener;
     BottomSheetBehavior behavior;
-    MenuItem itemFirmar, itemPresentar, itemThumbok, itemThumbko;
+    MenuItem itemFirmar, itemPresentar, itemThumbok, itemThumbko, itemActionEdit, itemActionDelete;
     private BottomSheetDialog mBottomSheetDialog;
     ClientesBottomSheetAdapter clientesBSheetAdapter;
     View bottomSheet;
@@ -96,11 +96,13 @@ public class ActivityOferta extends AppCompatActivity {
         lineaClickListener = new LineasRecyclerViewAdapter.LineaClickListener() {
             @Override
             public void onItemClick(Lineaoferta linea) {
-                Intent intent = new Intent(context,ActivityLinea.class);
-                intent.putExtra("oferta",codigoOferta);
-                intent.putExtra("estado",oferta.getEstado());
-                intent.putExtra("lineaActual",linea.getCodLinea());
-                startActivity(intent);
+                if ( oferta.getEstado().equalsIgnoreCase(Configuration.BORRADOR)) {
+                    Intent intent = new Intent(context, ActivityLinea.class);
+                    intent.putExtra("oferta", codigoOferta);
+                    intent.putExtra("estado", oferta.getEstado());
+                    intent.putExtra("lineaActual", linea.getCodLinea());
+                    startActivity(intent);
+                }
             }
         };
 
@@ -173,11 +175,6 @@ public class ActivityOferta extends AppCompatActivity {
             @Override
             public void onDismiss(DialogInterface dialog) {
                 mBottomSheetDialog = null;
-                /*if (lnTerminal.getVisibility()!=View.VISIBLE)
-                {
-                    lnTerminal.setVisibility(View.GONE);
-                    cbSimonly.setChecked(true);
-                }*/
             }
         });
 
@@ -201,11 +198,14 @@ public class ActivityOferta extends AppCompatActivity {
         oferta.setEstado(Configuration.PRESENTADA);
         oferta.setCodCliente(cliente.getCodCliente());
         DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
+        enviaOferta();
 
         tvTitulo.setText(clienteSeleccionado.getNombre() + " " + clienteSeleccionado.getApellidos());
     }
 
-
+    private void enviaOferta(){
+        //TODO crear oferta en pdf
+    }
 
     private void setActionBar()
     {
@@ -288,6 +288,9 @@ public class ActivityOferta extends AppCompatActivity {
         itemThumbko = menu.findItem(R.id.action_estado_ko);
         itemThumbok = menu.findItem(R.id.action_estado_ok);
 
+        itemActionEdit = menu.findItem((R.id.action_editar));
+        itemActionDelete = menu.findItem(R.id.action_delete);
+
         switch (oferta.getEstado()){
             case Configuration.PRESENTADA:
                 itemFirmar.setVisible(true);
@@ -314,6 +317,9 @@ public class ActivityOferta extends AppCompatActivity {
                 itemThumbok.setVisible(false);
                 itemThumbko.setVisible(false);
 
+                itemActionEdit.setVisible(false);
+                itemActionDelete.setVisible(false);
+
         }
 
         return true;
@@ -330,11 +336,16 @@ public class ActivityOferta extends AppCompatActivity {
             return true;
         }
         if (id == R.id.action_presentar) {
-            if (recyclerView.getAdapter().getItemCount() > 0)
-                mostrarBottomSeet();
-            else
+            if (recyclerView.getAdapter().getItemCount() > 0 ) {
+                if (oferta.getCodCliente() == 0)
+                    mostrarBottomSeet();
+                else
+                    enviaOferta();
+            }
+            else {
                 Snackbar.make(fab, "Debe Introducir una línea de oferta antes de presentar al cliente", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+            }
             return true;
         }
 
@@ -361,24 +372,48 @@ public class ActivityOferta extends AppCompatActivity {
 
 
         if (id == R.id.action_delete) {
-            DatabaseHelper.getInstance(context).deleteOferta(oferta);
-            finish();
+            AlertDialog.Builder builder = new AlertDialog.Builder(ActivityOferta.this);
+            builder.setCancelable(true);
+            builder.setTitle(getString(R.string.confirmation_action));
+            builder.setMessage(getString(R.string.action_delete));
+            builder.setPositiveButton("Confirmar",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            DatabaseHelper.getInstance(context).deleteOferta(oferta);
+                            finish();
+
+                        }
+                    });
+            builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+
             return true;
         }
 
         if (id == R.id.action_editar) {
             AlertDialog.Builder builder = new AlertDialog.Builder(ActivityOferta.this);
             builder.setCancelable(true);
-            builder.setTitle("");
-            builder.setMessage("Al editar la oferta, pasará a estado borrador");
+            builder.setTitle(getString(R.string.confirmation_action));
+            builder.setMessage(getString(R.string.action_edit_oferta));
             builder.setPositiveButton("Confirmar",
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            fab.setVisibility(View.VISIBLE);
+                            oferta.setEstado(Configuration.BORRADOR);
+                            DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
+                            actualizaEstadoOferta();
+
                         }
                     });
-            builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                 }

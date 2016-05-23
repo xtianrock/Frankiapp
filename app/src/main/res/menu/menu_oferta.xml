@@ -49,6 +49,12 @@
             android:orderInCategory="100"
             android:title="Eliminar"
             app:showAsAction="always" />
+
+        <item
+            android:id="@+id/action_comisiones"
+            android:orderInCategory="100"
+            android:title="Comisiones"
+            app:showAsAction="always" />
     </menu>
     </item>
 

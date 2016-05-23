@@ -404,8 +404,11 @@ public class ActivityLinea extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                lineaActual.setCodTarifa(tarifaSeleccionada.getCodTarifa());
-                lineaActual.setPlanPrecios(tarifaSeleccionada.getPlanPrecios());
+                if (tarifaSeleccionada != null) {
+
+                    lineaActual.setCodTarifa(tarifaSeleccionada.getCodTarifa());
+                    lineaActual.setPlanPrecios(tarifaSeleccionada.getPlanPrecios());
+                }
 
                 if(terminalSeleccionado!=null)
                     lineaActual.setCodTerminal(terminalSeleccionado.getCodTerminal());

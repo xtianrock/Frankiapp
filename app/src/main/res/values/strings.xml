@@ -17,6 +17,10 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_settings">Settings</string>
 
+    <string name="confirmation_action">¿Estás seguro?</string>
+    <string name="action_delete">La oferta será eliminada</string>
+    <string name="action_edit_oferta">La ofertará cambiará a estado borrador</string>
+
 
     <array name="array_operadores">
         <item>AMENA</item>
