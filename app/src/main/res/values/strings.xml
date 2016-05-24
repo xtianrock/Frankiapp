@@ -20,6 +20,9 @@
     <string name="confirmation_action">¿Estás seguro?</string>
     <string name="action_delete">La oferta será eliminada</string>
     <string name="action_edit_oferta">La ofertará cambiará a estado borrador</string>
+    <string name="action_ok">La oferta pasará a estado ok</string>
+    <string name="action_ko">La oferta pasará a estado ko</string>
+    <string name="action_firma">La oferta será firmada y se enviará al cliente</string>
 
 
     <array name="array_operadores">

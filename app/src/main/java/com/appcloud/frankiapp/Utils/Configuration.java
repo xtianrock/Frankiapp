@@ -31,4 +31,10 @@ public class Configuration {
     public final static String XS = "XS";
 
     public static final String[] TIPOSCONVERGENCIA = {"MINI", "S", "M","L", "XL", "XXL"};
+
+    // Acciones
+    public static final String ELIMINAR = "ELIMINAR";
+    public static final String EDITAR = "EDITAR";
+    public static final String FIRMAR = "FIRMAR";
+
 }

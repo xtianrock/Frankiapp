@@ -2,6 +2,7 @@ package com.appcloud.frankiapp.Activitys;
 
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 
@@ -11,6 +12,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 
@@ -37,6 +39,8 @@ import com.appcloud.frankiapp.POJO.Tarifa;
 import com.appcloud.frankiapp.POJO.Terminal;
 import com.appcloud.frankiapp.R;
 
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -51,6 +55,7 @@ public class MainActivity extends AppCompatActivity
     FloatingActionButton fab;
     String currentFragmentTag;
     Snackbar snackbar;
+    Fragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,32 +80,57 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        switchToFragment(new TabFragment(),"Ofertas",true);
+        switchToFragment(new TabFragment(),"Ofertas",false);
 
         database.getWritableDatabase();
+
         DatabaseHelper.importTarifas(this);
         DatabaseHelper.importPuntos(this);
+        DatabaseHelper.importExtracomision(this);
         DatabaseHelper.importTerminalesSmart(this);
+    }
+
+    @Nullable
+    private Fragment getVisibleFragment() {
+        Fragment mfragment = null;
+        FragmentManager fragmentManager = MainActivity.this.getSupportFragmentManager();
+        List<Fragment> fragments = fragmentManager.getFragments();
+        for (Fragment fragment : fragments) {
+            if (fragment != null && fragment.isVisible()) {
+                mfragment = fragment;
+                break;
+            }
+        }
+
+        return mfragment;
     }
 
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            //super.onBackPressed();
-            if(snackbar!=null && snackbar.isShown())
-                finish();
-            else
-            {
-                snackbar = Snackbar.make(fab,"Pulse de nuevo para salir", Snackbar.LENGTH_SHORT);
-                snackbar.show();
-            }
 
-
+        if (getVisibleFragment() instanceof ClienteFragment) {
+           super.onBackPressed();
         }
+        else
+        {
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            if (drawer.isDrawerOpen(GravityCompat.START)) {
+                drawer.closeDrawer(GravityCompat.START);
+            } else {
+                //super.onBackPressed();
+                if(snackbar!=null && snackbar.isShown())
+                    finish();
+                else
+                {
+                    snackbar = Snackbar.make(fab,"Pulse de nuevo para salir", Snackbar.LENGTH_SHORT);
+                    snackbar.show();
+                }
+
+
+            }
+        }
+
     }
 
     @Override
@@ -130,10 +160,10 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        Fragment fragment = null;
+         fragment = null;
         if (id == R.id.nav_clientes) {
             fragment = new ListaClientesFragment();
-           tabLayout.setVisibility(View.GONE);
+            tabLayout.setVisibility(View.GONE);
             fab.setVisibility(View.VISIBLE);
         } else if (id == R.id.nav_telefonos) {
             fragment = new ListaTerminalesFragment();

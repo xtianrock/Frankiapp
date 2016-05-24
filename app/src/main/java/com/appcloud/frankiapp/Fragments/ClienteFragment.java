@@ -171,24 +171,7 @@ public class ClienteFragment extends Fragment {
                     Intent intent = new Intent(context, ActivityOferta.class);
                     intent.putExtra("oferta",((ActivityOferta) context).codigoOferta);
                     startActivity(intent);
-
-                    //TODO borrar fragmento de codigo
-                    // ocultamos el teclado
-                    /*InputMethodManager inputManager = (InputMethodManager) getActivity()
-                            .getSystemService(Context.INPUT_METHOD_SERVICE);
-
-                    // check if no view has focus:
-                    View v = ((ActivityOferta) getActivity()).getCurrentFocus();
-                    if (v == null)
-                        return;
-
-                    inputManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
-
-                    ((ActivityOferta) context).informacionFragmentCliente(DatabaseHelper.getInstance(getActivity()).getLastIdCliente());
-                    ((ActivityOferta) context).getSupportFragmentManager().popBackStack();*/
-                    //TODO borrar fragmento de codigo
-
-
+                    ((ActivityOferta) context).finish();
 
                 }
 

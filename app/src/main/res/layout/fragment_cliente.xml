@@ -169,13 +169,15 @@
             </android.support.design.widget.TextInputLayout>
 
             <Spinner
-                android:layout_width="match_parent"
+                android:layout_width="215dp"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="24dp"
                 android:id="@+id/sp_provincia" />
 
             <Spinner
-                android:layout_width="match_parent"
+                android:layout_width="215dp"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="24dp"
                 android:id="@+id/sp_poblacion"
                 android:layout_marginBottom="@dimen/margin_login"/>
 

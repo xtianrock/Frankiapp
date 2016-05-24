@@ -23,6 +23,7 @@ public class Oferta {
     float comisionBaseTotal;
     float puntosTotal;
     float commisionEmpresa;
+    int lineasMoviles;
 
     public Oferta() {
         this.estado = Configuration.BORRADOR;
@@ -138,5 +139,13 @@ public class Oferta {
 
     public void setCommisionEmpresa(float commisionEmpresa) {
         this.commisionEmpresa = commisionEmpresa;
+    }
+
+    public int getLineasMoviles() {
+        return lineasMoviles;
+    }
+
+    public void setLineasMoviles(int lineasMoviles) {
+        this.lineasMoviles = lineasMoviles;
     }
 }

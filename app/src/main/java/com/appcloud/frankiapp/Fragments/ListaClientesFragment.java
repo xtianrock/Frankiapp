@@ -67,10 +67,6 @@ public class ListaClientesFragment extends Fragment {
             }
         });
 
-
-
-
-
         ClientesAsynctask clientesAsynctask= new ClientesAsynctask();
         clientesAsynctask.execute();
         return view;

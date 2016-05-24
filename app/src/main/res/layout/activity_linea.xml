@@ -9,6 +9,7 @@
     tools:context=".Activitys.ActivityLinea">
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbarlayout"
+        android:transitionName="color"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay"
@@ -20,7 +21,8 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         app:popupTheme="@style/AppTheme.PopupOverlay"
-        app:layout_scrollFlags="scroll|enterAlways"/>
+        app:layout_scrollFlags="scroll|enterAlways"
+        />
 
         <include layout="@layout/resumen_oferta" />
 

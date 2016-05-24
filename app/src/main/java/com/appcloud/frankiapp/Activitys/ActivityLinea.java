@@ -30,11 +30,13 @@ import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.appcloud.frankiapp.Adapters.LineasRecyclerViewAdapter;
 import com.appcloud.frankiapp.Adapters.SpinnerConvergenciaAdapter;
 import com.appcloud.frankiapp.Adapters.SpinnerTarifaAdapter;
 import com.appcloud.frankiapp.Adapters.TerminalesBottomSheetAdapter;
 import com.appcloud.frankiapp.Database.DatabaseHelper;
 import com.appcloud.frankiapp.POJO.Lineaoferta;
+import com.appcloud.frankiapp.POJO.Oferta;
 import com.appcloud.frankiapp.POJO.Tarifa;
 import com.appcloud.frankiapp.POJO.Terminal;
 import com.appcloud.frankiapp.R;
@@ -55,6 +57,7 @@ public class ActivityLinea extends AppCompatActivity {
     EditText etTelefono;
     Spinner spTarifa, spOperador, spConvergencia;
     Toolbar toolbar;
+    MenuItem itemDelete;
     View bottomSheet;
     String estado = Configuration.BORRADOR;
     ArrayList<Tarifa> tarifas;
@@ -67,6 +70,7 @@ public class ActivityLinea extends AppCompatActivity {
     TerminalesBottomSheetAdapter terminalesAdapter;
     FloatingActionButton fab;
     boolean touchByUser = false;
+    ArrayList<Lineaoferta> lineasOferta;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +80,7 @@ public class ActivityLinea extends AppCompatActivity {
             estado=getIntent().getStringExtra("estado");
         setTheme(Commons.getTema(estado));
         setContentView(R.layout.activity_linea);
+
         lnResumen = (LinearLayout) findViewById(R.id.ln_resumen);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         bottomSheet = findViewById(R.id.bottom_sheet);
@@ -149,6 +154,7 @@ public class ActivityLinea extends AppCompatActivity {
         TarifasAsyncTask tarifasAsyncTask = new TarifasAsyncTask(this);
         tarifasAsyncTask.execute();
 
+
     }
 
 
@@ -216,6 +222,20 @@ public class ActivityLinea extends AppCompatActivity {
             cbConvergenciaFibra.setChecked(true);
         }
 
+
+        if (!estado.equalsIgnoreCase(Configuration.BORRADOR)) {
+            fab.setVisibility(View.GONE);
+            spTarifa.setEnabled(false);
+            rbAlta.setEnabled(false);
+            rbPorta.setEnabled(false);
+            cbSimonly.setEnabled(false);
+            cbTerminal.setEnabled(false);
+            cbConvergenciaMovil .setEnabled(false);
+            cbConvergenciaFibra.setEnabled(false);
+            lnPorta.setEnabled(false);
+            spOperador.setEnabled(false);
+            etTelefono.setEnabled(false);
+        }
 
     }
 
@@ -404,10 +424,30 @@ public class ActivityLinea extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+                Oferta oferta = DatabaseHelper.getInstance(context).getOferta(codigoOferta);
+                int lineasMoviles = 0;
+                float puntos = 0;
+
                 if (tarifaSeleccionada != null) {
 
                     lineaActual.setCodTarifa(tarifaSeleccionada.getCodTarifa());
                     lineaActual.setPlanPrecios(tarifaSeleccionada.getPlanPrecios());
+
+                    lineaActual.setComisionBase(tarifaSeleccionada.getComisionBase());
+                    lineaActual.setComisionExtra(tarifaSeleccionada.getComisionExtra());
+
+                    float comisionExtra = (float) tarifaSeleccionada.getComisionExtra();
+
+                    if (comisionExtra != -1){
+                        lineaActual.setComisionExtra(tarifaSeleccionada.getComisionExtra());
+                        puntos = tarifaSeleccionada.getComisionExtra();
+                    }else{
+                        //oferta.setLineasMoviles(oferta.getLineasMoviles()+1);
+                        lineasMoviles = oferta.getLineasMoviles();
+
+                       puntos =  DatabaseHelper.getInstance(context).getPuntosByLineasMoviles(lineasMoviles);
+
+                    }
                 }
 
                 if(terminalSeleccionado!=null)
@@ -440,6 +480,12 @@ public class ActivityLinea extends AppCompatActivity {
                     lineaActual.setPrecioTErminalCuota(Float.parseFloat(tvCuotaterminal.getText().toString()));
                     DatabaseHelper.getInstance(context).createLineaOferta(lineaActual);
                 }
+
+
+
+                oferta.setComisionBaseTotal(oferta.getComisionBaseTotal() + tarifaSeleccionada.getComisionBase());
+                oferta.setPuntosTotal(oferta.getPuntosTotal()+puntos);
+                DatabaseHelper.getInstance(context).updateCabeceraOferta(oferta);
 
                 finish();
             }
@@ -575,6 +621,11 @@ public class ActivityLinea extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_linea, menu);
+        itemDelete = menu.findItem(R.id.action_delete);
+
+        if (!estado.equalsIgnoreCase(Configuration.BORRADOR))
+            itemDelete.setVisible(false);
+
         return true;
     }
 
@@ -584,7 +635,8 @@ public class ActivityLinea extends AppCompatActivity {
         switch (item.getItemId()) {
 
             case android.R.id.home:
-                finish();
+                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                super.onBackPressed();
                 return true;
             case R.id.action_delete:
                 DatabaseHelper.getInstance(context).deleteLineaOferta(lineaActual);
@@ -663,6 +715,5 @@ public class ActivityLinea extends AppCompatActivity {
             }
         }
     }
-
 
 }

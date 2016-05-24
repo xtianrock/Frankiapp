@@ -4,7 +4,9 @@ import android.app.Application;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -21,11 +23,13 @@ public class OfertasRecyclerViewAdapter extends RecyclerView.Adapter<OfertasRecy
 
     private final List<Oferta> ofertas;
     private final OfertaClickListener mListener;
+    private final OfertaMemenuClickListener tbmListener;
     private Context context;
 
-    public OfertasRecyclerViewAdapter(Context context, List<Oferta> ofertas, OfertaClickListener listener) {
+    public OfertasRecyclerViewAdapter(Context context, List<Oferta> ofertas, OfertaClickListener listener, OfertaMemenuClickListener tbListener) {
         this.ofertas = ofertas;
         mListener = listener;
+        tbmListener = tbListener;
         this.context = context;
     }
 
@@ -68,8 +72,23 @@ public class OfertasRecyclerViewAdapter extends RecyclerView.Adapter<OfertasRecy
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onItemClick(holder.mView,holder.oferta);
+                    mListener.onItemClick(holder.mView,holder.oferta, holder.tbOferta);
                 }
+            }
+        });
+
+        holder.tbOferta.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.onItemClick(holder.mView,holder.oferta, holder.tbOferta);
+            }
+        });
+
+        holder.tbOferta.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                tbmListener.onMenuItemClick(menuItem,holder.oferta);
+                return true;
             }
         });
     }
@@ -86,6 +105,7 @@ public class OfertasRecyclerViewAdapter extends RecyclerView.Adapter<OfertasRecy
         public final TextView tvApellidos;
         public final TextView tvFecha;
         public final TextView tvPoblacion;
+        public final Toolbar tbOferta;
 
         public Oferta oferta;
 
@@ -97,13 +117,22 @@ public class OfertasRecyclerViewAdapter extends RecyclerView.Adapter<OfertasRecy
             tvApellidos = (TextView) view.findViewById(R.id.tv_oferta_apellidos);
             tvFecha = (TextView) view.findViewById(R.id.tv_oferta_fecha);
             tvPoblacion = (TextView) view.findViewById(R.id.tv_oferta_poblacion);
+            tbOferta = (Toolbar) view.findViewById(R.id.toolbar_cardview);
 
+            if (tbOferta != null) {
+                // inflate your menu
+                tbOferta.inflateMenu(R.menu.menu_tarjeta_oferta);
+            }
 
         }
 
     }
 
     public interface OfertaClickListener {
-        void onItemClick(View vista,Oferta oferta);
+        void onItemClick(View vista,Oferta oferta, Toolbar tb);
+    }
+
+    public interface OfertaMemenuClickListener {
+        void onMenuItemClick(MenuItem menuItem,Oferta oferta);
     }
 }

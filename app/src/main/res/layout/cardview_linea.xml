@@ -14,8 +14,11 @@
         android:layout_marginTop="10dp"
         android:elevation="5dp">
         <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="8dp"
+            android:id="@+id/ln_color"
             android:layout_height="match_parent"
+            android:transitionName="color"
             android:background="@color/colorBorrador">
 
         </LinearLayout>

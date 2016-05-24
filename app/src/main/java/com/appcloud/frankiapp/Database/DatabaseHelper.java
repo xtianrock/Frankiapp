@@ -221,6 +221,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COMISION_BASE_TOTAL = "COMISION_BASE_TOTAL";
     public static final String PUNTOS_TOTAL = "PUNTOS_TOTAL";
     public static final String COMISION_EMPRESA = "COMISION_EMPRESA";
+    public static final String LINEAS_MOVILES = "LINEAS_MOVILES";
 
 
 
@@ -240,6 +241,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + COMISION_BASE_TOTAL + " NUMERIC,"
             + PUNTOS_TOTAL + " NUMERIC,"
             + COMISION_EMPRESA + " NUMERIC,"
+            + LINEAS_MOVILES + " NUMERIC,"
             + " FOREIGN KEY ("+ CODCLIENTE +") REFERENCES "+ TABLE_CLIENTES +"("+ CODCLIENTE +"))";
 
     //===============================================================================================================================
@@ -367,6 +369,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.setTransactionSuccessful();
             db.endTransaction();
             Log.i("import", "tarifas importadas con exito");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            if (db.inTransaction())
+                db.endTransaction();
+        }
+
+    }
+
+    public static void importExtracomision(Context context)
+    {
+        String filename = "extracomision.csv";
+        String tableName = TABLE_EXTRACOMISION;
+        SQLiteDatabase db = DatabaseHelper.getInstance(context).getReadableDatabase();
+        db.execSQL("delete from " + tableName);
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(
+                    new InputStreamReader(context.getAssets().open(filename)));
+            db.beginTransaction();
+
+            String mLine;
+            while ((mLine = reader.readLine()) != null) {
+                String[] str = mLine.split(",",-1);
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MINIMOPUNTOS, str[0]);
+                contentValues.put(EXTRACOMISION,str[1] );
+                db.insert(tableName, null, contentValues);
+            }
+            db.setTransactionSuccessful();
+            db.endTransaction();
+            Log.i("import", "puntos extracomision importados con exito");
         } catch (Exception ex) {
             ex.printStackTrace();
             if (db.inTransaction())
@@ -909,7 +942,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String whereClause= CODOFERTA +" = " + oferta.getCodOferta();
 
         ContentValues values = new ContentValues();
-        values.put(CODCLIENTE, oferta.getCodCliente());
+        values.put(CODCLIENTE, oferta.getCodCliente()!=0 ? oferta.getCodCliente(): null);
         values.put(ESTADO, oferta.getEstado());
         values.put(FECHA_OFERTA,oferta.getFechaOferta());
         values.put(FECHA_FIRMA,oferta.getFechaFirma());
@@ -922,6 +955,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COMISION_BASE_TOTAL,oferta.getComisionBaseTotal());
         values.put(PUNTOS_TOTAL,oferta.getPuntosTotal());
         values.put(COMISION_EMPRESA,oferta.getCommisionEmpresa());
+        values.put(LINEAS_MOVILES,oferta.getLineasMoviles());
 
 
         return db.update(TABLE_CABECERAS_OFERTA, values,whereClause,null);
@@ -939,6 +973,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return lineaEliminada;
     }
+
 
     public ArrayList<Lineaoferta> getAllLineasOferta(int codigoOferta) {
         ArrayList<Lineaoferta> lineas = new ArrayList<>();
@@ -1050,7 +1085,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(CODOFERTA, lineaActual.getCodOferta());
         values.put(CODTARIFA, lineaActual.getCodTarifa());
-        values.put(CODTERMINAL, lineaActual.getCodTerminal());
+        values.put(CODTERMINAL, lineaActual.getCodTerminal()!=0 ? lineaActual.getCodTerminal(): null);
         values.put(NUMEROTELEFONO, lineaActual.getNumeroTelefono());
         values.put(PLANPRECIOS, lineaActual.getPlanPrecios());
         values.put(OPERADORDONANTE, lineaActual.getOperadorDonante());
@@ -1111,6 +1146,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.endTransaction();
 
         return lineaEliminada;
+    }
+
+    public float getPuntosByLineasMoviles(int lineasMoviles) {
+        String selectQuery = "SELECT " + PUNTOS + " FROM " + TABLE_PUNTOS +" WHERE "+ NUMLINEAS + " >= "+lineasMoviles + " AND " + NUMLINEAS + " <= " + lineasMoviles;
+        Log.d(LOG, selectQuery);
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+        float puntos = 0;
+        if (c!=null && c.moveToFirst()) {
+            puntos = (c.getInt(c.getColumnIndex(PUNTOS)));
+
+        }
+        c.close();
+        return puntos;
     }
 
     }

@@ -1,5 +1,7 @@
 package com.appcloud.frankiapp.Activitys;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,12 +12,16 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDialog;
 import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -29,6 +35,7 @@ import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.appcloud.frankiapp.Adapters.ClienteRecyclerViewAdapter;
@@ -51,9 +58,10 @@ public class ActivityOferta extends AppCompatActivity {
 
     Context context = this;
     LinearLayout lnResumen;
+    RelativeLayout rlComisionColor;
     FloatingActionButton fab;
     Button altaCliente;
-    TextView tvTitulo, tvInicialTarifa, tvCuotaTarifa, tvInicialTerminal, tvCuotaterminal;
+    TextView tvTitulo, tvInicialTarifa, tvCuotaTarifa, tvInicialTerminal, tvCuotaterminal, tvComision, tvExtraComision, tvPuntos;
     RecyclerView recyclerView;
     LineasRecyclerViewAdapter.LineaClickListener lineaClickListener;
     BottomSheetBehavior behavior;
@@ -95,14 +103,22 @@ public class ActivityOferta extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         lineaClickListener = new LineasRecyclerViewAdapter.LineaClickListener() {
             @Override
-            public void onItemClick(Lineaoferta linea) {
-                if ( oferta.getEstado().equalsIgnoreCase(Configuration.BORRADOR)) {
+            public void onItemClick(View vista,Lineaoferta linea) {
                     Intent intent = new Intent(context, ActivityLinea.class);
                     intent.putExtra("oferta", codigoOferta);
                     intent.putExtra("estado", oferta.getEstado());
                     intent.putExtra("lineaActual", linea.getCodLinea());
-                    startActivity(intent);
-                }
+                    //  startActivity(intent);
+
+                LinearLayout lnColor = (LinearLayout)vista.findViewById(R.id.ln_color);
+                TextView tvLinea = (TextView)vista.findViewById(R.id.tv_linea_tarifa);
+
+                Pair<View, String> p1 = Pair.create((View)lnColor, "color");
+                Pair<View, String> p2 = Pair.create((View)tvLinea, "nombre");
+
+                ActivityOptionsCompat options = ActivityOptionsCompat.
+                        makeSceneTransitionAnimation((Activity)context, p1,p2);
+                startActivity(intent,options.toBundle());
             }
         };
 
@@ -303,12 +319,15 @@ public class ActivityOferta extends AppCompatActivity {
                 itemPresentar.setVisible(true);
                 itemThumbok.setVisible(false);
                 itemThumbko.setVisible(false);
+                itemActionEdit.setVisible(false);
+
                 break;
             case Configuration.FIRMADA:
                 itemFirmar.setVisible(false);
                 itemPresentar.setVisible(false);
-               // itemThumbok.setVisible(true);
-                //itemThumbko.setVisible(true);
+                itemActionEdit.setVisible(false);
+                itemActionDelete.setVisible(false);
+
                 break;
 
             default:
@@ -332,7 +351,8 @@ public class ActivityOferta extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == android.R.id.home) {
-            finish();
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            super.onBackPressed();
             return true;
         }
         if (id == R.id.action_presentar) {
@@ -350,84 +370,154 @@ public class ActivityOferta extends AppCompatActivity {
         }
 
         if (id == R.id.action_firmar) {
-            oferta.setEstado(Configuration.FIRMADA);
-            DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
-            actualizaEstadoOferta();
+            muestraDialogoConfirmacion(Configuration.FIRMAR);
             return true;
         }
 
         if (id == R.id.action_estado_ok) {
-            oferta.setEstado(Configuration.OK);
-            DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
-            actualizaEstadoOferta();
+            muestraDialogoConfirmacion(Configuration.OK);
             return true;
         }
 
         if (id == R.id.action_estado_ko) {
-            oferta.setEstado(Configuration.KO);
-            DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
-            actualizaEstadoOferta();
+            muestraDialogoConfirmacion(Configuration.KO);
             return true;
         }
 
 
         if (id == R.id.action_delete) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(ActivityOferta.this);
-            builder.setCancelable(true);
-            builder.setTitle(getString(R.string.confirmation_action));
-            builder.setMessage(getString(R.string.action_delete));
-            builder.setPositiveButton("Confirmar",
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            DatabaseHelper.getInstance(context).deleteOferta(oferta);
-                            finish();
-
-                        }
-                    });
-            builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                }
-            });
-
-            AlertDialog dialog = builder.create();
-            dialog.show();
-
-
+            muestraDialogoConfirmacion(Configuration.ELIMINAR);
             return true;
         }
 
         if (id == R.id.action_editar) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(ActivityOferta.this);
-            builder.setCancelable(true);
-            builder.setTitle(getString(R.string.confirmation_action));
-            builder.setMessage(getString(R.string.action_edit_oferta));
-            builder.setPositiveButton("Confirmar",
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            oferta.setEstado(Configuration.BORRADOR);
-                            DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
-                            actualizaEstadoOferta();
-
-                        }
-                    });
-                builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                }
-            });
-
-            AlertDialog dialog = builder.create();
-            dialog.show();
-
+            muestraDialogoConfirmacion(Configuration.EDITAR);
+            return true;
+        }
+        
+        if (id == R.id.action_comisiones){
+            muestraDialogoComisiones();
             return true;
         }
 
-
-
         return super.onOptionsItemSelected(item);
+    }
+    
+    
+    private void muestraDialogoComisiones(){
+        // Create custom dialog object
+        final Dialog   dialog = new Dialog (this);
+
+        dialog.setContentView(R.layout.comisiones);
+
+        rlComisionColor = (RelativeLayout)dialog.findViewById(R.id.rlComisionColor);
+        tvComision = (TextView)dialog.findViewById(R.id.txComisionCantidad);
+        // tvExtraComision = (TextView)dialog.findViewById(R.id.txExtraComisionCantidad);
+        tvPuntos = (TextView)dialog.findViewById(R.id.txPuntosCantidad);
+
+        tvComision.setText(String.valueOf(oferta.getComisionBaseTotal()));
+        tvPuntos.setText(String.valueOf(oferta.getPuntosTotal()));
+
+        switch (oferta.getEstado())
+        {
+            case Configuration.BORRADOR:
+                rlComisionColor.setBackgroundColor(ContextCompat.getColor(context, R.color.colorBorrador));
+                break;
+            case Configuration.PRESENTADA:
+                rlComisionColor.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPresentada));
+                break;
+            case Configuration.FIRMADA:
+                rlComisionColor.setBackgroundColor(ContextCompat.getColor(context, R.color.colorFirmada));
+                break;
+            case Configuration.KO:
+                rlComisionColor.setBackgroundColor(ContextCompat.getColor(context, R.color.colorKO));
+                break;
+            case Configuration.OK:
+                rlComisionColor.setBackgroundColor(ContextCompat.getColor(context, R.color.colorOK));
+                break;
+        }
+
+        dialog.setCancelable(true);
+
+        // set values for custom dialog components - text, image and button
+        /*TextView text = (TextView) dialog.findViewById(R.id.textDialog);
+        text.setText("Custom dialog Android example.");
+        ImageView image = (ImageView) dialog.findViewById(R.id.imageDialog);
+        image.setImageResource(R.drawable.image0);*/
+
+        dialog.show();
+    }
+
+
+    private void muestraDialogoConfirmacion(final String accion){
+        AlertDialog.Builder builder = new AlertDialog.Builder(ActivityOferta.this);
+        builder.setCancelable(true);
+        builder.setTitle(getString(R.string.confirmation_action));
+        builder.setMessage(setMensajeDialogo(accion));
+        builder.setPositiveButton("Confirmar",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        switch (accion) {
+                            case Configuration.KO:
+                                oferta.setEstado(Configuration.KO);
+                                DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
+                                actualizaEstadoOferta();
+                                break;
+                            case Configuration.OK:
+                                oferta.setEstado(Configuration.OK);
+                                DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
+                                actualizaEstadoOferta();
+                                break;
+                            case Configuration.FIRMAR:
+                                oferta.setEstado(Configuration.FIRMADA);
+                                DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
+                                actualizaEstadoOferta();
+                                break;
+                            case Configuration.EDITAR:
+                                oferta.setEstado(Configuration.BORRADOR);
+                                DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
+                                actualizaEstadoOferta();
+                                break;
+                            case Configuration.ELIMINAR:
+                                DatabaseHelper.getInstance(context).deleteOferta(oferta);
+                                finish();
+                                break;
+                        }
+
+                    }
+                });
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private String setMensajeDialogo(final String accion){
+        switch (accion) {
+            case Configuration.KO:
+                return getString(R.string.action_ko);
+
+            case Configuration.OK:
+                return getString(R.string.action_ok);
+
+            case Configuration.FIRMAR:
+                return getString(R.string.action_firma);
+
+            case Configuration.EDITAR:
+                return getString(R.string.action_edit_oferta);
+
+            case Configuration.ELIMINAR:
+                return getString(R.string.action_delete);
+
+        }
+
+        return "";
     }
 
     public void switchToFragment(Fragment fragment, String title, boolean backStack) {
@@ -454,7 +544,6 @@ public class ActivityOferta extends AppCompatActivity {
                         .replace(R.id.content_activity_oferta, fragment, currentFragmentTag)
                         .commit();
             }
-
         }
     }
 
