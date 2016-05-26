@@ -1,4 +1,4 @@
-package com.appcloud.frankiapp.Activitys;
+package com.appcloud.frankiapp.Activities;
 
 
 import android.os.Bundle;
@@ -12,7 +12,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 
@@ -23,7 +22,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.appcloud.frankiapp.Database.DatabaseHelper;
 import com.appcloud.frankiapp.Fragments.ListaClientesFragment;
@@ -148,7 +146,9 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_comisiones) {
+
+
             return true;
         }
 

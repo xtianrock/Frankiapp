@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.appcloud.frankiapp.Database.DatabaseHelper;
+import com.appcloud.frankiapp.POJO.Cliente;
 import com.appcloud.frankiapp.POJO.Oferta;
 import com.appcloud.frankiapp.R;
 import com.appcloud.frankiapp.Utils.Configuration;
@@ -25,6 +27,7 @@ public class OfertasRecyclerViewAdapter extends RecyclerView.Adapter<OfertasRecy
     private final OfertaClickListener mListener;
     private final OfertaMemenuClickListener tbmListener;
     private Context context;
+    private Cliente cliente;
 
     public OfertasRecyclerViewAdapter(Context context, List<Oferta> ofertas, OfertaClickListener listener, OfertaMemenuClickListener tbListener) {
         this.ofertas = ofertas;
@@ -43,10 +46,11 @@ public class OfertasRecyclerViewAdapter extends RecyclerView.Adapter<OfertasRecy
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.oferta = ofertas.get(position);
-      /*  holder.tvNombre.setText(holder.oferta.get());
-        holder.tvApellidos.setText(ofertas.get(position).getApellidos());
-        holder.tvPoblacion.setText(ofertas.get(position).getPoblacion());
-        holder.tvTelefono.setText(ofertas.get(position).getTelefono());*/
+
+        holder.tvNombre.setText(holder.oferta.getNombre() != null ? holder.oferta.getNombre() : "Borrador #" + String.valueOf(holder.oferta.getCodOferta()));
+        holder.tvApellidos.setText(holder.oferta.getApellidos());
+        holder.tvPoblacion.setText(holder.oferta.getPoblacion());
+       // holder.tvTelefono.setText(ofertas.get(position).getTelefono());*
 
         switch (holder.oferta.getEstado())
         {

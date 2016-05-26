@@ -24,10 +24,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.appcloud.frankiapp.Activitys.ActivityOferta;
-import com.appcloud.frankiapp.Adapters.ClienteRecyclerViewAdapter;
+import com.appcloud.frankiapp.Activities.ActivityOferta;
 import com.appcloud.frankiapp.Adapters.OfertasRecyclerViewAdapter;
 import com.appcloud.frankiapp.Database.DatabaseHelper;
 import com.appcloud.frankiapp.Interfaces.OnTerminalInteractionListener;
@@ -133,9 +131,8 @@ public class ListaOfertasFragment extends Fragment {
                                         .show();
                             }
 
-
                         }else {
-                            Snackbar.make(fab, "Este cliente no tiene un Email registrado, introduzca uno",
+                            Snackbar.make(fab, "Este cliente no tiene ningún email registrado, introduzca uno",
                                     Snackbar.LENGTH_LONG)
                                     .setAction("AÑADIR", new View.OnClickListener() {
                                         @Override

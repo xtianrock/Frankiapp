@@ -220,6 +220,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String CUOTA_TERMINAL = "CUOTA_TERMINAL";
     public static final String COMISION_BASE_TOTAL = "COMISION_BASE_TOTAL";
     public static final String PUNTOS_TOTAL = "PUNTOS_TOTAL";
+    public static final String PUNTOS_LINEAS = "PUNTOS_LINEAS";
     public static final String COMISION_EMPRESA = "COMISION_EMPRESA";
     public static final String LINEAS_MOVILES = "LINEAS_MOVILES";
 
@@ -240,8 +241,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + CUOTA_TERMINAL + " NUMERIC,"
             + COMISION_BASE_TOTAL + " NUMERIC,"
             + PUNTOS_TOTAL + " NUMERIC,"
+            + PUNTOS_LINEAS + " NUMERIC,"
             + COMISION_EMPRESA + " NUMERIC,"
             + LINEAS_MOVILES + " NUMERIC,"
+            + NOMBRE + " TEXT,"
+            + APELLIDOS + " TEXT,"
+            + POBLACION + " TEXT,"
             + " FOREIGN KEY ("+ CODCLIENTE +") REFERENCES "+ TABLE_CLIENTES +"("+ CODCLIENTE +"))";
 
     //===============================================================================================================================
@@ -865,6 +870,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 oferta.setComisionBaseTotal((c.getFloat(c.getColumnIndex(COMISION_BASE_TOTAL))));
                 oferta.setPuntosTotal((c.getFloat(c.getColumnIndex(PUNTOS_TOTAL))));
                 oferta.setCommisionEmpresa((c.getFloat(c.getColumnIndex(COMISION_EMPRESA))));
+                oferta.setNombre(c.getString(c.getColumnIndex(NOMBRE)));
+                oferta.setApellidos((c.getString(c.getColumnIndex(APELLIDOS))));
+                oferta.setPoblacion(c.getString(c.getColumnIndex(POBLACION)));
                 ofertas.add(oferta);
             } while (c.moveToNext());
         }
@@ -896,7 +904,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             oferta.setCuotaTerminal((c.getFloat(c.getColumnIndex(CUOTA_TERMINAL))));
             oferta.setComisionBaseTotal((c.getFloat(c.getColumnIndex(COMISION_BASE_TOTAL))));
             oferta.setPuntosTotal((c.getFloat(c.getColumnIndex(PUNTOS_TOTAL))));
+            oferta.setPuntosLineas((c.getFloat(c.getColumnIndex(PUNTOS_LINEAS))));
             oferta.setCommisionEmpresa((c.getFloat(c.getColumnIndex(COMISION_EMPRESA))));
+            oferta.setLineasMoviles((c.getInt(c.getColumnIndex(LINEAS_MOVILES))));
+            oferta.setNombre(c.getString(c.getColumnIndex(NOMBRE)));
+            oferta.setApellidos((c.getString(c.getColumnIndex(APELLIDOS))));
+            oferta.setPoblacion(c.getString(c.getColumnIndex(POBLACION)));
+
         }
         c.close();
         return oferta;
@@ -914,6 +928,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(CUOTA_TERMINAL,cero);
         values.put(COMISION_BASE_TOTAL,cero);
         values.put(PUNTOS_TOTAL,cero);
+        values.put(PUNTOS_LINEAS,cero);
         values.put(COMISION_EMPRESA,cero);
 
         long value=  db.insert(TABLE_CABECERAS_OFERTA, null, values);
@@ -954,8 +969,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(CUOTA_TERMINAL,oferta.getCuotaTerminal());
         values.put(COMISION_BASE_TOTAL,oferta.getComisionBaseTotal());
         values.put(PUNTOS_TOTAL,oferta.getPuntosTotal());
+        values.put(PUNTOS_LINEAS,oferta.getPuntosLineas());
         values.put(COMISION_EMPRESA,oferta.getCommisionEmpresa());
         values.put(LINEAS_MOVILES,oferta.getLineasMoviles());
+        values.put(NOMBRE,oferta.getNombre());
+        values.put(APELLIDOS,oferta.getApellidos());
+        values.put(POBLACION,oferta.getPoblacion());
 
 
         return db.update(TABLE_CABECERAS_OFERTA, values,whereClause,null);
@@ -1061,7 +1080,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         long result = db.insert(TABLE_LINEAS_OFERTA, null, values);
 
-        String whereClause= " WHERE " + CODOFERTA +" = " + linea.getCodOferta();
+
+
+       String whereClause= " WHERE " + CODOFERTA +" = " + linea.getCodOferta();
         String sql = "UPDATE " + TABLE_CABECERAS_OFERTA + " SET "+
                 PAGO_INICIAL_TARIFA + "=" + PAGO_INICIAL_TARIFA + "+" + linea.getPrecioTarifaInicial() + ","+
                 CUOTA_TARIFA + "=" + CUOTA_TARIFA + "+" + linea.getPrecioTarifaCuota() + ","+
@@ -1149,15 +1170,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public float getPuntosByLineasMoviles(int lineasMoviles) {
-        String selectQuery = "SELECT " + PUNTOS + " FROM " + TABLE_PUNTOS +" WHERE "+ NUMLINEAS + " >= "+lineasMoviles + " AND " + NUMLINEAS + " <= " + lineasMoviles;
+        String selectQuery = "SELECT " + PUNTOS + " FROM " + TABLE_PUNTOS +" WHERE "+ NUMLINEAS + " = " + lineasMoviles;
         Log.d(LOG, selectQuery);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
         float puntos = 0;
         if (c!=null && c.moveToFirst()) {
-            puntos = (c.getInt(c.getColumnIndex(PUNTOS)));
-
+            puntos = (c.getFloat(0));
         }
         c.close();
         return puntos;

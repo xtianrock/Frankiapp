@@ -13,7 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.appcloud.frankiapp.Activitys.MainActivity;
+import com.appcloud.frankiapp.Activities.MainActivity;
 import com.appcloud.frankiapp.Adapters.ClienteRecyclerViewAdapter;
 import com.appcloud.frankiapp.Database.DatabaseHelper;
 import com.appcloud.frankiapp.Interfaces.OnClienteInteractionListener;

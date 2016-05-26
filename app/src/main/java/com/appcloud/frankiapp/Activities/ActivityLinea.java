@@ -1,18 +1,16 @@
-package com.appcloud.frankiapp.Activitys;
+package com.appcloud.frankiapp.Activities;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,7 +28,6 @@ import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.appcloud.frankiapp.Adapters.LineasRecyclerViewAdapter;
 import com.appcloud.frankiapp.Adapters.SpinnerConvergenciaAdapter;
 import com.appcloud.frankiapp.Adapters.SpinnerTarifaAdapter;
 import com.appcloud.frankiapp.Adapters.TerminalesBottomSheetAdapter;
@@ -426,7 +423,7 @@ public class ActivityLinea extends AppCompatActivity {
 
                 Oferta oferta = DatabaseHelper.getInstance(context).getOferta(codigoOferta);
                 int lineasMoviles = 0;
-                float puntos = 0;
+
 
                 if (tarifaSeleccionada != null) {
 
@@ -438,16 +435,17 @@ public class ActivityLinea extends AppCompatActivity {
 
                     float comisionExtra = (float) tarifaSeleccionada.getComisionExtra();
 
-                    if (comisionExtra != -1){
-                        lineaActual.setComisionExtra(tarifaSeleccionada.getComisionExtra());
-                        puntos = tarifaSeleccionada.getComisionExtra();
-                    }else{
-                        //oferta.setLineasMoviles(oferta.getLineasMoviles()+1);
+                    if (comisionExtra == -1){
+
+                        oferta.setLineasMoviles(oferta.getLineasMoviles()+1);
                         lineasMoviles = oferta.getLineasMoviles();
+                        oferta.setPuntosLineas(DatabaseHelper.getInstance(context).getPuntosByLineasMoviles(lineasMoviles));
 
-                       puntos =  DatabaseHelper.getInstance(context).getPuntosByLineasMoviles(lineasMoviles);
-
+                    }else {
+                        oferta.setPuntosTotal(oferta.getPuntosTotal()+tarifaSeleccionada.getComisionExtra());
                     }
+
+                    oferta.setComisionBaseTotal(oferta.getComisionBaseTotal() + tarifaSeleccionada.getComisionBase());
                 }
 
                 if(terminalSeleccionado!=null)
@@ -483,9 +481,8 @@ public class ActivityLinea extends AppCompatActivity {
 
 
 
-                oferta.setComisionBaseTotal(oferta.getComisionBaseTotal() + tarifaSeleccionada.getComisionBase());
-                oferta.setPuntosTotal(oferta.getPuntosTotal()+puntos);
-                DatabaseHelper.getInstance(context).updateCabeceraOferta(oferta);
+
+                //DatabaseHelper.getInstance(context).updateCabeceraOferta(oferta);
 
                 finish();
             }
@@ -639,13 +636,36 @@ public class ActivityLinea extends AppCompatActivity {
                 super.onBackPressed();
                 return true;
             case R.id.action_delete:
-                DatabaseHelper.getInstance(context).deleteLineaOferta(lineaActual);
-                finish();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setCancelable(true);
+                builder.setTitle(getString(R.string.confirmation_action));
+                builder.setMessage("La línea actual será eliminada");
+                builder.setPositiveButton("Confirmar",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                DatabaseHelper.getInstance(context).deleteLineaOferta(lineaActual);
+                                finish();
+                            }
+                        });
+                builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+
+
                 return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
 
     private class TarifasAsyncTask extends AsyncTask<String, Void, ArrayList<Tarifa>> {
         public Activity activity;

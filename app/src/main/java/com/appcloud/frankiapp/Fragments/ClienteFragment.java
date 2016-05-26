@@ -12,15 +12,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import com.appcloud.frankiapp.Activitys.ActivityOferta;
-import com.appcloud.frankiapp.Activitys.MainActivity;
+import com.appcloud.frankiapp.Activities.ActivityOferta;
+import com.appcloud.frankiapp.Activities.MainActivity;
 import com.appcloud.frankiapp.Database.DatabaseHelper;
 import com.appcloud.frankiapp.Interfaces.OnTerminalInteractionListener;
 import com.appcloud.frankiapp.POJO.Cliente;

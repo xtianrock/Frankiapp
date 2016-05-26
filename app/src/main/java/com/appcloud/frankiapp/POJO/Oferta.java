@@ -22,8 +22,12 @@ public class Oferta {
     float cuotaTerminal;
     float comisionBaseTotal;
     float puntosTotal;
+    float puntosLineas;
     float commisionEmpresa;
     int lineasMoviles;
+    String poblacion;
+    String nombre;
+    String apellidos;
 
     public Oferta() {
         this.estado = Configuration.BORRADOR;
@@ -133,6 +137,14 @@ public class Oferta {
         this.puntosTotal = puntosTotal;
     }
 
+    public float getPuntosLineas() {
+        return puntosLineas;
+    }
+
+    public void setPuntosLineas(float puntosLineas) {
+        this.puntosLineas = puntosLineas;
+    }
+
     public float getCommisionEmpresa() {
         return commisionEmpresa;
     }
@@ -142,10 +154,34 @@ public class Oferta {
     }
 
     public int getLineasMoviles() {
-        return lineasMoviles;
+        return this.lineasMoviles;
     }
 
     public void setLineasMoviles(int lineasMoviles) {
         this.lineasMoviles = lineasMoviles;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getApellidos() {
+        return apellidos;
+    }
+
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
+    }
+
+    public String getPoblacion() {
+        return poblacion;
+    }
+
+    public void setPoblacion(String poblacion) {
+        this.poblacion = poblacion;
     }
 }

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".Activitys.ActivityOferta">
+    tools:context=".Activities.ActivityOferta">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbarlayout"

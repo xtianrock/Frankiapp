@@ -1,4 +1,4 @@
-package com.appcloud.frankiapp.Activitys;
+package com.appcloud.frankiapp.Activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

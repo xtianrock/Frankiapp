@@ -1,28 +1,27 @@
-package com.appcloud.frankiapp.Activitys;
+package com.appcloud.frankiapp.Activities;
 
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.util.Pair;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDialog;
-import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -31,33 +30,32 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.support.v7.widget.RecyclerView;
-import android.view.Window;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.appcloud.frankiapp.Adapters.ClienteRecyclerViewAdapter;
 import com.appcloud.frankiapp.Adapters.ClientesBottomSheetAdapter;
 import com.appcloud.frankiapp.Adapters.LineasRecyclerViewAdapter;
-import com.appcloud.frankiapp.Adapters.TerminalesBottomSheetAdapter;
 import com.appcloud.frankiapp.Database.DatabaseHelper;
 import com.appcloud.frankiapp.Fragments.ClienteFragment;
 import com.appcloud.frankiapp.POJO.Cliente;
 import com.appcloud.frankiapp.POJO.Lineaoferta;
 import com.appcloud.frankiapp.POJO.Oferta;
+import com.appcloud.frankiapp.POJO.Tarifa;
 import com.appcloud.frankiapp.POJO.Terminal;
 import com.appcloud.frankiapp.R;
 import com.appcloud.frankiapp.Utils.Commons;
 import com.appcloud.frankiapp.Utils.Configuration;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class ActivityOferta extends AppCompatActivity {
 
     Context context = this;
-    LinearLayout lnResumen;
+    LinearLayout lnResumen, lnPdfTerminal;
     RelativeLayout rlComisionColor;
     FloatingActionButton fab;
     Button altaCliente;
@@ -76,6 +74,10 @@ public class ActivityOferta extends AppCompatActivity {
     boolean firstTime = true;
     boolean edicion = false;
     String currentFragmentTag;
+    ArrayList<Lineaoferta> lineasOferta;
+
+    ImageView pdfPorta, pdfSimOnly;
+    TextView pdfPlan,planDescripcion,numTelefono, numTelefonoLabel, pdfFechaOferta, pdfTerminal, pdfNombreCliente;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +88,7 @@ public class ActivityOferta extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        bottomSheet = findViewById(R.id.bottom_sheet_cliente);
+        bottomSheet = findViewById(R.id.ln_bottomSheet_clientes);
         lnResumen = (LinearLayout) findViewById(R.id.ln_resumen);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         recyclerView = (RecyclerView)findViewById(R.id.list);
@@ -169,7 +171,7 @@ public class ActivityOferta extends AppCompatActivity {
         mBottomSheetDialog = new BottomSheetDialog(context);
         mBottomSheetDialog.setCancelable(false);
         View view = getLayoutInflater().inflate(R.layout.bottom_sheet_clientes, null);
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerViewClientes);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerViewClientes);
         recyclerView.setHasFixedSize(true);
         clientesBSheetAdapter = new ClientesBottomSheetAdapter(clientes, new ClientesBottomSheetAdapter.ClienteBSheetClickListener() {
             @Override
@@ -213,14 +215,108 @@ public class ActivityOferta extends AppCompatActivity {
         clienteSeleccionado = cliente;
         oferta.setEstado(Configuration.PRESENTADA);
         oferta.setCodCliente(cliente.getCodCliente());
-        DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
+        oferta.setNombre(clienteSeleccionado.getNombre());
+        oferta.setApellidos(clienteSeleccionado.getApellidos());
+        oferta.setPoblacion(clienteSeleccionado.getPoblacion());
+
+        DatabaseHelper.getInstance(context).updateCabeceraOferta(oferta);
+
+        //DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
         enviaOferta();
 
         tvTitulo.setText(clienteSeleccionado.getNombre() + " " + clienteSeleccionado.getApellidos());
     }
 
     private void enviaOferta(){
-        //TODO crear oferta en pdf
+        Uri contentUri = null;
+        View vistaPDF = LayoutInflater.from(getBaseContext()).inflate(R.layout.oferta_pdf, null);
+
+        vistaPDF.layout(0,0,1240,1754);
+
+        pdfNombreCliente = (TextView)vistaPDF.findViewById(R.id.pdf_nombreCliente);
+        pdfFechaOferta =  (TextView)vistaPDF.findViewById(R.id.pdf_fechaOferta);
+
+        pdfNombreCliente.setText(oferta.getNombre() + " " + oferta.getApellidos());
+        pdfFechaOferta.setText(String.valueOf(oferta.getFechaOferta()));
+
+
+        for (Lineaoferta linea : lineasOferta){
+            insertaLineaOfertaPDF(vistaPDF, linea);
+        }
+
+
+        Bitmap result = Commons.getViewBitmap(vistaPDF, 1240, 1754);
+
+
+
+        if (Commons.createPDFDocument(vistaPDF, context)){
+
+            File imagePath = new File(getApplicationContext().getCacheDir(), "images");
+            // File newFile = new File(imagePath, "image.png");
+            File newFile = new File(imagePath, "documento.pdf");
+            contentUri = FileProvider.getUriForFile(getApplicationContext(), "com.appcloud.frankiapp", newFile);
+        }else{
+            //TODO ENVIAR BITMAP
+        }
+
+        if (contentUri != null) {
+
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // temp permission for receiving app to read this file
+            shareIntent.setDataAndType(contentUri, getContentResolver().getType(contentUri));
+            shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+            startActivity(Intent.createChooser(shareIntent, "Elige una aplicación"));
+
+        }
+    }
+
+    private void insertaLineaOfertaPDF(View vista, Lineaoferta linea){
+
+        View lineaOfertaPDF = LayoutInflater.from(getBaseContext()).inflate(R.layout.oferta_linea_pdf, null);
+        LinearLayout contenido = (LinearLayout) vista.findViewById(R.id.linea_oferta);
+        Terminal terminal;
+        Tarifa tarifa;
+
+        lnPdfTerminal = (LinearLayout) lineaOfertaPDF.findViewById(R.id.ln_pdfTerminal);
+
+        pdfSimOnly = (ImageView)lineaOfertaPDF.findViewById(R.id.pdf_sim_only);
+        pdfPorta = (ImageView)lineaOfertaPDF.findViewById(R.id.pdf_portabilidad);
+        pdfPlan = (TextView)lineaOfertaPDF.findViewById(R.id.pdf_titulo_plan);
+        planDescripcion = (TextView)lineaOfertaPDF.findViewById(R.id.pdf_descripcion_plan);
+        numTelefono = (TextView)lineaOfertaPDF.findViewById(R.id.pdf_num_telefono);
+        numTelefonoLabel = (TextView)lineaOfertaPDF.findViewById(R.id.pdf_num_telefono_label);
+        pdfTerminal = (TextView)lineaOfertaPDF.findViewById(R.id.pdf_terminal);
+
+
+        tarifa = DatabaseHelper.getInstance(context).getTarifaByCod(linea.getCodTarifa());
+
+
+        pdfPlan.setText(tarifa.getTipoPlan());
+        planDescripcion.setText(linea.getPlanPrecios());
+        //planDescripcion.setText(linea.get);
+        if (linea.getNumeroTelefono() == null) {
+            numTelefonoLabel.setVisibility(View.GONE);
+            numTelefono.setVisibility(View.GONE);
+        }
+        else
+            numTelefono.setText(linea.getNumeroTelefono());
+
+        if (linea.getCodTerminal() != 0) {
+            terminal = DatabaseHelper.getInstance(context).getTerminalByCod(linea.getCodTerminal());
+            pdfTerminal.setText(terminal.getDescripcion());
+        }else{
+            lnPdfTerminal.setVisibility(View.GONE);
+        }
+
+        contenido.addView(lineaOfertaPDF);
+
+        int height = lineaOfertaPDF.getMeasuredHeight();
+
+        vista.layout(0,20,1240,1754);
+
+
+
     }
 
     private void setActionBar()
@@ -275,6 +371,7 @@ public class ActivityOferta extends AppCompatActivity {
     private void inicializarOferta() {
         if(codigoOferta==-1)
             codigoOferta = getIntent().getIntExtra("oferta",-1);
+
         if(codigoOferta!=-1)
         {
             oferta = DatabaseHelper.getInstance(context).getOferta(codigoOferta);
@@ -363,7 +460,7 @@ public class ActivityOferta extends AppCompatActivity {
                     enviaOferta();
             }
             else {
-                Snackbar.make(fab, "Debe Introducir una línea de oferta antes de presentar al cliente", Snackbar.LENGTH_LONG)
+                Snackbar.make(fab, "No se puede presentar una oferta vacía", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
             return true;
@@ -416,7 +513,10 @@ public class ActivityOferta extends AppCompatActivity {
         tvPuntos = (TextView)dialog.findViewById(R.id.txPuntosCantidad);
 
         tvComision.setText(String.valueOf(oferta.getComisionBaseTotal()));
-        tvPuntos.setText(String.valueOf(oferta.getPuntosTotal()));
+        float puntosTotal =  oferta.getPuntosTotal() > 0 ? oferta.getPuntosTotal() : 0;
+        float puntosLineas = oferta.getPuntosLineas() > 0 ? oferta.getPuntosLineas() : 0;
+
+        tvPuntos.setText(String.valueOf(puntosTotal + puntosLineas));
 
         switch (oferta.getEstado())
         {
@@ -599,8 +699,36 @@ public class ActivityOferta extends AppCompatActivity {
         {
             if(result!=null)
             {
+                lineasOferta = result;
                 recyclerView.setAdapter(new LineasRecyclerViewAdapter(result,lineaClickListener));
             }
+        }
+    }
+
+    private class generarPDF extends AsyncTask<String, Void, Boolean>
+    {
+        int codOferta;
+        public void generarPDF(int codOferta)
+        {
+            this.codOferta = codOferta;
+        }
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            try {
+               return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        @Override
+        protected void onPreExecute() {
+        }
+
+        protected void onPostExecute( boolean result )
+        {
+
         }
     }
 }
