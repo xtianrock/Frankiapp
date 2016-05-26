@@ -145,6 +145,7 @@
                     android:orientation="horizontal"
                     android:background="@android:color/darker_gray">
                     <TextView
+
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Oferta ID:"
@@ -152,6 +153,7 @@
                         android:textSize="12sp"/>
 
                     <TextView
+                        android:id="@+id/pdf_ofertaId"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="right"
@@ -189,22 +191,22 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="48dp">
+            android:layout_marginTop="20dp">
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:typeface="monospace"
                 android:textSize="16sp"
-                android:text="OFERTA"
+                android:text="DETALLE OFERTA"
                 />
 
         </RelativeLayout>
 
-        <View
+        <!--<View
             android:layout_width="match_parent"
             android:layout_height="1dip"
-            android:background="@android:color/darker_gray" />
+            android:background="@android:color/darker_gray" />-->
 
         <!-- COMIENZA DETALLE OFERTA -->
         <LinearLayout
@@ -448,10 +450,36 @@
         </LinearLayout>
         <!-- TERMINA DETALLE OFERTA -->
 
-        <View
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|right"
+            android:gravity="right"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TOTAL:"
+                android:textColor="@android:color/black"
+                android:textSize="12sp"
+                android:textStyle="italic" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="12dp"
+                android:text="234 €"
+                android:textColor="@android:color/black"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!--<View
             android:layout_width="match_parent"
             android:layout_height="1dip"
-            android:background="@android:color/darker_gray" />
+            android:background="@android:color/darker_gray" />-->
 
 
     </LinearLayout>

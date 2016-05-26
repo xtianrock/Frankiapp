@@ -77,7 +77,8 @@ public class ActivityOferta extends AppCompatActivity {
     ArrayList<Lineaoferta> lineasOferta;
 
     ImageView pdfPorta, pdfSimOnly;
-    TextView pdfPlan,planDescripcion,numTelefono, numTelefonoLabel, pdfFechaOferta, pdfTerminal, pdfNombreCliente;
+    TextView pdfPlan, planDescripcion, numTelefono, numTelefonoLabel, pdfFechaOferta, pdfTerminal,
+            pdfNombreCliente, pdfOfertaId, pdfTerminalPagoInicial, pdfTerminalCuota, pdfSubtotalTerminal, getPdfSubtotalPlan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,12 +92,12 @@ public class ActivityOferta extends AppCompatActivity {
         bottomSheet = findViewById(R.id.ln_bottomSheet_clientes);
         lnResumen = (LinearLayout) findViewById(R.id.ln_resumen);
         fab = (FloatingActionButton) findViewById(R.id.fab);
-        recyclerView = (RecyclerView)findViewById(R.id.list);
-        tvTitulo = (TextView)findViewById(R.id.tv_toolbar_titulo);
-        tvInicialTarifa = (TextView)findViewById(R.id.tv_inicial_tarifa);
-        tvCuotaTarifa = (TextView)findViewById(R.id.tv_cuota_tarifa);
-        tvInicialTerminal = (TextView)findViewById(R.id.tv_inicial_terminal);
-        tvCuotaterminal = (TextView)findViewById(R.id.tv_cuota_terminal);
+        recyclerView = (RecyclerView) findViewById(R.id.list);
+        tvTitulo = (TextView) findViewById(R.id.tv_toolbar_titulo);
+        tvInicialTarifa = (TextView) findViewById(R.id.tv_inicial_tarifa);
+        tvCuotaTarifa = (TextView) findViewById(R.id.tv_cuota_tarifa);
+        tvInicialTerminal = (TextView) findViewById(R.id.tv_inicial_terminal);
+        tvCuotaterminal = (TextView) findViewById(R.id.tv_cuota_terminal);
 
 
         behavior = BottomSheetBehavior.from(bottomSheet);
@@ -105,30 +106,30 @@ public class ActivityOferta extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         lineaClickListener = new LineasRecyclerViewAdapter.LineaClickListener() {
             @Override
-            public void onItemClick(View vista,Lineaoferta linea) {
-                    Intent intent = new Intent(context, ActivityLinea.class);
-                    intent.putExtra("oferta", codigoOferta);
-                    intent.putExtra("estado", oferta.getEstado());
-                    intent.putExtra("lineaActual", linea.getCodLinea());
-                    //  startActivity(intent);
+            public void onItemClick(View vista, Lineaoferta linea) {
+                Intent intent = new Intent(context, ActivityLinea.class);
+                intent.putExtra("oferta", codigoOferta);
+                intent.putExtra("estado", oferta.getEstado());
+                intent.putExtra("lineaActual", linea.getCodLinea());
+                //  startActivity(intent);
 
-                LinearLayout lnColor = (LinearLayout)vista.findViewById(R.id.ln_color);
-                TextView tvLinea = (TextView)vista.findViewById(R.id.tv_linea_tarifa);
+                LinearLayout lnColor = (LinearLayout) vista.findViewById(R.id.ln_color);
+                TextView tvLinea = (TextView) vista.findViewById(R.id.tv_linea_tarifa);
 
-                Pair<View, String> p1 = Pair.create((View)lnColor, "color");
-                Pair<View, String> p2 = Pair.create((View)tvLinea, "nombre");
+                Pair<View, String> p1 = Pair.create((View) lnColor, "color");
+                Pair<View, String> p2 = Pair.create((View) tvLinea, "nombre");
 
                 ActivityOptionsCompat options = ActivityOptionsCompat.
-                        makeSceneTransitionAnimation((Activity)context, p1,p2);
-                startActivity(intent,options.toBundle());
+                        makeSceneTransitionAnimation((Activity) context, p1, p2);
+                startActivity(intent, options.toBundle());
             }
         };
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context,ActivityLinea.class);
-                intent.putExtra("oferta",codigoOferta);
+                Intent intent = new Intent(context, ActivityLinea.class);
+                intent.putExtra("oferta", codigoOferta);
                 startActivity(intent);
             }
         });
@@ -144,23 +145,23 @@ public class ActivityOferta extends AppCompatActivity {
         inicializarOferta();
         setActionBar();
 
-        if(!firstTime)
+        if (!firstTime)
             inicializarOferta();
-        firstTime=false;
+        firstTime = false;
     }
 
     // nuevo cliente dado de alta en el bottomsheet
-    public void informacionFragmentCliente(Cliente nuevoCliente){
+    public void informacionFragmentCliente(Cliente nuevoCliente) {
         clienteAsignadoBorrador(nuevoCliente);
     }
 
-    private void actualizaEstadoOferta(){
+    private void actualizaEstadoOferta() {
 
         Intent intent = new Intent(context, ActivityOferta.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        intent.putExtra("oferta",((ActivityOferta) context).codigoOferta);
+        intent.putExtra("oferta", ((ActivityOferta) context).codigoOferta);
         startActivity(intent);
-        overridePendingTransition(0,0); //0 for no animation
+        overridePendingTransition(0, 0); //0 for no animation
         finish();
     }
 
@@ -196,12 +197,12 @@ public class ActivityOferta extends AppCompatActivity {
             }
         });
 
-        altaCliente = (Button)view.findViewById(R.id.btnsheet_alta_cliente);
+        altaCliente = (Button) view.findViewById(R.id.btnsheet_alta_cliente);
 
         altaCliente.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                switchToFragment(new ClienteFragment(),"alta_cliente",false);
+                switchToFragment(new ClienteFragment(), "alta_cliente", false);
                 mBottomSheetDialog.dismiss();
 
             }
@@ -210,7 +211,7 @@ public class ActivityOferta extends AppCompatActivity {
 
     }
 
-    private void clienteAsignadoBorrador(Cliente cliente){
+    private void clienteAsignadoBorrador(Cliente cliente) {
 
         clienteSeleccionado = cliente;
         oferta.setEstado(Configuration.PRESENTADA);
@@ -227,20 +228,23 @@ public class ActivityOferta extends AppCompatActivity {
         tvTitulo.setText(clienteSeleccionado.getNombre() + " " + clienteSeleccionado.getApellidos());
     }
 
-    private void enviaOferta(){
+    private void enviaOferta() {
         Uri contentUri = null;
         View vistaPDF = LayoutInflater.from(getBaseContext()).inflate(R.layout.oferta_pdf, null);
 
-        vistaPDF.layout(0,0,1240,1754);
+        vistaPDF.layout(0, 0, 1240, 1754);
 
-        pdfNombreCliente = (TextView)vistaPDF.findViewById(R.id.pdf_nombreCliente);
-        pdfFechaOferta =  (TextView)vistaPDF.findViewById(R.id.pdf_fechaOferta);
+        pdfNombreCliente = (TextView) vistaPDF.findViewById(R.id.pdf_nombreCliente);
+        pdfFechaOferta = (TextView) vistaPDF.findViewById(R.id.pdf_fechaOferta);
+        pdfOfertaId = (TextView) vistaPDF.findViewById(R.id.pdf_ofertaId);
 
         pdfNombreCliente.setText(oferta.getNombre() + " " + oferta.getApellidos());
         pdfFechaOferta.setText(String.valueOf(oferta.getFechaOferta()));
+        pdfOfertaId.setText(String.valueOf(oferta.getCodOferta()));
+        int contador = 0;
 
+        for (Lineaoferta linea : lineasOferta) {
 
-        for (Lineaoferta linea : lineasOferta){
             insertaLineaOfertaPDF(vistaPDF, linea);
         }
 
@@ -248,14 +252,13 @@ public class ActivityOferta extends AppCompatActivity {
         Bitmap result = Commons.getViewBitmap(vistaPDF, 1240, 1754);
 
 
-
-        if (Commons.createPDFDocument(vistaPDF, context)){
+        if (Commons.createPDFDocument(vistaPDF, context)) {
 
             File imagePath = new File(getApplicationContext().getCacheDir(), "images");
             // File newFile = new File(imagePath, "image.png");
             File newFile = new File(imagePath, "documento.pdf");
             contentUri = FileProvider.getUriForFile(getApplicationContext(), "com.appcloud.frankiapp", newFile);
-        }else{
+        } else {
             //TODO ENVIAR BITMAP
         }
 
@@ -264,14 +267,19 @@ public class ActivityOferta extends AppCompatActivity {
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // temp permission for receiving app to read this file
-            shareIntent.setDataAndType(contentUri, getContentResolver().getType(contentUri));
+            //shareIntent.setDataAndType(contentUri, getContentResolver().getType(contentUri));
+
+            //shareIntent.setData(Uri.parse("mailto:arteaga.dev@gmail.com"));
+            shareIntent.putExtra(Intent.EXTRA_EMAIL  , new String[]{"arteaga.dev@gmail.com"});
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "FrankiAPP - oferta "+ oferta.getCodOferta());
+            shareIntent.setType(getContentResolver().getType(contentUri));
             shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
             startActivity(Intent.createChooser(shareIntent, "Elige una aplicación"));
 
         }
     }
 
-    private void insertaLineaOfertaPDF(View vista, Lineaoferta linea){
+    private void insertaLineaOfertaPDF(View vista, Lineaoferta linea) {
 
         View lineaOfertaPDF = LayoutInflater.from(getBaseContext()).inflate(R.layout.oferta_linea_pdf, null);
         LinearLayout contenido = (LinearLayout) vista.findViewById(R.id.linea_oferta);
@@ -280,14 +288,17 @@ public class ActivityOferta extends AppCompatActivity {
 
         lnPdfTerminal = (LinearLayout) lineaOfertaPDF.findViewById(R.id.ln_pdfTerminal);
 
-        pdfSimOnly = (ImageView)lineaOfertaPDF.findViewById(R.id.pdf_sim_only);
-        pdfPorta = (ImageView)lineaOfertaPDF.findViewById(R.id.pdf_portabilidad);
-        pdfPlan = (TextView)lineaOfertaPDF.findViewById(R.id.pdf_titulo_plan);
-        planDescripcion = (TextView)lineaOfertaPDF.findViewById(R.id.pdf_descripcion_plan);
-        numTelefono = (TextView)lineaOfertaPDF.findViewById(R.id.pdf_num_telefono);
-        numTelefonoLabel = (TextView)lineaOfertaPDF.findViewById(R.id.pdf_num_telefono_label);
-        pdfTerminal = (TextView)lineaOfertaPDF.findViewById(R.id.pdf_terminal);
-
+        pdfSimOnly = (ImageView) lineaOfertaPDF.findViewById(R.id.pdf_sim_only);
+        pdfPorta = (ImageView) lineaOfertaPDF.findViewById(R.id.pdf_portabilidad);
+        pdfPlan = (TextView) lineaOfertaPDF.findViewById(R.id.pdf_titulo_plan);
+        planDescripcion = (TextView) lineaOfertaPDF.findViewById(R.id.pdf_descripcion_plan);
+        numTelefono = (TextView) lineaOfertaPDF.findViewById(R.id.pdf_num_telefono);
+        numTelefonoLabel = (TextView) lineaOfertaPDF.findViewById(R.id.pdf_num_telefono_label);
+        pdfTerminal = (TextView) lineaOfertaPDF.findViewById(R.id.pdf_terminal);
+        pdfTerminalPagoInicial = (TextView) lineaOfertaPDF.findViewById(R.id.pdf_terminal_pinicial);
+        pdfTerminalCuota  = (TextView) lineaOfertaPDF.findViewById(R.id.pdf_terminal_cuota);
+        getPdfSubtotalPlan = (TextView) lineaOfertaPDF.findViewById(R.id.pdf_subtotal_plan);
+        pdfSubtotalTerminal = (TextView) lineaOfertaPDF.findViewById(R.id.pdf_subtotal_terminal);
 
         tarifa = DatabaseHelper.getInstance(context).getTarifaByCod(linea.getCodTarifa());
 
@@ -298,37 +309,40 @@ public class ActivityOferta extends AppCompatActivity {
         if (linea.getNumeroTelefono() == null) {
             numTelefonoLabel.setVisibility(View.GONE);
             numTelefono.setVisibility(View.GONE);
-        }
-        else
+            pdfPorta.setImageResource(R.drawable.ic_checkbox_uncheked);
+        } else {
             numTelefono.setText(linea.getNumeroTelefono());
+        }
 
         if (linea.getCodTerminal() != 0) {
             terminal = DatabaseHelper.getInstance(context).getTerminalByCod(linea.getCodTerminal());
             pdfTerminal.setText(terminal.getDescripcion());
-        }else{
+            pdfTerminalPagoInicial.setText(String.valueOf(linea.getPrecioTerminalInicial() + " €"));
+            pdfTerminalCuota.setText(String.valueOf(linea.getPrecioTErminalCuota())+ " €");
+        } else {
             lnPdfTerminal.setVisibility(View.GONE);
         }
+
+        getPdfSubtotalPlan.setText(String.valueOf(linea.getPrecioTarifaCuota()) + " €");
+        pdfSubtotalTerminal.setText(String.valueOf(linea.getPrecioTErminalCuota()+ " €"));
 
         contenido.addView(lineaOfertaPDF);
 
         int height = lineaOfertaPDF.getMeasuredHeight();
 
-        vista.layout(0,20,1240,1754);
-
+        vista.layout(0, 20, 1240, 1754);
 
 
     }
 
-    private void setActionBar()
-    {
+    private void setActionBar() {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
 
-        switch (oferta.getEstado())
-        {
+        switch (oferta.getEstado()) {
             case Configuration.BORRADOR:
                 lnResumen.setBackgroundColor(ContextCompat.getColor(context, R.color.colorBorrador));
                 break;
@@ -345,19 +359,16 @@ public class ActivityOferta extends AppCompatActivity {
                 lnResumen.setBackgroundColor(ContextCompat.getColor(context, R.color.colorOK));
                 break;
         }
-        if(codigoOferta!=-1)
-        {
-            if (oferta.getCodCliente() != 0 ) {
+        if (codigoOferta != -1) {
+            if (oferta.getCodCliente() != 0) {
                 Cliente cliente = DatabaseHelper.getInstance(context).getCliente(oferta.getCodCliente());
                 tvTitulo.setText(cliente.getNombre() + " " + cliente.getApellidos());
-            }else
+            } else
 
-                tvTitulo.setText("Borrador #"+codigoOferta);
-        }
-        else
-        {
+                tvTitulo.setText("Borrador #" + codigoOferta);
+        } else {
             oferta = new Oferta();
-            codigoOferta = (int)DatabaseHelper.getInstance(this).createCabecceraOferta(oferta);
+            codigoOferta = (int) DatabaseHelper.getInstance(this).createCabecceraOferta(oferta);
             tvTitulo.setText("Nueva Oferta");
 
         }
@@ -369,20 +380,17 @@ public class ActivityOferta extends AppCompatActivity {
     }
 
     private void inicializarOferta() {
-        if(codigoOferta==-1)
-            codigoOferta = getIntent().getIntExtra("oferta",-1);
+        if (codigoOferta == -1)
+            codigoOferta = getIntent().getIntExtra("oferta", -1);
 
-        if(codigoOferta!=-1)
-        {
+        if (codigoOferta != -1) {
             oferta = DatabaseHelper.getInstance(context).getOferta(codigoOferta);
-        }
-        else
-        {
+        } else {
             oferta = new Oferta();
-            codigoOferta = (int)DatabaseHelper.getInstance(this).createCabecceraOferta(oferta);
+            codigoOferta = (int) DatabaseHelper.getInstance(this).createCabecceraOferta(oferta);
         }
 
-               LineasAsynctask lineasAsynctask = new LineasAsynctask(codigoOferta);
+        LineasAsynctask lineasAsynctask = new LineasAsynctask(codigoOferta);
         lineasAsynctask.execute();
 
         ClientesAsynctask terminalesAsynctask = new ClientesAsynctask();
@@ -394,8 +402,8 @@ public class ActivityOferta extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_oferta, menu);
 
-       // MenuInflater inflater = getMenuInflater();
-       // inflater.inflate(R.menu.your_menu, menu);
+        // MenuInflater inflater = getMenuInflater();
+        // inflater.inflate(R.menu.your_menu, menu);
         itemFirmar = menu.findItem(R.id.action_firmar);
         itemPresentar = menu.findItem(R.id.action_presentar);
         itemThumbko = menu.findItem(R.id.action_estado_ko);
@@ -404,7 +412,7 @@ public class ActivityOferta extends AppCompatActivity {
         itemActionEdit = menu.findItem((R.id.action_editar));
         itemActionDelete = menu.findItem(R.id.action_delete);
 
-        switch (oferta.getEstado()){
+        switch (oferta.getEstado()) {
             case Configuration.PRESENTADA:
                 itemFirmar.setVisible(true);
                 itemPresentar.setVisible(false);
@@ -442,7 +450,6 @@ public class ActivityOferta extends AppCompatActivity {
     }
 
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -453,13 +460,12 @@ public class ActivityOferta extends AppCompatActivity {
             return true;
         }
         if (id == R.id.action_presentar) {
-            if (recyclerView.getAdapter().getItemCount() > 0 ) {
+            if (recyclerView.getAdapter().getItemCount() > 0) {
                 if (oferta.getCodCliente() == 0)
                     mostrarBottomSeet();
                 else
                     enviaOferta();
-            }
-            else {
+            } else {
                 Snackbar.make(fab, "No se puede presentar una oferta vacía", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
@@ -491,35 +497,34 @@ public class ActivityOferta extends AppCompatActivity {
             muestraDialogoConfirmacion(Configuration.EDITAR);
             return true;
         }
-        
-        if (id == R.id.action_comisiones){
+
+        if (id == R.id.action_comisiones) {
             muestraDialogoComisiones();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
-    
-    
-    private void muestraDialogoComisiones(){
+
+
+    private void muestraDialogoComisiones() {
         // Create custom dialog object
-        final Dialog   dialog = new Dialog (this);
+        final Dialog dialog = new Dialog(this);
 
         dialog.setContentView(R.layout.comisiones);
 
-        rlComisionColor = (RelativeLayout)dialog.findViewById(R.id.rlComisionColor);
-        tvComision = (TextView)dialog.findViewById(R.id.txComisionCantidad);
+        rlComisionColor = (RelativeLayout) dialog.findViewById(R.id.rlComisionColor);
+        tvComision = (TextView) dialog.findViewById(R.id.txComisionCantidad);
         // tvExtraComision = (TextView)dialog.findViewById(R.id.txExtraComisionCantidad);
-        tvPuntos = (TextView)dialog.findViewById(R.id.txPuntosCantidad);
+        tvPuntos = (TextView) dialog.findViewById(R.id.txPuntosCantidad);
 
         tvComision.setText(String.valueOf(oferta.getComisionBaseTotal()));
-        float puntosTotal =  oferta.getPuntosTotal() > 0 ? oferta.getPuntosTotal() : 0;
+        float puntosTotal = oferta.getPuntosTotal() > 0 ? oferta.getPuntosTotal() : 0;
         float puntosLineas = oferta.getPuntosLineas() > 0 ? oferta.getPuntosLineas() : 0;
 
         tvPuntos.setText(String.valueOf(puntosTotal + puntosLineas));
 
-        switch (oferta.getEstado())
-        {
+        switch (oferta.getEstado()) {
             case Configuration.BORRADOR:
                 rlComisionColor.setBackgroundColor(ContextCompat.getColor(context, R.color.colorBorrador));
                 break;
@@ -549,7 +554,7 @@ public class ActivityOferta extends AppCompatActivity {
     }
 
 
-    private void muestraDialogoConfirmacion(final String accion){
+    private void muestraDialogoConfirmacion(final String accion) {
         AlertDialog.Builder builder = new AlertDialog.Builder(ActivityOferta.this);
         builder.setCancelable(true);
         builder.setTitle(getString(R.string.confirmation_action));
@@ -598,7 +603,7 @@ public class ActivityOferta extends AppCompatActivity {
         dialog.show();
     }
 
-    private String setMensajeDialogo(final String accion){
+    private String setMensajeDialogo(final String accion) {
         switch (accion) {
             case Configuration.KO:
                 return getString(R.string.action_ko);
@@ -627,17 +632,14 @@ public class ActivityOferta extends AppCompatActivity {
 
 
         if (currentFragment == null || !TextUtils.equals(tag, currentFragmentTag)) {
-            if(backStack)
-            {
+            if (backStack) {
                 currentFragmentTag = tag;
                 fragmentManager
                         .beginTransaction()
                         .replace(R.id.content_activity_oferta, fragment, currentFragmentTag)
                         .addToBackStack(tag)
                         .commit();
-            }
-            else
-            {
+            } else {
                 currentFragmentTag = tag;
                 fragmentManager
                         .beginTransaction()
@@ -647,10 +649,9 @@ public class ActivityOferta extends AppCompatActivity {
         }
     }
 
-    private class ClientesAsynctask extends AsyncTask<String, Void, ArrayList<Cliente>>
-    {
-        public ClientesAsynctask()
-        {}
+    private class ClientesAsynctask extends AsyncTask<String, Void, ArrayList<Cliente>> {
+        public ClientesAsynctask() {
+        }
 
         @Override
         protected ArrayList<Cliente> doInBackground(String... params) {
@@ -661,24 +662,22 @@ public class ActivityOferta extends AppCompatActivity {
                 return null;
             }
         }
+
         @Override
         protected void onPreExecute() {
         }
 
-        protected void onPostExecute( ArrayList<Cliente> result )
-        {
-            if(result!=null)
-            {
+        protected void onPostExecute(ArrayList<Cliente> result) {
+            if (result != null) {
                 clientes = result;
             }
         }
     }
 
-    private class LineasAsynctask extends AsyncTask<String, Void, ArrayList<Lineaoferta>>
-    {
+    private class LineasAsynctask extends AsyncTask<String, Void, ArrayList<Lineaoferta>> {
         int codOferta;
-        public LineasAsynctask(int codOferta)
-        {
+
+        public LineasAsynctask(int codOferta) {
             this.codOferta = codOferta;
         }
 
@@ -691,43 +690,41 @@ public class ActivityOferta extends AppCompatActivity {
                 return null;
             }
         }
+
         @Override
         protected void onPreExecute() {
         }
 
-        protected void onPostExecute( ArrayList<Lineaoferta> result )
-        {
-            if(result!=null)
-            {
+        protected void onPostExecute(ArrayList<Lineaoferta> result) {
+            if (result != null) {
                 lineasOferta = result;
-                recyclerView.setAdapter(new LineasRecyclerViewAdapter(result,lineaClickListener));
+                recyclerView.setAdapter(new LineasRecyclerViewAdapter(result, lineaClickListener));
             }
         }
     }
 
-    private class generarPDF extends AsyncTask<String, Void, Boolean>
-    {
+    private class generarPDF extends AsyncTask<String, Void, Boolean> {
         int codOferta;
-        public void generarPDF(int codOferta)
-        {
+
+        public void generarPDF(int codOferta) {
             this.codOferta = codOferta;
         }
 
         @Override
         protected Boolean doInBackground(String... params) {
             try {
-               return true;
+                return true;
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
             }
         }
+
         @Override
         protected void onPreExecute() {
         }
 
-        protected void onPostExecute( boolean result )
-        {
+        protected void onPostExecute(boolean result) {
 
         }
     }
