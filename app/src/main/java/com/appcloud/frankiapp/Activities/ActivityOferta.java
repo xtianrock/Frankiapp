@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -241,18 +242,46 @@ public class ActivityOferta extends AppCompatActivity {
         pdfNombreCliente.setText(oferta.getNombre() + " " + oferta.getApellidos());
         pdfFechaOferta.setText(String.valueOf(oferta.getFechaOferta()));
         pdfOfertaId.setText(String.valueOf(oferta.getCodOferta()));
+
+        PdfDocument document = null;
         int contador = 0;
+        int pagina = 1;
+
 
         for (Lineaoferta linea : lineasOferta) {
-
-            insertaLineaOfertaPDF(vistaPDF, linea);
+            if (linea.getNumeroTelefono() == null)
+                contador++;
+            else
+                contador = contador + 2;
+            if (contador <= 6)
+                insertaLineaOfertaPDF(vistaPDF, linea);
+            else {
+                Commons.getViewBitmap(vistaPDF, 1240, 1754);
+                document = Commons.createPDFDocument(vistaPDF, context, document);
+                pagina++;
+                contador = 0;
+                vistaPDF = LayoutInflater.from(getBaseContext()).inflate(R.layout.oferta_pdf, null);
+                vistaPDF.layout(0, 0, 1240, 1754);
+            }
         }
 
+        if (contador<=6 && document == null){
+            Commons.getViewBitmap(vistaPDF, 1240, 1754);
+            document = Commons.createPDFDocument(vistaPDF, context, document);
+        }
 
-        Bitmap result = Commons.getViewBitmap(vistaPDF, 1240, 1754);
+        Commons.savePDFDocument(document,context);
+
+        File imagePath = new File(getApplicationContext().getCacheDir(), "images");
+        // File newFile = new File(imagePath, "image.png");
+        File newFile = new File(imagePath, "documento.pdf");
+        contentUri = FileProvider.getUriForFile(getApplicationContext(), "com.appcloud.frankiapp", newFile);
 
 
-        if (Commons.createPDFDocument(vistaPDF, context)) {
+       // Bitmap result = Commons.getViewBitmap(vistaPDF, 1240, 1754);
+
+
+        /*if (Commons.createPDFDocument(vistaPDF, context, pagina)) {
 
             File imagePath = new File(getApplicationContext().getCacheDir(), "images");
             // File newFile = new File(imagePath, "image.png");
@@ -260,7 +289,7 @@ public class ActivityOferta extends AppCompatActivity {
             contentUri = FileProvider.getUriForFile(getApplicationContext(), "com.appcloud.frankiapp", newFile);
         } else {
             //TODO ENVIAR BITMAP
-        }
+        }*/
 
         if (contentUri != null) {
 

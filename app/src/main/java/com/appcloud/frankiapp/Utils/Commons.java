@@ -4,7 +4,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.pdf.PdfDocument;
+import android.os.Build;
 import android.os.Handler;
+import android.provider.DocumentsContract;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -89,17 +91,16 @@ public class Commons {
         return b;
     }
 
-    public static boolean createPDFDocument(View view, Context context){
+    public static PdfDocument createPDFDocument(View view, Context context, PdfDocument document){
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
 
             // create a new document
-            PdfDocument document = new PdfDocument();
+            if (document == null)
+                document = new PdfDocument();
 
             // crate a page description
-            PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(1240,1754, 1).create();
+            PdfDocument.PageInfo pageInfo =  new PdfDocument.PageInfo.Builder(1240,1754, 1).create();
             PdfDocument.Page page = document.startPage(pageInfo);
-
-
 
             // draw something on the page
             //View content = getContentView();
@@ -108,7 +109,7 @@ public class Commons {
             // finish the page
             document.finishPage(page);
 
-            try {
+           /* try {
 
                 File cachePath = new File(context.getCacheDir(), "images");
                 cachePath.mkdirs(); // don't forget to make the directory
@@ -124,11 +125,38 @@ public class Commons {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
+            }*/
+        }
+
+        return document;
+    }
+
+    public static boolean savePDFDocument(PdfDocument ofertaPDF, Context context){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            try {
+
+                File cachePath = new File(context.getCacheDir(), "images");
+                cachePath.mkdirs(); // don't forget to make the directory
+                FileOutputStream stream = new FileOutputStream(cachePath + "/documento.pdf"); // overwrites this image every time
+
+                ofertaPDF.writeTo(stream);
+
+
+                stream.close();
+
+                // close the document
+                ofertaPDF.close();
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                return  false;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return  false;
             }
 
             return true;
         }
-
-        return false;
+        return  false;
     }
 }
