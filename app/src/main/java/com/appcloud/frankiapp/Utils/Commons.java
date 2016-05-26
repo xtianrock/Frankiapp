@@ -1,29 +1,113 @@
 package com.appcloud.frankiapp.Utils;
 
+import android.app.Activity;
+import android.content.ContentProviderOperation;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.pdf.PdfDocument;
 import android.os.Build;
 import android.os.Handler;
+import android.provider.ContactsContract;
 import android.provider.DocumentsContract;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.appcloud.frankiapp.POJO.Cliente;
 import com.appcloud.frankiapp.R;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Created by cristian on 28/04/2016.
  */
 public class Commons {
 
+    public static String crearContacto(Activity activity, Cliente cliente)
+    {
+        String id;//id a retornar
 
+        String DisplayName = "Frankiapp-" + cliente.getNombre() + " " + cliente.getApellidos();
+        String MobileNumber = cliente.getTelefono();
+        String emailID = cliente.getEmail();
+        ArrayList<ContentProviderOperation> ops = new ArrayList<>();
+
+        ops.add(ContentProviderOperation.newInsert(
+                ContactsContract.RawContacts.CONTENT_URI)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+                .build());
+
+        //------------------------------------------------------ Names
+        if (DisplayName != null) {
+            ops.add(ContentProviderOperation.newInsert(
+                    ContactsContract.Data.CONTENT_URI)
+                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                    .withValue(ContactsContract.Data.MIMETYPE,
+                            ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                    .withValue(
+                            ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
+                            DisplayName).build());
+        }
+
+        //------------------------------------------------------ Mobile Number
+        if (MobileNumber != null) {
+            ops.add(ContentProviderOperation.
+                    newInsert(ContactsContract.Data.CONTENT_URI)
+                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                    .withValue(ContactsContract.Data.MIMETYPE,
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                    .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, MobileNumber)
+                    .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
+                            ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
+                    .build());
+        }
+
+        //------------------------------------------------------ Email
+        if (emailID != null) {
+            ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                    .withValue(ContactsContract.Data.MIMETYPE,
+                            ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
+                    .withValue(ContactsContract.CommonDataKinds.Email.DATA, emailID)
+                    .withValue(ContactsContract.CommonDataKinds.Email.TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK)
+                    .build());
+        }
+
+
+        // Asking the Contact provider to create a new contact
+        try {
+            activity.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+            String whatsappid = "34"+cliente.getTelefono()+"@s.whatsapp.net";
+
+            Cursor c = activity.getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+                    new String[] { ContactsContract.Contacts.Data._ID }, ContactsContract.Data.DATA1 + "=?",
+                    new String[] { whatsappid }, null);
+            c.moveToFirst();   if(c.getCount()==0)
+            {
+                id = null;
+                c.close();
+            }
+            else
+            {
+                id = c.getString(0);
+                c.close();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(activity, "Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            id = null;
+        }
+        return id;
+    }
 
     public static void mostrarTeclado(final Context context, final EditText editText, final boolean visible) {
         Handler mHandler;

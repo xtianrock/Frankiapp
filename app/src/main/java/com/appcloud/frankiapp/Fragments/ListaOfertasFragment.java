@@ -2,12 +2,16 @@ package com.appcloud.frankiapp.Fragments;
 
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -24,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.appcloud.frankiapp.Activities.ActivityOferta;
 import com.appcloud.frankiapp.Adapters.OfertasRecyclerViewAdapter;
@@ -32,6 +37,7 @@ import com.appcloud.frankiapp.Interfaces.OnTerminalInteractionListener;
 import com.appcloud.frankiapp.POJO.Cliente;
 import com.appcloud.frankiapp.POJO.Oferta;
 import com.appcloud.frankiapp.R;
+import com.appcloud.frankiapp.Utils.Commons;
 import com.appcloud.frankiapp.Utils.Configuration;
 
 import java.util.ArrayList;
@@ -47,6 +53,7 @@ public class ListaOfertasFragment extends Fragment {
 
 
     private static final int REQUEST_CALL_PHONE = 1;
+    private static final int REQUEST_CONTACTS = 2;
     Context context;
     RecyclerView recyclerView;
     List<Oferta> ofertas;
@@ -55,6 +62,7 @@ public class ListaOfertasFragment extends Fragment {
     OfertasRecyclerViewAdapter.OfertaMemenuClickListener tblistener;
     String tab;
     FloatingActionButton fab;
+    Cliente clienteMenuItem;
     MenuItem itemLlamar, itemEmail;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -81,7 +89,7 @@ public class ListaOfertasFragment extends Fragment {
         tblistener = new OfertasRecyclerViewAdapter.OfertaMemenuClickListener() {
             @Override
             public void onMenuItemClick(MenuItem menuItem, Oferta oferta) {
-                Cliente cliente = DatabaseHelper.getInstance(getActivity()).getCliente(oferta.getCodCliente());
+                clienteMenuItem = DatabaseHelper.getInstance(getActivity()).getCliente(oferta.getCodCliente());
 
                 switch (menuItem.getItemId()) {
                     case R.id.action_llamar_cliente:
@@ -92,64 +100,28 @@ public class ListaOfertasFragment extends Fragment {
                         }
                         else
                         {
-                            if (cliente.getTelefono() != null) {
-                                Intent intentLlamada = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + cliente.getTelefono()));
-                                startActivity(intentLlamada);
-                            }else {
-                                Snackbar.make(fab, "Este cliente no tiene un teléfono registrado, introduzca uno",
-                                        Snackbar.LENGTH_LONG)
-                                        .setAction("AÑADIR", new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View view) {
-
-                                            }
-                                        })
-                                        .show();
-                            }
+                            llamarCliente(clienteMenuItem);
                         }
 
                         break;
                     case R.id.action_email_cliente:
-                        if (cliente.getEmail() != null && cliente.getEmail() != "") {
-                            Intent emailIntent;
+                        enviarMail();
+                        break;
+                    case R.id.action_whatsapp_cliente:
 
-                            emailIntent = new Intent(Intent.ACTION_SENDTO);
-                            emailIntent.setData(Uri.parse("mailto:"+cliente.getEmail()));
+                        int readContacts = ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS);
+                        int writeContacts = ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_CONTACTS);
+                        if (writeContacts!=PackageManager.PERMISSION_GRANTED ||
+                                readContacts!=PackageManager.PERMISSION_GRANTED) {
+                            requestContactsPermission();
+                        }
 
-
-                            if (emailIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-                                startActivity(emailIntent);
-                            } else {
-                                Snackbar.make(fab, "No se ha encontrado ningún cliente email en este dispositivo",
-                                        Snackbar.LENGTH_LONG)
-                                        .setAction("ACEPTAR", new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View view) {
-
-                                            }
-                                        })
-                                        .show();
-                            }
-
-                        }else {
-                            Snackbar.make(fab, "Este cliente no tiene ningún email registrado, introduzca uno",
-                                    Snackbar.LENGTH_LONG)
-                                    .setAction("AÑADIR", new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-
-                                        }
-                                    })
-                                    .show();
+                        else
+                        {
+                            openWhatsappChat(clienteMenuItem);
                         }
                         break;
                 }
-
-
-
-
-
-
             }
         };
         listener = new OfertasRecyclerViewAdapter.OfertaClickListener() {
@@ -182,7 +154,154 @@ public class ListaOfertasFragment extends Fragment {
         return view;
     }
 
+
+    private void enviarMail() {
+        if (clienteMenuItem.getEmail() != null && !clienteMenuItem.getEmail().equals("")) {
+            Intent emailIntent;
+            emailIntent = new Intent(Intent.ACTION_SENDTO);
+            emailIntent.setData(Uri.parse("mailto:"+clienteMenuItem.getEmail()));
+
+            if (emailIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                startActivity(emailIntent);
+            } else {
+                Snackbar.make(fab, "No se ha encontrado ningún cliente de email en este dispositivo",
+                        Snackbar.LENGTH_LONG)
+                        .setAction(null,null).show();
+            }
+
+        }else {
+            Snackbar.make(fab, "Este cliente no tiene ningún email registrado, introduzca uno",
+                    Snackbar.LENGTH_LONG)
+                    .setAction("Action",null).show();
+        }
+    }
+
+    private void llamarCliente(Cliente cliente) {
+        if (cliente.getTelefono() != null) {
+            Intent intentLlamada = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + cliente.getTelefono()));
+            startActivity(intentLlamada);
+        }else {
+            Snackbar.make(fab, "Este cliente no tiene un teléfono registrado, introduzca uno",
+                    Snackbar.LENGTH_LONG)
+                    .show();
+        }
+    }
+
+    private void openWhatsappContactPicker() {
+        Intent i = new Intent(Intent.ACTION_MAIN);
+        i.setFlags(0x14000000);
+        i.setComponent(new ComponentName("com.whatsapp", "com.whatsapp.ContactPicker"));
+        startActivity(i);
+    }
+
+    public void openWhatsappChat(Cliente cliente)   {
+        String whatsappid = "34"+cliente.getTelefono()+"@s.whatsapp.net";
+        Intent whatsapp;
+        Cursor c = getActivity().getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+                new String[] { ContactsContract.Contacts.Data._ID }, ContactsContract.Data.DATA1 + "=?",
+                new String[] { whatsappid }, null);
+        c.moveToFirst();
+        String id;
+        if(c.getCount()==0)
+        {
+            id = Commons.crearContacto(getActivity(),cliente);
+        }
+        else
+        {
+            id = c.getString(0);
+        }
+        whatsapp = new Intent(Intent.ACTION_VIEW, Uri.parse("content://com.android.contacts/data/" +id ));
+        c.close();
+
+        if(id!=null)
+        {
+            startActivity(whatsapp);
+        }
+        else
+        {
+            Toast.makeText(context, "El contacto " + cliente.getNombre() + " " + cliente.getApellidos() + "aún no aparece en los contactos de whatsapp," +
+                    "seleccione la opcion actualizar y busquelo maualmente.", Toast.LENGTH_LONG).show();
+            openWhatsappContactPicker();
+        }
+
+
+
+    }
+
     private void requestPhonePermission() {
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                Manifest.permission.CALL_PHONE)) {
+
+            Snackbar.make(fab, "Este permiso es necesario para realizar llamadas",
+                    Snackbar.LENGTH_INDEFINITE)
+                    .setAction("OK", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            requestPermissions(
+                                    new String[]{Manifest.permission.CALL_PHONE},
+                                    REQUEST_CALL_PHONE);
+                        }
+                    })
+                    .show();
+        } else {
+
+            // CALL Phone permission has not been granted yet. Request it directly.
+            requestPermissions( new String[]{Manifest.permission.CALL_PHONE},
+                    REQUEST_CALL_PHONE);
+        }
+    }
+
+    private void requestContactsPermission() {
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                Manifest.permission.WRITE_CONTACTS)) {
+
+            Snackbar.make(fab, "La app necesita acceder a los contactos para poder abrir el chat de Whatsapp",
+                    Snackbar.LENGTH_INDEFINITE)
+                    .setAction("OK", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            requestPermissions(
+                                    new String[]{Manifest.permission.READ_CONTACTS,Manifest.permission.WRITE_CONTACTS},
+                                    REQUEST_CONTACTS);
+                        }
+                    })
+                    .show();
+        } else {
+            requestPermissions(
+                    new String[]{Manifest.permission.READ_CONTACTS,Manifest.permission.WRITE_CONTACTS},
+                    REQUEST_CONTACTS);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_CALL_PHONE:
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    llamarCliente(clienteMenuItem);
+
+                }
+                break;
+            case REQUEST_CONTACTS:
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    openWhatsappChat(clienteMenuItem);
+
+                }
+                break;
+        }
+    }
+
+
+    private void requestPhonePermissionAntiguo() {
 
         // BEGIN_INCLUDE(camera_permission_request)
         if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),

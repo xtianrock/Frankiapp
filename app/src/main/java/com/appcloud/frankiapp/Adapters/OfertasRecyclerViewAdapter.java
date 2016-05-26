@@ -47,6 +47,8 @@ public class OfertasRecyclerViewAdapter extends RecyclerView.Adapter<OfertasRecy
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.oferta = ofertas.get(position);
 
+
+
         holder.tvNombre.setText(holder.oferta.getNombre() != null ? holder.oferta.getNombre() : "Borrador #" + String.valueOf(holder.oferta.getCodOferta()));
         holder.tvApellidos.setText(holder.oferta.getApellidos());
         holder.tvPoblacion.setText(holder.oferta.getPoblacion());
@@ -95,6 +97,11 @@ public class OfertasRecyclerViewAdapter extends RecyclerView.Adapter<OfertasRecy
                 return true;
             }
         });
+
+        if(holder.oferta.getCodCliente()!=0)
+            holder.tbOferta.setVisibility(View.VISIBLE);
+        else
+            holder.tbOferta.setVisibility(View.GONE);
     }
 
     @Override

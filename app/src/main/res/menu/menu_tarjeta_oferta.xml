@@ -11,4 +11,9 @@
         android:orderInCategory="100"
         android:title="Enviar Email"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_whatsapp_cliente"
+        android:orderInCategory="100"
+        android:title="Abrir Whatsapp"
+        app:showAsAction="never" />
 </menu>
