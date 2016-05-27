@@ -51,7 +51,10 @@ import com.appcloud.frankiapp.Utils.Commons;
 import com.appcloud.frankiapp.Utils.Configuration;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class ActivityOferta extends AppCompatActivity {
 
@@ -78,8 +81,9 @@ public class ActivityOferta extends AppCompatActivity {
     ArrayList<Lineaoferta> lineasOferta;
 
     ImageView pdfPorta, pdfSimOnly;
+    LinearLayout lnPortaTlf,lnPdfPorta, lnPdfTotalOferta;
     TextView pdfPlan, planDescripcion, numTelefono, numTelefonoLabel, pdfFechaOferta, pdfTerminal,
-            pdfNombreCliente, pdfOfertaId, pdfTerminalPagoInicial, pdfTerminalCuota, pdfSubtotalTerminal, getPdfSubtotalPlan;
+            pdfNombreCliente, pdfOfertaId, pdfTerminalPagoInicial, pdfTerminalCuota, pdfSubtotalLinea, getPdfSubtotalPlan, pdfTotal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,10 +174,12 @@ public class ActivityOferta extends AppCompatActivity {
         if (behavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
+
+
         mBottomSheetDialog = new BottomSheetDialog(context);
         mBottomSheetDialog.setCancelable(false);
         View view = getLayoutInflater().inflate(R.layout.bottom_sheet_clientes, null);
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerViewClientes);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler_Sheet_Clientes);
         recyclerView.setHasFixedSize(true);
         clientesBSheetAdapter = new ClientesBottomSheetAdapter(clientes, new ClientesBottomSheetAdapter.ClienteBSheetClickListener() {
             @Override
@@ -233,44 +239,56 @@ public class ActivityOferta extends AppCompatActivity {
         Uri contentUri = null;
         View vistaPDF = LayoutInflater.from(getBaseContext()).inflate(R.layout.oferta_pdf, null);
 
+
         vistaPDF.layout(0, 0, 1240, 1754);
 
         pdfNombreCliente = (TextView) vistaPDF.findViewById(R.id.pdf_nombreCliente);
         pdfFechaOferta = (TextView) vistaPDF.findViewById(R.id.pdf_fechaOferta);
         pdfOfertaId = (TextView) vistaPDF.findViewById(R.id.pdf_ofertaId);
 
+
         pdfNombreCliente.setText(oferta.getNombre() + " " + oferta.getApellidos());
         pdfFechaOferta.setText(String.valueOf(oferta.getFechaOferta()));
         pdfOfertaId.setText(String.valueOf(oferta.getCodOferta()));
 
         PdfDocument document = null;
+        float precioTotal = 0;
         int contador = 0;
         int pagina = 1;
+        int lineasPosibles = 6;
 
+        Cliente cliente = DatabaseHelper.getInstance(context).getCliente(oferta.getCodCliente());
 
-        for (Lineaoferta linea : lineasOferta) {
-            if (linea.getNumeroTelefono() == null)
+        for (int i = 0; i < lineasOferta.size(); i++) {
+
+            if (lineasOferta.get(i).getCodTerminal() == 0)
                 contador++;
             else
                 contador = contador + 2;
-            if (contador <= 6)
-                insertaLineaOfertaPDF(vistaPDF, linea);
-            else {
+
+            precioTotal = precioTotal + insertaLineaOfertaPDF(vistaPDF, lineasOferta.get(i));
+            if (i == lineasOferta.size() - 1)
+                insertaPieOfertaPDF(vistaPDF, precioTotal);
+
+            if (contador > lineasPosibles) {
                 Commons.getViewBitmap(vistaPDF, 1240, 1754);
-                document = Commons.createPDFDocument(vistaPDF, context, document);
+                document = Commons.createPDFDocument(vistaPDF, context, document, pagina);
+                lineasPosibles = 6;
                 pagina++;
                 contador = 0;
                 vistaPDF = LayoutInflater.from(getBaseContext()).inflate(R.layout.oferta_pdf, null);
+                vistaPDF.findViewById(R.id.pdf_cabecera).setVisibility(View.GONE);
+
                 vistaPDF.layout(0, 0, 1240, 1754);
+            }
+
+            if (i == lineasOferta.size() - 1 && document == null) {
+                Commons.getViewBitmap(vistaPDF, 1240, 1754);
+                document = Commons.createPDFDocument(vistaPDF, context, document, pagina);
             }
         }
 
-        if (contador<=6 && document == null){
-            Commons.getViewBitmap(vistaPDF, 1240, 1754);
-            document = Commons.createPDFDocument(vistaPDF, context, document);
-        }
-
-        Commons.savePDFDocument(document,context);
+        Commons.savePDFDocument(document, context);
 
         File imagePath = new File(getApplicationContext().getCacheDir(), "images");
         // File newFile = new File(imagePath, "image.png");
@@ -278,7 +296,7 @@ public class ActivityOferta extends AppCompatActivity {
         contentUri = FileProvider.getUriForFile(getApplicationContext(), "com.appcloud.frankiapp", newFile);
 
 
-       // Bitmap result = Commons.getViewBitmap(vistaPDF, 1240, 1754);
+        // Bitmap result = Commons.getViewBitmap(vistaPDF, 1240, 1754);
 
 
         /*if (Commons.createPDFDocument(vistaPDF, context, pagina)) {
@@ -299,22 +317,27 @@ public class ActivityOferta extends AppCompatActivity {
             //shareIntent.setDataAndType(contentUri, getContentResolver().getType(contentUri));
 
             //shareIntent.setData(Uri.parse("mailto:arteaga.dev@gmail.com"));
-            shareIntent.putExtra(Intent.EXTRA_EMAIL  , new String[]{"arteaga.dev@gmail.com"});
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "FrankiAPP - oferta "+ oferta.getCodOferta());
+            shareIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{cliente.getEmail()});
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "FrankiAPP - oferta " + oferta.getCodOferta());
             shareIntent.setType(getContentResolver().getType(contentUri));
             shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
             startActivity(Intent.createChooser(shareIntent, "Elige una aplicación"));
 
         }
+
+        //clienteAsignadoBorrador(cliente);
+        //actualizaEstadoOferta();
     }
 
-    private void insertaLineaOfertaPDF(View vista, Lineaoferta linea) {
+    private float insertaLineaOfertaPDF(View vista, Lineaoferta linea) {
 
         View lineaOfertaPDF = LayoutInflater.from(getBaseContext()).inflate(R.layout.oferta_linea_pdf, null);
         LinearLayout contenido = (LinearLayout) vista.findViewById(R.id.linea_oferta);
         Terminal terminal;
         Tarifa tarifa;
 
+        lnPortaTlf = (LinearLayout) lineaOfertaPDF.findViewById(R.id.ln_pdf_portabilidadTlf);
+        lnPdfPorta = (LinearLayout) lineaOfertaPDF.findViewById(R.id.ln_portabilidad);
         lnPdfTerminal = (LinearLayout) lineaOfertaPDF.findViewById(R.id.ln_pdfTerminal);
 
         pdfSimOnly = (ImageView) lineaOfertaPDF.findViewById(R.id.pdf_sim_only);
@@ -325,20 +348,21 @@ public class ActivityOferta extends AppCompatActivity {
         numTelefonoLabel = (TextView) lineaOfertaPDF.findViewById(R.id.pdf_num_telefono_label);
         pdfTerminal = (TextView) lineaOfertaPDF.findViewById(R.id.pdf_terminal);
         pdfTerminalPagoInicial = (TextView) lineaOfertaPDF.findViewById(R.id.pdf_terminal_pinicial);
-        pdfTerminalCuota  = (TextView) lineaOfertaPDF.findViewById(R.id.pdf_terminal_cuota);
+        pdfTerminalCuota = (TextView) lineaOfertaPDF.findViewById(R.id.pdf_terminal_cuota);
         getPdfSubtotalPlan = (TextView) lineaOfertaPDF.findViewById(R.id.pdf_subtotal_plan);
-        pdfSubtotalTerminal = (TextView) lineaOfertaPDF.findViewById(R.id.pdf_subtotal_terminal);
+        pdfSubtotalLinea = (TextView) lineaOfertaPDF.findViewById(R.id.pdf_subtotal_linea);
 
         tarifa = DatabaseHelper.getInstance(context).getTarifaByCod(linea.getCodTarifa());
 
 
-        pdfPlan.setText(tarifa.getTipoPlan());
-        planDescripcion.setText(linea.getPlanPrecios());
+        pdfPlan.setText(tarifa.getPlanPrecios());
+        planDescripcion.setText(tarifa.getDesCorta());
         //planDescripcion.setText(linea.get);
         if (linea.getNumeroTelefono() == null) {
             numTelefonoLabel.setVisibility(View.GONE);
             numTelefono.setVisibility(View.GONE);
-            pdfPorta.setImageResource(R.drawable.ic_checkbox_uncheked);
+            lnPdfPorta.setVisibility(View.GONE);
+            lnPortaTlf.setVisibility(View.GONE);
         } else {
             numTelefono.setText(linea.getNumeroTelefono());
         }
@@ -346,14 +370,14 @@ public class ActivityOferta extends AppCompatActivity {
         if (linea.getCodTerminal() != 0) {
             terminal = DatabaseHelper.getInstance(context).getTerminalByCod(linea.getCodTerminal());
             pdfTerminal.setText(terminal.getDescripcion());
-            pdfTerminalPagoInicial.setText(String.valueOf(linea.getPrecioTerminalInicial() + " €"));
-            pdfTerminalCuota.setText(String.valueOf(linea.getPrecioTErminalCuota())+ " €");
+            pdfTerminalPagoInicial.setText(String.format("%.2f", linea.getPrecioTerminalInicial()) + " €");
+            pdfTerminalCuota.setText(String.format("%.2f", linea.getPrecioTErminalCuota()) + " €");
         } else {
             lnPdfTerminal.setVisibility(View.GONE);
         }
 
         getPdfSubtotalPlan.setText(String.valueOf(linea.getPrecioTarifaCuota()) + " €");
-        pdfSubtotalTerminal.setText(String.valueOf(linea.getPrecioTErminalCuota()+ " €"));
+        pdfSubtotalLinea.setText(String.format("%.2f", linea.getPrecioTErminalCuota() + linea.getPrecioTarifaCuota()) + " €");
 
         contenido.addView(lineaOfertaPDF);
 
@@ -361,8 +385,23 @@ public class ActivityOferta extends AppCompatActivity {
 
         vista.layout(0, 20, 1240, 1754);
 
+        return linea.getPrecioTarifaCuota() + linea.getPrecioTErminalCuota();
 
     }
+
+    private void insertaPieOfertaPDF(View vista, float cuotaTotal) {
+        View piePDF = LayoutInflater.from(getBaseContext()).inflate(R.layout.pie_oferta_pdf, null);
+        LinearLayout contenido = (LinearLayout) vista.findViewById(R.id.linea_oferta);
+
+        lnPdfTotalOferta = (LinearLayout) piePDF.findViewById(R.id.ln_pdf_pie_totalprecio);
+        pdfTotal = (TextView) piePDF.findViewById(R.id.pdfTotal);
+
+        pdfTotal.setText(String.format("%.2f", cuotaTotal) + " €");
+
+        contenido.addView(piePDF);
+        vista.layout(0, 20, 1240, 1754);
+    }
+
 
     private void setActionBar() {
         ActionBar actionBar = getSupportActionBar();
@@ -416,6 +455,7 @@ public class ActivityOferta extends AppCompatActivity {
             oferta = DatabaseHelper.getInstance(context).getOferta(codigoOferta);
         } else {
             oferta = new Oferta();
+            oferta.setFechaOferta((System.currentTimeMillis()/ 1000L));
             codigoOferta = (int) DatabaseHelper.getInstance(this).createCabecceraOferta(oferta);
         }
 
@@ -472,7 +512,6 @@ public class ActivityOferta extends AppCompatActivity {
 
                 itemActionEdit.setVisible(false);
                 itemActionDelete.setVisible(false);
-
         }
 
         return true;
@@ -596,16 +635,19 @@ public class ActivityOferta extends AppCompatActivity {
                         switch (accion) {
                             case Configuration.KO:
                                 oferta.setEstado(Configuration.KO);
+                                oferta.setFechaKO((System.currentTimeMillis()/ 1000L));
                                 DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
                                 actualizaEstadoOferta();
                                 break;
                             case Configuration.OK:
                                 oferta.setEstado(Configuration.OK);
+                                oferta.setFechaOK((System.currentTimeMillis()/ 1000L));
                                 DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
                                 actualizaEstadoOferta();
                                 break;
                             case Configuration.FIRMAR:
                                 oferta.setEstado(Configuration.FIRMADA);
+                                oferta.setFechaFirma((System.currentTimeMillis()/ 1000L));
                                 DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
                                 actualizaEstadoOferta();
                                 break;
@@ -736,6 +778,7 @@ public class ActivityOferta extends AppCompatActivity {
         int codOferta;
 
         public void generarPDF(int codOferta) {
+
             this.codOferta = codOferta;
         }
 

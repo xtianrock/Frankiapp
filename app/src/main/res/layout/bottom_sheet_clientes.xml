@@ -6,7 +6,9 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@color/background"
-    app:layout_behavior="@string/bottom_sheet_behavior">
+    app:layout_behavior="@string/bottom_sheet_behavior"
+
+   >
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -36,9 +38,8 @@
     </RelativeLayout>
 
 
-
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerViewClientes"
+        android:id="@+id/recycler_Sheet_Clientes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"

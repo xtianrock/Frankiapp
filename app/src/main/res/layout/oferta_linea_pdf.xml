@@ -22,7 +22,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.70"
+                android:layout_weight="0.45"
                 android:text="Plan"
                 android:paddingLeft="6dp"
                 android:textSize="12sp"
@@ -31,7 +31,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.30"
+                android:layout_weight="0.55"
                 android:text="Descripción"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -52,7 +52,7 @@
                 android:id="@+id/pdf_titulo_plan"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.70"
+                android:layout_weight="0.45"
                 android:text="Fibra 300 MB"
                 android:textColor="@android:color/black"
                 android:textSize="10sp" />
@@ -61,7 +61,7 @@
                 android:id="@+id/pdf_descripcion_plan"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.30"
+                android:layout_weight="0.55"
                 android:textColor="@android:color/black"
                 android:text="SKDJSKDSJKDSJKDSJDKSDJKSDJSKS"
                 android:textSize="10sp" />
@@ -76,20 +76,25 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingLeft="24dp"
-
-        android:paddingTop="6dp">
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingLeft="6dp">
+            android:background="@drawable/border_no_top"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp">
 
             <LinearLayout
+                android:id="@+id/ln_pdf_portabilidadTlf"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingLeft="24dp">
                 <TextView
                     android:id="@+id/pdf_num_telefono_label"
                     android:layout_width="wrap_content"
@@ -109,8 +114,10 @@
 
 
             <LinearLayout
+                android:id="@+id/ln_portabilidad"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingLeft="24dp"
                 android:layout_gravity="center"
                 android:orientation="horizontal">
 
@@ -136,7 +143,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:orientation="horizontal"
-                android:layout_marginLeft="24dp">
+                android:paddingLeft="24dp">
 
                 <ImageView
                     android:id="@+id/pdf_sim_only"
@@ -165,10 +172,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="SUBTOTAL:"
+                    android:text="CUOTA PLAN:"
                     android:textColor="@android:color/black"
                     android:textSize="10sp"
-                    android:textStyle="italic" />
+                   />
 
                 <TextView
                     android:id="@+id/pdf_subtotal_plan"
@@ -191,19 +198,24 @@
             android:id="@+id/ln_pdfTerminal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingLeft="12dp"
             android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/borde"
-                android:layout_marginTop="12dp"
-                android:orientation="horizontal">
+                android:background="@drawable/border_no_top"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:orientation="horizontal"
+                android:paddingRight="6dp"
+                android:paddingLeft="6dp">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="6dp">
+                    android:layout_gravity="center|right"
+                    android:paddingLeft="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -211,12 +223,67 @@
                         android:text="Terminal"
                         android:textSize="10sp" />
 
-                    <EditText
+                    <TextView
                         android:id="@+id/pdf_terminal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Iphone 6S"
+                        android:textSize="10sp"
+                        android:textColor="@android:color/black"
+                        android:paddingLeft="6dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center|right"
+                    android:paddingLeft="48dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pago inicial:"
                         android:textSize="10sp" />
+
+                    <TextView
+                        android:id="@+id/pdf_terminal_pinicial"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="235"
+                        android:textSize="10sp"
+                        android:textColor="@android:color/black"
+                        android:paddingLeft="6dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:paddingLeft="24dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/black"
+                        android:text="CUOTA TERMINAL:"
+                        android:textSize="10sp" />
+
+                    <TextView
+                        android:id="@+id/pdf_terminal_cuota"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="6dp"
+                        android:text="15 €"
+                        android:textColor="@android:color/black"
+                        android:textSize="10sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+
                 </LinearLayout>
 
 
@@ -278,7 +345,7 @@
                 android:layout_height="wrap_content"
                 android:paddingLeft="12dp">
 
-                <LinearLayout
+                <!--<LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
@@ -316,31 +383,44 @@
                         android:text="15"
                         android:textSize="10sp" />
 
-                </LinearLayout>
+                </LinearLayout>-->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center|right"
                     android:gravity="right"
                     android:orientation="horizontal"
+
                     android:layout_marginLeft="24dp">
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="SUBTOTAL:"
-                        android:textColor="@android:color/black"
-                        android:textSize="10sp"
-                        android:textStyle="italic" />
+                        android:background="@drawable/border_no_top"
+                        android:paddingLeft="6dp"
+                        android:paddingTop="3dp"
+                        android:paddingBottom="6dp"
+                        android:paddingRight="6dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="SUBTOTAL:"
+                            android:textColor="@android:color/black"
+                            android:textSize="10sp"
+                            android:textStyle="italic" />
 
-                    <TextView
-                        android:id="@+id/pdf_subtotal_terminal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="12dp"
-                        android:textColor="@android:color/black"
-                        android:text="234 €"
-                        android:textSize="10sp" />
+                        <TextView
+                            android:id="@+id/pdf_subtotal_linea"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingLeft="12dp"
+                            android:textColor="@android:color/black"
+                            android:text="234 €"
+                            android:textSize="10sp" />
+
+                    </LinearLayout>
+
+
                 </LinearLayout>
 
             </LinearLayout>
@@ -350,6 +430,8 @@
 
     </LinearLayout>
     <!-- TERMINA DETALLE PLAN -->
+
+
 
     <!--<View
         android:layout_width="match_parent"

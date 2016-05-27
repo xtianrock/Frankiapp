@@ -175,7 +175,7 @@ public class Commons {
         return b;
     }
 
-    public static PdfDocument createPDFDocument(View view, Context context, PdfDocument document){
+    public static PdfDocument createPDFDocument(View view, Context context, PdfDocument document,int pagina){
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
 
             // create a new document
@@ -183,7 +183,7 @@ public class Commons {
                 document = new PdfDocument();
 
             // crate a page description
-            PdfDocument.PageInfo pageInfo =  new PdfDocument.PageInfo.Builder(1240,1754, 1).create();
+            PdfDocument.PageInfo pageInfo =  new PdfDocument.PageInfo.Builder(1240,1754, pagina).create();
             PdfDocument.Page page = document.startPage(pageInfo);
 
             // draw something on the page

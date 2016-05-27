@@ -921,6 +921,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         float cero = 0.0f;
         ContentValues values = new ContentValues();
 
+        values.put(FECHA_OFERTA, oferta.getFechaOferta());
         values.put(ESTADO, Configuration.BORRADOR);
         values.put(PAGO_INICIAL_TARIFA,cero);
         values.put(CUOTA_TARIFA,cero);
