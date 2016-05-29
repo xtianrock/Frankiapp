@@ -36,5 +36,6 @@ public class Configuration {
     public static final String ELIMINAR = "ELIMINAR";
     public static final String EDITAR = "EDITAR";
     public static final String FIRMAR = "FIRMAR";
+    public static final String PRESENTAR = "PRESENTAR";
 
 }

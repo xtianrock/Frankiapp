@@ -169,8 +169,11 @@ public class ClienteFragment extends Fragment {
 
                     Intent intent = new Intent(context, ActivityOferta.class);
                     intent.putExtra("oferta",((ActivityOferta) context).codigoOferta);
+                    intent.putExtra("enviar",true);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                     startActivity(intent);
-                    ((ActivityOferta) context).finish();
+                    getActivity().overridePendingTransition(0, 0); //0 for no animation
+                    getActivity().finish();
 
                 }
 

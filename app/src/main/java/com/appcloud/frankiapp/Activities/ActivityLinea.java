@@ -429,7 +429,7 @@ public class ActivityLinea extends AppCompatActivity {
 
                     lineaActual.setCodTarifa(tarifaSeleccionada.getCodTarifa());
                     lineaActual.setPlanPrecios(tarifaSeleccionada.getPlanPrecios());
-
+                    lineaActual.setTipoPlan(tarifaSeleccionada.getTipoPlan());
                     lineaActual.setComisionBase(tarifaSeleccionada.getComisionBase());
                     lineaActual.setComisionExtra(tarifaSeleccionada.getComisionExtra());
 

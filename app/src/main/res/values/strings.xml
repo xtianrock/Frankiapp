@@ -23,6 +23,7 @@
     <string name="action_ok">La oferta pasará a estado ok</string>
     <string name="action_ko">La oferta pasará a estado ko</string>
     <string name="action_firma">La oferta será firmada</string>
+    <string name="action_presentar">La oferta será presentada</string>
 
 
     <array name="array_operadores">

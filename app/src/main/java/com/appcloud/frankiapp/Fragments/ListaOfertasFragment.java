@@ -4,6 +4,7 @@ package com.appcloud.frankiapp.Fragments;
 import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -19,6 +20,7 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -26,7 +28,11 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,7 +82,7 @@ public class ListaOfertasFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        tab= getArguments().getString(Configuration.TAB);
+        tab = getArguments().getString(Configuration.TAB);
     }
 
     @Override
@@ -156,6 +162,7 @@ public class ListaOfertasFragment extends Fragment {
 
 
     private void enviarMail() {
+
         if (clienteMenuItem.getEmail() != null && !clienteMenuItem.getEmail().equals("")) {
             Intent emailIntent;
             emailIntent = new Intent(Intent.ACTION_SENDTO);
@@ -164,16 +171,66 @@ public class ListaOfertasFragment extends Fragment {
             if (emailIntent.resolveActivity(getActivity().getPackageManager()) != null) {
                 startActivity(emailIntent);
             } else {
-                Snackbar.make(fab, "No se ha encontrado ningún cliente de email en este dispositivo",
+                Snackbar.make(fab, "Este dispositivo no tiene instalada ninguna aplicación cliente para el envío de Emails",
                         Snackbar.LENGTH_LONG)
                         .setAction(null,null).show();
             }
 
         }else {
-            Snackbar.make(fab, "Este cliente no tiene ningún email registrado, introduzca uno",
+            Snackbar.make(fab, "Este cliente no tiene ningún Email registrado, introduzca uno",
                     Snackbar.LENGTH_LONG)
-                    .setAction("Action",null).show();
+                    .setAction("AÑADIR EMAIL", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialogAñadirEmail();
+                        }
+                    }).show();
         }
+    }
+
+    private void dialogAñadirEmail(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.new_email, null);
+        builder.setView(dialogView);
+
+        RelativeLayout rlComisionColor = (RelativeLayout) dialogView.findViewById(R.id.rlComisionColor);
+        EditText text = (EditText) dialogView.findViewById(R.id.dialog_cliente_mail);
+
+        //TODO colorear cabecera del dialog en función del estado de la oferta
+        rlComisionColor.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPresentada));
+        /*switch (oferta.getEstado()) {
+            case Configuration.BORRADOR:
+                rlComisionColor.setBackgroundColor(ContextCompat.getColor(context, R.color.colorBorrador));
+                break;
+            case Configuration.PRESENTADA:
+                rlComisionColor.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPresentada));
+                break;
+            case Configuration.FIRMADA:
+                rlComisionColor.setBackgroundColor(ContextCompat.getColor(context, R.color.colorFirmada));
+                break;
+            case Configuration.KO:
+                rlComisionColor.setBackgroundColor(ContextCompat.getColor(context, R.color.colorKO));
+                break;
+            case Configuration.OK:
+                rlComisionColor.setBackgroundColor(ContextCompat.getColor(context, R.color.colorOK));
+                break;
+        }*/
+
+        //request focus and call keyboard for input name
+        text.requestFocus();
+        text.selectAll();
+
+        AlertDialog dialog = builder.create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Aceptar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //TODO validar email introducido
+            }
+        });
+        dialog.show();
     }
 
     private void llamarCliente(Cliente cliente) {

@@ -81,7 +81,7 @@ public class ActivityOferta extends AppCompatActivity {
     ArrayList<Lineaoferta> lineasOferta;
 
     ImageView pdfPorta, pdfSimOnly;
-    LinearLayout lnPortaTlf,lnPdfPorta, lnPdfTotalOferta;
+    LinearLayout lnPortaTlf, lnPdfPorta, lnPdfTotalOferta;
     TextView pdfPlan, planDescripcion, numTelefono, numTelefonoLabel, pdfFechaOferta, pdfTerminal,
             pdfNombreCliente, pdfOfertaId, pdfTerminalPagoInicial, pdfTerminalCuota, pdfSubtotalLinea, getPdfSubtotalPlan, pdfTotal;
 
@@ -141,6 +141,7 @@ public class ActivityOferta extends AppCompatActivity {
 
         if (!oferta.getEstado().equalsIgnoreCase("borrador"))
             fab.setVisibility(View.GONE);
+
 
     }
 
@@ -235,7 +236,7 @@ public class ActivityOferta extends AppCompatActivity {
         tvTitulo.setText(clienteSeleccionado.getNombre() + " " + clienteSeleccionado.getApellidos());
     }
 
-    private void enviaOferta() {
+    public void enviaOferta() {
         Uri contentUri = null;
         View vistaPDF = LayoutInflater.from(getBaseContext()).inflate(R.layout.oferta_pdf, null);
 
@@ -455,7 +456,7 @@ public class ActivityOferta extends AppCompatActivity {
             oferta = DatabaseHelper.getInstance(context).getOferta(codigoOferta);
         } else {
             oferta = new Oferta();
-            oferta.setFechaOferta((System.currentTimeMillis()/ 1000L));
+            oferta.setFechaOferta((System.currentTimeMillis() / 1000L));
             codigoOferta = (int) DatabaseHelper.getInstance(this).createCabecceraOferta(oferta);
         }
 
@@ -528,11 +529,9 @@ public class ActivityOferta extends AppCompatActivity {
             return true;
         }
         if (id == R.id.action_presentar) {
+
             if (recyclerView.getAdapter().getItemCount() > 0) {
-                if (oferta.getCodCliente() == 0)
-                    mostrarBottomSeet();
-                else
-                    enviaOferta();
+                muestraDialogoConfirmacion(Configuration.PRESENTAR);
             } else {
                 Snackbar.make(fab, "No se puede presentar una oferta vacía", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
@@ -635,19 +634,19 @@ public class ActivityOferta extends AppCompatActivity {
                         switch (accion) {
                             case Configuration.KO:
                                 oferta.setEstado(Configuration.KO);
-                                oferta.setFechaKO((System.currentTimeMillis()/ 1000L));
+                                oferta.setFechaKO((System.currentTimeMillis() / 1000L));
                                 DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
                                 actualizaEstadoOferta();
                                 break;
                             case Configuration.OK:
                                 oferta.setEstado(Configuration.OK);
-                                oferta.setFechaOK((System.currentTimeMillis()/ 1000L));
+                                oferta.setFechaOK((System.currentTimeMillis() / 1000L));
                                 DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
                                 actualizaEstadoOferta();
                                 break;
                             case Configuration.FIRMAR:
                                 oferta.setEstado(Configuration.FIRMADA);
-                                oferta.setFechaFirma((System.currentTimeMillis()/ 1000L));
+                                oferta.setFechaFirma((System.currentTimeMillis() / 1000L));
                                 DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
                                 actualizaEstadoOferta();
                                 break;
@@ -659,6 +658,13 @@ public class ActivityOferta extends AppCompatActivity {
                             case Configuration.ELIMINAR:
                                 DatabaseHelper.getInstance(context).deleteOferta(oferta);
                                 finish();
+                                break;
+                            case Configuration.PRESENTAR:
+                                if (oferta.getCodCliente() == 0)
+                                    mostrarBottomSeet();
+                                else
+                                    enviaOferta();
+
                                 break;
                         }
 
@@ -690,6 +696,9 @@ public class ActivityOferta extends AppCompatActivity {
 
             case Configuration.ELIMINAR:
                 return getString(R.string.action_delete);
+
+            case Configuration.PRESENTAR:
+                return getString(R.string.action_presentar);
 
         }
 
@@ -769,7 +778,10 @@ public class ActivityOferta extends AppCompatActivity {
         protected void onPostExecute(ArrayList<Lineaoferta> result) {
             if (result != null) {
                 lineasOferta = result;
-                recyclerView.setAdapter(new LineasRecyclerViewAdapter(result, lineaClickListener));
+                recyclerView.setAdapter(new LineasRecyclerViewAdapter(result, lineaClickListener, oferta.getEstado(), getApplicationContext()));
+
+                if (getIntent().getBooleanExtra("enviar", false))
+                    enviaOferta();
             }
         }
     }

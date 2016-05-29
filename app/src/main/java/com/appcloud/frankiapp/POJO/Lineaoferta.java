@@ -20,6 +20,7 @@ public class Lineaoferta {
     float precioTErminalCuota;
     float comisionBase;
     float comisionExtra;
+    String tipoPlan;
 
     public Lineaoferta(int codOferta) {
         this.codOferta = codOferta;
@@ -143,5 +144,13 @@ public class Lineaoferta {
 
     public void setComisionExtra(float comisionExtra) {
         this.comisionExtra = comisionExtra;
+    }
+
+    public String getTipoPlan() {
+        return tipoPlan;
+    }
+
+    public void setTipoPlan(String tipoPlan) {
+        this.tipoPlan = tipoPlan;
     }
 }

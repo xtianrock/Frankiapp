@@ -273,6 +273,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + CODTERMINAL + " INTEGER,"
             + NUMEROTELEFONO + " TEXT,"
             + PLANPRECIOS + "  TEXT,"
+            + TIPOPLAN + "  TEXT,"
             + OPERADORDONANTE + " TEXT,"
             + TIPOCONVERGENCIA + " TEXT,"
             + CONVERGENCIAMOVIL + " TEXT,"
@@ -1013,6 +1014,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 linea.setCodTerminal((c.getInt(c.getColumnIndex(CODTERMINAL))));
                 linea.setNumeroTelefono((c.getString(c.getColumnIndex(NUMEROTELEFONO))));
                 linea.setPlanPrecios((c.getString(c.getColumnIndex(PLANPRECIOS))));
+                linea.setTipoPlan((c.getString(c.getColumnIndex(TIPOPLAN))));
                 linea.setOperadorDonante((c.getString(c.getColumnIndex(OPERADORDONANTE))));
                 linea.setTipoConvergencia((c.getString(c.getColumnIndex(TIPOCONVERGENCIA))));
                 linea.setConvergenciaMovil((c.getString(c.getColumnIndex(CONVERGENCIAMOVIL))));
@@ -1043,6 +1045,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             linea.setCodTerminal((c.getInt(c.getColumnIndex(CODTERMINAL))));
             linea.setNumeroTelefono((c.getString(c.getColumnIndex(NUMEROTELEFONO))));
             linea.setPlanPrecios((c.getString(c.getColumnIndex(PLANPRECIOS))));
+            linea.setTipoPlan((c.getString(c.getColumnIndex(TIPOPLAN))));
             linea.setOperadorDonante((c.getString(c.getColumnIndex(OPERADORDONANTE))));
             linea.setTipoConvergencia((c.getString(c.getColumnIndex(TIPOCONVERGENCIA))));
             linea.setConvergenciaMovil((c.getString(c.getColumnIndex(CONVERGENCIAMOVIL))));
@@ -1067,6 +1070,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(CODTERMINAL, linea.getCodTerminal());
         values.put(NUMEROTELEFONO, linea.getNumeroTelefono());
         values.put(PLANPRECIOS, linea.getPlanPrecios());
+        values.put(TIPOPLAN, linea.getTipoPlan());
         values.put(OPERADORDONANTE, linea.getOperadorDonante());
         values.put(TIPOCONVERGENCIA, linea.getTipoConvergencia());
         values.put(CONVERGENCIAMOVIL, linea.getConvergenciaMovil());
@@ -1110,6 +1114,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(CODTERMINAL, lineaActual.getCodTerminal()!=0 ? lineaActual.getCodTerminal(): null);
         values.put(NUMEROTELEFONO, lineaActual.getNumeroTelefono());
         values.put(PLANPRECIOS, lineaActual.getPlanPrecios());
+        values.put(TIPOPLAN, lineaActual.getTipoPlan());
         values.put(OPERADORDONANTE, lineaActual.getOperadorDonante());
         values.put(TIPOCONVERGENCIA, lineaActual.getTipoConvergencia());
         values.put(CONVERGENCIAMOVIL, lineaActual.getConvergenciaMovil());
