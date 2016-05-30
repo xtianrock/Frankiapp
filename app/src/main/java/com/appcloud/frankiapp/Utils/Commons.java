@@ -24,6 +24,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by cristian on 28/04/2016.
@@ -242,5 +244,13 @@ public class Commons {
             return true;
         }
         return  false;
+    }
+
+    public static boolean isEmailValid(String email) {
+         Pattern pattern = Pattern.compile(Configuration.EMAIL_PATTERN);
+         Matcher matcher;
+
+        matcher = pattern.matcher(email);
+        return matcher.matches();
     }
 }

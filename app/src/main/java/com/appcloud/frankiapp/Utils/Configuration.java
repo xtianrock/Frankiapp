@@ -38,4 +38,7 @@ public class Configuration {
     public static final String FIRMAR = "FIRMAR";
     public static final String PRESENTAR = "PRESENTAR";
 
+    // Validaciones
+    public static final String EMAIL_PATTERN = "^[a-zA-Z0-9#_~!$&'()*+,;=:.\"(),:;<>@\\[\\]\\\\]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*$";
+
 }

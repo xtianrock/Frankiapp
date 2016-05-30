@@ -24,6 +24,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -70,13 +71,13 @@ public class ListaOfertasFragment extends Fragment {
     FloatingActionButton fab;
     Cliente clienteMenuItem;
     MenuItem itemLlamar, itemEmail;
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
     public ListaOfertasFragment() {
     }
-
 
 
     @Override
@@ -90,7 +91,7 @@ public class ListaOfertasFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_oferta_list, container, false);
         fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
-        recyclerView = (RecyclerView)view.findViewById(R.id.list);
+        recyclerView = (RecyclerView) view.findViewById(R.id.list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         tblistener = new OfertasRecyclerViewAdapter.OfertaMemenuClickListener() {
             @Override
@@ -103,9 +104,7 @@ public class ListaOfertasFragment extends Fragment {
                                 Manifest.permission.CALL_PHONE)
                                 != PackageManager.PERMISSION_GRANTED) {
                             requestPhonePermission();
-                        }
-                        else
-                        {
+                        } else {
                             llamarCliente(clienteMenuItem);
                         }
 
@@ -117,13 +116,10 @@ public class ListaOfertasFragment extends Fragment {
 
                         int readContacts = ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS);
                         int writeContacts = ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_CONTACTS);
-                        if (writeContacts!=PackageManager.PERMISSION_GRANTED ||
-                                readContacts!=PackageManager.PERMISSION_GRANTED) {
+                        if (writeContacts != PackageManager.PERMISSION_GRANTED ||
+                                readContacts != PackageManager.PERMISSION_GRANTED) {
                             requestContactsPermission();
-                        }
-
-                        else
-                        {
+                        } else {
                             openWhatsappChat(clienteMenuItem);
                         }
                         break;
@@ -135,14 +131,14 @@ public class ListaOfertasFragment extends Fragment {
             public void onItemClick(View vista, final Oferta oferta, Toolbar tb) {
 
                 Intent intent = new Intent(context, ActivityOferta.class);
-                intent.putExtra("oferta",oferta.getCodOferta());
-                LinearLayout lnColor = (LinearLayout)vista.findViewById(R.id.ln_color);
-                TextView tvNombre = (TextView)vista.findViewById(R.id.tv_oferta_nombre);
-                Pair<View, String> p1 = Pair.create((View)lnColor, "color_toolbar");
-                Pair<View, String> p2 = Pair.create((View)tvNombre, "titulo_toolbar");
+                intent.putExtra("oferta", oferta.getCodOferta());
+                LinearLayout lnColor = (LinearLayout) vista.findViewById(R.id.ln_color);
+                TextView tvNombre = (TextView) vista.findViewById(R.id.tv_oferta_nombre);
+                Pair<View, String> p1 = Pair.create((View) lnColor, "color_toolbar");
+                Pair<View, String> p2 = Pair.create((View) tvNombre, "titulo_toolbar");
                 ActivityOptionsCompat options = ActivityOptionsCompat.
                         makeSceneTransitionAnimation(getActivity(), p1, p2);
-                startActivity(intent,options.toBundle());
+                startActivity(intent, options.toBundle());
 
             }
 
@@ -166,18 +162,18 @@ public class ListaOfertasFragment extends Fragment {
         if (clienteMenuItem.getEmail() != null && !clienteMenuItem.getEmail().equals("")) {
             Intent emailIntent;
             emailIntent = new Intent(Intent.ACTION_SENDTO);
-            emailIntent.setData(Uri.parse("mailto:"+clienteMenuItem.getEmail()));
+            emailIntent.setData(Uri.parse("mailto:" + clienteMenuItem.getEmail()));
 
             if (emailIntent.resolveActivity(getActivity().getPackageManager()) != null) {
                 startActivity(emailIntent);
             } else {
                 Snackbar.make(fab, "Este dispositivo no tiene instalada ninguna aplicación cliente para el envío de Emails",
                         Snackbar.LENGTH_LONG)
-                        .setAction(null,null).show();
+                        .setAction(null, null).show();
             }
 
-        }else {
-            Snackbar.make(fab, "Este cliente no tiene ningún Email registrado, introduzca uno",
+        } else {
+            Snackbar.make(fab, "Este cliente no tiene ningún email registrado",
                     Snackbar.LENGTH_LONG)
                     .setAction("AÑADIR EMAIL", new View.OnClickListener() {
                         @Override
@@ -188,15 +184,20 @@ public class ListaOfertasFragment extends Fragment {
         }
     }
 
-    private void dialogAñadirEmail(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+    private void dialogAñadirEmail() {
+
+        final AlertDialog OptionDialog = new AlertDialog.Builder(getContext(), android.R.style.Theme_DeviceDefault_Dialog_NoActionBar).create();
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.new_email, null);
-        builder.setView(dialogView);
+        OptionDialog.setView(dialogView);
 
         RelativeLayout rlComisionColor = (RelativeLayout) dialogView.findViewById(R.id.rlComisionColor);
-        EditText text = (EditText) dialogView.findViewById(R.id.dialog_cliente_mail);
+        final EditText editTextEmail = (EditText) dialogView.findViewById(R.id.dialog_cliente_mail);
+        final Button addEmail = (Button) dialogView.findViewById(R.id.btn_add_email);
+
+        // Reset errors.
+        editTextEmail.setError(null);
 
         //TODO colorear cabecera del dialog en función del estado de la oferta
         rlComisionColor.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPresentada));
@@ -218,26 +219,47 @@ public class ListaOfertasFragment extends Fragment {
                 break;
         }*/
 
-        //request focus and call keyboard for input name
-        text.requestFocus();
-        text.selectAll();
-
-        AlertDialog dialog = builder.create();
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-        dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Aceptar", new DialogInterface.OnClickListener() {
+        addEmail.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //TODO validar email introducido
+            public void onClick(View v) {
+                boolean cancelar = false;
+                String email = editTextEmail.getText().toString();
+                // Check for a valid email address.
+                if (TextUtils.isEmpty(email)) {
+                    editTextEmail.setError(getString(R.string.error_field_required));
+                    cancelar = true;
+
+                } else if (!Commons.isEmailValid(email)) {
+                    editTextEmail.setError(getString(R.string.error_invalid_email));
+                    cancelar = true;
+                }
+
+                if (!cancelar) {
+                    //todo actualizar email del cliente seleccionado
+                    clienteMenuItem.setEmail(email);
+                    if (DatabaseHelper.getInstance(getActivity()).updateCliente(clienteMenuItem) > 0){
+                        OptionDialog.dismiss();
+                        Snackbar.make(fab, "Email guardado con exito", Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                    }
+                }
             }
         });
-        dialog.show();
+
+        //request focus and call keyboard for input name
+        editTextEmail.requestFocus();
+        editTextEmail.selectAll();
+
+
+        OptionDialog.show();
+        // dialog.show();*/
     }
 
     private void llamarCliente(Cliente cliente) {
         if (cliente.getTelefono() != null) {
             Intent intentLlamada = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + cliente.getTelefono()));
             startActivity(intentLlamada);
-        }else {
+        } else {
             Snackbar.make(fab, "Este cliente no tiene un teléfono registrado, introduzca uno",
                     Snackbar.LENGTH_LONG)
                     .show();
@@ -251,36 +273,29 @@ public class ListaOfertasFragment extends Fragment {
         startActivity(i);
     }
 
-    public void openWhatsappChat(Cliente cliente)   {
-        String whatsappid = "34"+cliente.getTelefono()+"@s.whatsapp.net";
+    public void openWhatsappChat(Cliente cliente) {
+        String whatsappid = "34" + cliente.getTelefono() + "@s.whatsapp.net";
         Intent whatsapp;
         Cursor c = getActivity().getContentResolver().query(ContactsContract.Data.CONTENT_URI,
-                new String[] { ContactsContract.Contacts.Data._ID }, ContactsContract.Data.DATA1 + "=?",
-                new String[] { whatsappid }, null);
+                new String[]{ContactsContract.Contacts.Data._ID}, ContactsContract.Data.DATA1 + "=?",
+                new String[]{whatsappid}, null);
         c.moveToFirst();
         String id;
-        if(c.getCount()==0)
-        {
-            id = Commons.crearContacto(getActivity(),cliente);
-        }
-        else
-        {
+        if (c.getCount() == 0) {
+            id = Commons.crearContacto(getActivity(), cliente);
+        } else {
             id = c.getString(0);
         }
-        whatsapp = new Intent(Intent.ACTION_VIEW, Uri.parse("content://com.android.contacts/data/" +id ));
+        whatsapp = new Intent(Intent.ACTION_VIEW, Uri.parse("content://com.android.contacts/data/" + id));
         c.close();
 
-        if(id!=null)
-        {
+        if (id != null) {
             startActivity(whatsapp);
-        }
-        else
-        {
+        } else {
             Toast.makeText(context, "El contacto " + cliente.getNombre() + " " + cliente.getApellidos() + "aún no aparece en los contactos de whatsapp," +
                     "seleccione la opcion actualizar y busquelo maualmente.", Toast.LENGTH_LONG).show();
             openWhatsappContactPicker();
         }
-
 
 
     }
@@ -304,7 +319,7 @@ public class ListaOfertasFragment extends Fragment {
         } else {
 
             // CALL Phone permission has not been granted yet. Request it directly.
-            requestPermissions( new String[]{Manifest.permission.CALL_PHONE},
+            requestPermissions(new String[]{Manifest.permission.CALL_PHONE},
                     REQUEST_CALL_PHONE);
         }
     }
@@ -320,14 +335,14 @@ public class ListaOfertasFragment extends Fragment {
                         @Override
                         public void onClick(View view) {
                             requestPermissions(
-                                    new String[]{Manifest.permission.READ_CONTACTS,Manifest.permission.WRITE_CONTACTS},
+                                    new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS},
                                     REQUEST_CONTACTS);
                         }
                     })
                     .show();
         } else {
             requestPermissions(
-                    new String[]{Manifest.permission.READ_CONTACTS,Manifest.permission.WRITE_CONTACTS},
+                    new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS},
                     REQUEST_CONTACTS);
         }
     }
@@ -339,8 +354,7 @@ public class ListaOfertasFragment extends Fragment {
             case REQUEST_CALL_PHONE:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                {
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     llamarCliente(clienteMenuItem);
 
                 }
@@ -348,8 +362,7 @@ public class ListaOfertasFragment extends Fragment {
             case REQUEST_CONTACTS:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                {
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     openWhatsappChat(clienteMenuItem);
 
                 }
@@ -391,14 +404,14 @@ public class ListaOfertasFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        ofertaAsyncTask= new OfertaAsyncTask();
+        ofertaAsyncTask = new OfertaAsyncTask();
         ofertaAsyncTask.execute();
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        this.context=context;
+        this.context = context;
 
     }
 
@@ -407,17 +420,15 @@ public class ListaOfertasFragment extends Fragment {
         super.onDetach();
     }
 
-    private class OfertaAsyncTask extends AsyncTask<String, Void, ArrayList<Oferta>>
-    {
-        public OfertaAsyncTask()
-        {}
+    private class OfertaAsyncTask extends AsyncTask<String, Void, ArrayList<Oferta>> {
+        public OfertaAsyncTask() {
+        }
 
         @Override
         protected ArrayList<Oferta> doInBackground(String... params) {
             try {
                 ArrayList<Oferta> ofertas = new ArrayList<>();
-                switch (tab)
-                {
+                switch (tab) {
                     case Configuration.BORRADOR:
                         ofertas = DatabaseHelper.getInstance(getActivity()).getAllOfertas(Configuration.BORRADOR);
                         break;
@@ -434,16 +445,15 @@ public class ListaOfertasFragment extends Fragment {
                 return null;
             }
         }
+
         @Override
         protected void onPreExecute() {
         }
 
-        protected void onPostExecute( ArrayList<Oferta> result )
-        {
-            if(result!=null)
-            {
-              ofertas=result;
-                recyclerView.setAdapter(new OfertasRecyclerViewAdapter(context,ofertas,listener,tblistener));
+        protected void onPostExecute(ArrayList<Oferta> result) {
+            if (result != null) {
+                ofertas = result;
+                recyclerView.setAdapter(new OfertasRecyclerViewAdapter(context, ofertas, listener, tblistener));
             }
         }
     }

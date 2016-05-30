@@ -1154,6 +1154,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getReadableDatabase();
         String whereClause= CODLINEA +" = " + linea.getCodLinea();
+        /*Oferta oferta = this.getOferta(linea.getCodOferta());
+        float ptarifaInicial = oferta.getPagoInicialTarifa() - linea.getPrecioTarifaInicial();
+        float cuotaTariga = oferta.getCuotaTarifa() - linea.getPrecioTarifaCuota();
+        float pterminalInicial = oferta.getPagoInicialTerminal() - linea.getPrecioTerminalInicial();
+        float cuotaTerminal = oferta.getCuotaTerminal() - linea.getPrecioTErminalCuota();*/
 
         db.beginTransaction();
 

@@ -446,6 +446,7 @@ public class ActivityLinea extends AppCompatActivity {
                     }
 
                     oferta.setComisionBaseTotal(oferta.getComisionBaseTotal() + tarifaSeleccionada.getComisionBase());
+                    DatabaseHelper.getInstance(context).updateCabeceraOferta(oferta);
                 }
 
                 if(terminalSeleccionado!=null)

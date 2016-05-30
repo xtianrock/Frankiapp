@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         OnTerminalInteractionListener,
         OnTarifaInteractionListener,
-        OnClienteInteractionListener{
+        OnClienteInteractionListener {
 
     DatabaseHelper database = DatabaseHelper.getInstance(this);
     DrawerLayout drawer;
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        appBarLayout = (AppBarLayout)findViewById(R.id.appbarlayout);
+        appBarLayout = (AppBarLayout) findViewById(R.id.appbarlayout);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -72,13 +72,13 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        tabLayout = (TabLayout)findViewById(R.id.tabs);
-        fab = (FloatingActionButton)findViewById(R.id.fab);
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        switchToFragment(new TabFragment(),"Ofertas",false);
+        switchToFragment(new TabFragment(), "Ofertas", false);
 
         database.getWritableDatabase();
 
@@ -108,20 +108,17 @@ public class MainActivity extends AppCompatActivity
     public void onBackPressed() {
 
         if (getVisibleFragment() instanceof ClienteFragment) {
-           super.onBackPressed();
-        }
-        else
-        {
+            super.onBackPressed();
+        } else {
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
             if (drawer.isDrawerOpen(GravityCompat.START)) {
                 drawer.closeDrawer(GravityCompat.START);
             } else {
                 //super.onBackPressed();
-                if(snackbar!=null && snackbar.isShown())
+                if (snackbar != null && snackbar.isShown())
                     finish();
-                else
-                {
-                    snackbar = Snackbar.make(fab,"Pulse de nuevo para salir", Snackbar.LENGTH_SHORT);
+                else {
+                    snackbar = Snackbar.make(fab, "Pulse de nuevo para salir", Snackbar.LENGTH_SHORT);
                     snackbar.show();
                 }
 
@@ -160,7 +157,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-         fragment = null;
+        fragment = null;
         if (id == R.id.nav_clientes) {
             fragment = new ListaClientesFragment();
             tabLayout.setVisibility(View.GONE);
@@ -180,9 +177,8 @@ public class MainActivity extends AppCompatActivity
         }
 
         // Insert the fragment by replacing any existing fragment
-        if(fragment!=null)
-        {
-           switchToFragment(fragment,item.getTitle().toString(),false);
+        if (fragment != null) {
+            switchToFragment(fragment, item.getTitle().toString(), false);
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -195,17 +191,14 @@ public class MainActivity extends AppCompatActivity
         Fragment currentFragment = fragmentManager.findFragmentByTag(currentFragmentTag);
 
         if (currentFragment == null || !TextUtils.equals(tag, currentFragmentTag)) {
-            if(backStack)
-            {
+            if (backStack) {
                 currentFragmentTag = tag;
                 fragmentManager
                         .beginTransaction()
                         .replace(R.id.content_main, fragment, currentFragmentTag)
                         .addToBackStack(tag)
                         .commit();
-            }
-            else
-            {
+            } else {
                 currentFragmentTag = tag;
                 fragmentManager
                         .beginTransaction()
@@ -219,12 +212,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(Terminal item) {
-       // Toast.makeText(getApplicationContext(),"pulsado: "+item.getDescripcion(),Toast.LENGTH_SHORT).show();
+        // Toast.makeText(getApplicationContext(),"pulsado: "+item.getDescripcion(),Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onListFragmentInteraction(Tarifa item) {
-       //Toast.makeText(getApplicationContext(),"pulsado: "+item.getPlanPrecios(),Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(),"pulsado: "+item.getPlanPrecios(),Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -232,9 +225,9 @@ public class MainActivity extends AppCompatActivity
 
         Fragment fragment = new ClienteFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt("cliente",cliente.getCodCliente());
+        bundle.putInt("cliente", cliente.getCodCliente());
         fragment.setArguments(bundle);
-        switchToFragment(fragment,cliente.getNombre(),true);
+        switchToFragment(fragment, cliente.getNombre(), true);
 
 
     }

@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="@drawable/round_corners">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -24,12 +24,14 @@
         android:id="@+id/RelativeLayout01"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:padding="10dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
+            android:textColor="@android:color/black"
             android:text="Comisión Base"
             android:id="@+id/txComision"/>
 
@@ -37,6 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
+            android:textColor="@android:color/black"
             android:text="123"
             android:id="@+id/txComisionCantidad"/>
 
@@ -76,6 +79,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
+            android:textColor="@android:color/black"
             android:text="Puntos acumulados"
             android:id="@+id/txPuntos"/>
 
@@ -83,9 +87,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
+            android:textColor="@android:color/black"
             android:text="123"
             android:id="@+id/txPuntosCantidad"/>
 
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_ok_comisiones"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="24dp"
+            android:padding="12dp"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:text="Aceptar"/>
     </RelativeLayout>
 
 </LinearLayout>

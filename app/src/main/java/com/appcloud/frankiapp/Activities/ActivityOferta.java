@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
@@ -23,6 +24,7 @@ import android.support.v4.util.Pair;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -161,11 +163,14 @@ public class ActivityOferta extends AppCompatActivity {
         clienteAsignadoBorrador(nuevoCliente);
     }
 
-    private void actualizaEstadoOferta() {
+    private void actualizaEstadoOferta(boolean enviar) {
 
         Intent intent = new Intent(context, ActivityOferta.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         intent.putExtra("oferta", ((ActivityOferta) context).codigoOferta);
+        if (enviar)
+            intent.putExtra("enviar",true);
+
         startActivity(intent);
         overridePendingTransition(0, 0); //0 for no animation
         finish();
@@ -188,7 +193,7 @@ public class ActivityOferta extends AppCompatActivity {
                 if (mBottomSheetDialog != null) {
                     mBottomSheetDialog.dismiss();
                     clienteAsignadoBorrador(cliente);
-                    actualizaEstadoOferta();
+                    actualizaEstadoOferta(true);
 
                     tvTitulo.setText(clienteSeleccionado.getNombre() + " " + clienteSeleccionado.getApellidos());
 
@@ -231,12 +236,14 @@ public class ActivityOferta extends AppCompatActivity {
         DatabaseHelper.getInstance(context).updateCabeceraOferta(oferta);
 
         //DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
-        enviaOferta();
+        /*if (enviar)
+            enviaOferta();*/
 
         tvTitulo.setText(clienteSeleccionado.getNombre() + " " + clienteSeleccionado.getApellidos());
     }
 
     public void enviaOferta() {
+
         Uri contentUri = null;
         View vistaPDF = LayoutInflater.from(getBaseContext()).inflate(R.layout.oferta_pdf, null);
 
@@ -246,10 +253,10 @@ public class ActivityOferta extends AppCompatActivity {
         pdfNombreCliente = (TextView) vistaPDF.findViewById(R.id.pdf_nombreCliente);
         pdfFechaOferta = (TextView) vistaPDF.findViewById(R.id.pdf_fechaOferta);
         pdfOfertaId = (TextView) vistaPDF.findViewById(R.id.pdf_ofertaId);
-
-
+        DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+        Date fec = new Date(oferta.getFechaOferta());
         pdfNombreCliente.setText(oferta.getNombre() + " " + oferta.getApellidos());
-        pdfFechaOferta.setText(String.valueOf(oferta.getFechaOferta()));
+        pdfFechaOferta.setText(df.format(fec));
         pdfOfertaId.setText(String.valueOf(oferta.getCodOferta()));
 
         PdfDocument document = null;
@@ -576,14 +583,20 @@ public class ActivityOferta extends AppCompatActivity {
 
     private void muestraDialogoComisiones() {
         // Create custom dialog object
-        final Dialog dialog = new Dialog(this);
 
-        dialog.setContentView(R.layout.comisiones);
+        // final Dialog dialog = new Dialog(this, android.R.style.Theme_DeviceDefault_Dialog_NoActionBar);
+        final AlertDialog dialog = new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_NoActionBar).create();
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.comisiones, null);
+        dialog.setView(dialogView);
 
-        rlComisionColor = (RelativeLayout) dialog.findViewById(R.id.rlComisionColor);
-        tvComision = (TextView) dialog.findViewById(R.id.txComisionCantidad);
-        // tvExtraComision = (TextView)dialog.findViewById(R.id.txExtraComisionCantidad);
-        tvPuntos = (TextView) dialog.findViewById(R.id.txPuntosCantidad);
+        //dialog.setContentView(R.layout.comisiones);
+
+        rlComisionColor = (RelativeLayout) dialogView.findViewById(R.id.rlComisionColor);
+        tvComision = (TextView) dialogView.findViewById(R.id.txComisionCantidad);
+        // tvExtraComision = (TextView)dialogView.findViewById(R.id.txExtraComisionCantidad);
+        tvPuntos = (TextView) dialogView.findViewById(R.id.txPuntosCantidad);
+        final Button btnAceptar = (Button) dialogView.findViewById(R.id.btn_ok_comisiones);
 
         tvComision.setText(String.valueOf(oferta.getComisionBaseTotal()));
         float puntosTotal = oferta.getPuntosTotal() > 0 ? oferta.getPuntosTotal() : 0;
@@ -609,14 +622,15 @@ public class ActivityOferta extends AppCompatActivity {
                 break;
         }
 
+        btnAceptar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+
         dialog.setCancelable(true);
-
-        // set values for custom dialog components - text, image and button
-        /*TextView text = (TextView) dialog.findViewById(R.id.textDialog);
-        text.setText("Custom dialog Android example.");
-        ImageView image = (ImageView) dialog.findViewById(R.id.imageDialog);
-        image.setImageResource(R.drawable.image0);*/
-
         dialog.show();
     }
 
@@ -636,24 +650,24 @@ public class ActivityOferta extends AppCompatActivity {
                                 oferta.setEstado(Configuration.KO);
                                 oferta.setFechaKO((System.currentTimeMillis() / 1000L));
                                 DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
-                                actualizaEstadoOferta();
+                                actualizaEstadoOferta(false);
                                 break;
                             case Configuration.OK:
                                 oferta.setEstado(Configuration.OK);
                                 oferta.setFechaOK((System.currentTimeMillis() / 1000L));
                                 DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
-                                actualizaEstadoOferta();
+                                actualizaEstadoOferta(false);
                                 break;
                             case Configuration.FIRMAR:
                                 oferta.setEstado(Configuration.FIRMADA);
                                 oferta.setFechaFirma((System.currentTimeMillis() / 1000L));
                                 DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
-                                actualizaEstadoOferta();
+                                actualizaEstadoOferta(false);
                                 break;
                             case Configuration.EDITAR:
                                 oferta.setEstado(Configuration.BORRADOR);
                                 DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
-                                actualizaEstadoOferta();
+                                actualizaEstadoOferta(false);
                                 break;
                             case Configuration.ELIMINAR:
                                 DatabaseHelper.getInstance(context).deleteOferta(oferta);
@@ -664,7 +678,6 @@ public class ActivityOferta extends AppCompatActivity {
                                     mostrarBottomSeet();
                                 else
                                     enviaOferta();
-
                                 break;
                         }
 
@@ -780,8 +793,10 @@ public class ActivityOferta extends AppCompatActivity {
                 lineasOferta = result;
                 recyclerView.setAdapter(new LineasRecyclerViewAdapter(result, lineaClickListener, oferta.getEstado(), getApplicationContext()));
 
-                if (getIntent().getBooleanExtra("enviar", false))
+                if (getIntent().getBooleanExtra("enviar", false)) {
+                    getIntent().removeExtra("enviar");
                     enviaOferta();
+                }
             }
         }
     }

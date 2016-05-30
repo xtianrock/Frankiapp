@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -165,15 +167,24 @@ public class ClienteFragment extends Fragment {
                     ((MainActivity)context).getSupportFragmentManager().popBackStack();
                 else if (getActivity().getClass() == ActivityOferta.class) {
 
-                    ((ActivityOferta) context).informacionFragmentCliente(DatabaseHelper.getInstance(getActivity()).getLastIdCliente());
+                    hideKeyboard();
 
-                    Intent intent = new Intent(context, ActivityOferta.class);
-                    intent.putExtra("oferta",((ActivityOferta) context).codigoOferta);
-                    intent.putExtra("enviar",true);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                    startActivity(intent);
-                    getActivity().overridePendingTransition(0, 0); //0 for no animation
-                    getActivity().finish();
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            ((ActivityOferta) context).informacionFragmentCliente(DatabaseHelper.getInstance(getActivity()).getLastIdCliente());
+
+                            Intent intent = new Intent(context, ActivityOferta.class);
+                            intent.putExtra("oferta",((ActivityOferta) context).codigoOferta);
+                            intent.putExtra("enviar",true);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                            startActivity(intent);
+                            getActivity().overridePendingTransition(0, 0); //0 for no animation
+                            getActivity().finish();
+                        }
+                    }, 48);
+
+
 
                 }
 
@@ -183,6 +194,14 @@ public class ClienteFragment extends Fragment {
             etNombre.setTransitionName(transtionName);
         }
         return view;
+    }
+
+    private void hideKeyboard() {
+        View view = getActivity().getCurrentFocus();
+        if (view != null) {
+            ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).
+                    hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 
     @Override

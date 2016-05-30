@@ -11,6 +11,7 @@
     <string name="error_incorrect_password">Contraseña incrorrecta</string>
     <string name="error_field_required">Campo requerido</string>
     <string name="error_name_required">Introduzca usuario o email para restablecer su contraseña</string>
+    <string name="error_invalid_email">El Email introducido es inválido</string>
     <string name="title_activity_main">Frankiapp</string>
     <string name="title_activity_oferta">Oferta</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
