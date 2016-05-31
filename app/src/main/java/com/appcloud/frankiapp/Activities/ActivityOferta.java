@@ -253,7 +253,7 @@ public class ActivityOferta extends AppCompatActivity {
         pdfNombreCliente = (TextView) vistaPDF.findViewById(R.id.pdf_nombreCliente);
         pdfFechaOferta = (TextView) vistaPDF.findViewById(R.id.pdf_fechaOferta);
         pdfOfertaId = (TextView) vistaPDF.findViewById(R.id.pdf_ofertaId);
-        DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         Date fec = new Date(oferta.getFechaOferta());
         pdfNombreCliente.setText(oferta.getNombre() + " " + oferta.getApellidos());
         pdfFechaOferta.setText(df.format(fec));
@@ -463,7 +463,9 @@ public class ActivityOferta extends AppCompatActivity {
             oferta = DatabaseHelper.getInstance(context).getOferta(codigoOferta);
         } else {
             oferta = new Oferta();
-            oferta.setFechaOferta((System.currentTimeMillis() / 1000L));
+            Date fechaActual = new Date();
+
+            oferta.setFechaOferta( fechaActual.getTime());
             codigoOferta = (int) DatabaseHelper.getInstance(this).createCabecceraOferta(oferta);
         }
 
@@ -644,23 +646,23 @@ public class ActivityOferta extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
+                        Date fechaActual = new Date();
                         switch (accion) {
                             case Configuration.KO:
                                 oferta.setEstado(Configuration.KO);
-                                oferta.setFechaKO((System.currentTimeMillis() / 1000L));
+                                oferta.setFechaKO(fechaActual.getTime());
                                 DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
                                 actualizaEstadoOferta(false);
                                 break;
                             case Configuration.OK:
                                 oferta.setEstado(Configuration.OK);
-                                oferta.setFechaOK((System.currentTimeMillis() / 1000L));
+                                oferta.setFechaOK(fechaActual.getTime());
                                 DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
                                 actualizaEstadoOferta(false);
                                 break;
                             case Configuration.FIRMAR:
                                 oferta.setEstado(Configuration.FIRMADA);
-                                oferta.setFechaFirma((System.currentTimeMillis() / 1000L));
+                                oferta.setFechaFirma(fechaActual.getTime());
                                 DatabaseHelper.getInstance(context).updateEstadoCabeceraOferta(oferta);
                                 actualizaEstadoOferta(false);
                                 break;

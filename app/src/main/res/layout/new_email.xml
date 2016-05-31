@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:textColor="@android:color/white"
-            android:text="Añadir Email"
+            android:text="Registrar Email"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
     </RelativeLayout>
 
